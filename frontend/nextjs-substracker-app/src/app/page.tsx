@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { COOKIE_NAMES, ROUTES } from "@/config";
 
 export default async function Home() {
+  
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAMES.accessToken);
 
