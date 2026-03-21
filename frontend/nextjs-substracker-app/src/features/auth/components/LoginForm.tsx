@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";  //x input validazione errori
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
@@ -11,7 +11,7 @@ import Label from "@/shared/components/atoms/Label";
 import {
   loginSchema,
   type LoginSchema,
-} from "@/features/auth/validation/auth.validation";
+} from "@/features/auth/validation/auth.validation";  //schema Zod + type TS
 import { loginAction } from "@/shared/actions/auth.actions";
 import { ROUTES } from "@/config";
 
@@ -22,18 +22,18 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const {
-    register,
+    register,  //collega input->form
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<LoginSchema>();
 
   const onSubmit = async (data: LoginSchema) => {
-    const result = loginSchema.safeParse(data);
+    const result = loginSchema.safeParse(data);  //validazione Zod!!
     if (!result.success) {
       result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof LoginSchema;
-        setError(field, { message: issue.message });
+        const field = issue.path[0] as keyof LoginSchema;  //campo di errore
+        setError(field, { message: issue.message });  //manda errore a Rect Hook Form
       });
       return;
     }

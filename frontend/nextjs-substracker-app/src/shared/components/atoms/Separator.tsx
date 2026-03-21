@@ -1,3 +1,7 @@
-export default function Separator1() {
-    return <hr className="my-4 border-gray-200 dark:border-gray-800" />;
+type SeparatorProps = {
+  className?: string;
+};
+
+export default function Separator({ className }: SeparatorProps) {
+  return <hr className={`border-gray-200 dark:border-gray-800 ${className ?? "my-4"}`} />;
 }

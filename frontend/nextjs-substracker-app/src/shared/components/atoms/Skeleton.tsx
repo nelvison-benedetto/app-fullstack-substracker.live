@@ -1,9 +1,11 @@
 type SkeletonProps = {
-    className?: string;
+  className?: string;
 };
 
 export default function Skeleton({ className }: SkeletonProps) {
-    return (
-        <div className={`animate-pulse w-full h-4 bg-gray-300 dark:bg-gray-700 rounded-md ${className ?? ''}`}></div>
-    );
+  return (
+    <div
+      className={`animate-pulse rounded-md bg-gray-200 dark:bg-gray-800 ${className ?? "h-4 w-full"}`}
+    />
+  );
 }
