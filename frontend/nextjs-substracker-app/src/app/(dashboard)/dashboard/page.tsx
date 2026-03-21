@@ -24,7 +24,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Welcome back{user?.email ? `, ${user.email}` : ""}
+          Welcome back {user?.email ? `, ${user.email}` : ""}
         </p>
       </div>
 

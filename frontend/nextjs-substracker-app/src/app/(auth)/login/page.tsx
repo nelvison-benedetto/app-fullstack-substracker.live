@@ -10,6 +10,7 @@ type Props = {
 };
 
 export default async function LoginPage({ searchParams }: Props) {
+  
   const { registered } = await searchParams;
 
   return (

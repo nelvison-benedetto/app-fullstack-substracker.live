@@ -5,11 +5,8 @@ import { AuthProvider } from "@/features/auth/context/AuthContext";
 import Navbar from "@/shared/components/layout/Navbar";
 import type { AuthUser } from "@/shared/types";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({children,}: {children: React.ReactNode;}) 
+{
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAMES.accessToken);
 

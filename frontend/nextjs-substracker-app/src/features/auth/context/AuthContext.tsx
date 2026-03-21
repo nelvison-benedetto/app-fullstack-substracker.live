@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { 
+  createContext,  //crea context(contenitore) globale
+  useContext, 
+  useState, 
+  useCallback  //memorizza funct (ottimizzazione)
+} from "react";
+
 import type { AuthUser } from "@/shared/types";
 import { logoutAction } from "@/shared/actions/auth.actions";
 
@@ -11,7 +17,7 @@ type AuthContextValue = {
   setUser: (user: AuthUser | null) => void;
 };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthContext = createContext<AuthContextValue | null>(null);   //crea contenitore globale (inizialmente null)
 
 type AuthProviderProps = {
   children: React.ReactNode;
@@ -19,18 +25,20 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children, initialUser }: AuthProviderProps) {
+
   const [user, setUser] = useState<AuthUser | null>(initialUser);
 
-  const logout = useCallback(async () => {
+  const logout = useCallback( async () => {
     await logoutAction();
     setUser(null);
   }, []);
+  //funct memorizzata!
 
   return (
-    <AuthContext.Provider
+    <AuthContext.Provider  //usa AuthContext creato qua sopra
       value={{
         user,
-        isAuthenticated: user !== null,
+        isAuthenticated: user !== null, //booleano semplice
         logout,
         setUser,
       }}
@@ -40,10 +48,8 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   );
 }
 
-export function useAuthContext() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuthContext must be used inside AuthProvider");
+export function useAuthContext() {  //hooks custom
+  const ctx = useContext(AuthContext);  //legge il context
+  if (!ctx) throw new Error("useAuthContext must be used inside AuthProvider");  //se ctx è null/undefined allora error
   return ctx;
 }
-
-//TEST GIT

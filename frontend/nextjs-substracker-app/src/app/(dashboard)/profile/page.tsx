@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
+  
   const cookieStore = await cookies();
   let user: AuthUser | null = null;
   const userInfoCookie = cookieStore.get(COOKIE_NAMES.userInfo)?.value;
