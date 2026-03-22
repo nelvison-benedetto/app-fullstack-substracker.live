@@ -48,7 +48,7 @@ public sealed class SubscriptionAggregateLoader : ISubscriptionAggregateLoader
 
         var subscriptionHistoriesTask = subscriptionHistoriesContext.Set<SubscriptionHistory>()
             .AsNoTracking()
-            .Where(sh => EF.Property<Guid>(sh, "SubscriptionId") == subscriptionId.Value)
+            .Where(sh => EF.Property<SubscriptionId>(sh, "SubscriptionId") == subscriptionId)
             .ToListAsync(ct);
 
         await Task.WhenAll( subscriptionTask, subscriptionHistoriesTask );

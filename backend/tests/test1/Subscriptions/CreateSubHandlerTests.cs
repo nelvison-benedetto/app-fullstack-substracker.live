@@ -85,4 +85,25 @@ public class CreateSubHandlerTests
             Arg.Any<SubSnap.Core.Domain.Entities.Subscription>(),
             Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Handle_WritesCreatedHistoryEntry()
+    {
+        var cmd = new CreateSubCommand(
+            UserId.New(),
+            "Netflix",
+            15.99m,
+            "Mensile",
+            DateOnly.FromDateTime(DateTime.UtcNow),
+            null,
+            "Streaming");
+
+        await _sut.Handle(cmd, CancellationToken.None);
+
+        await _repo.Received(1).AddHistoryAsync(
+            Arg.Is<SubSnap.Core.Domain.Entities.SubscriptionHistory>(h =>
+                h.Action == "Created" && h.OldValue == null),
+            Arg.Any<SubscriptionId>(),
+            Arg.Any<CancellationToken>());
+    }
 }

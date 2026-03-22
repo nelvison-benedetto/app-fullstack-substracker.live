@@ -74,5 +74,12 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Indice composito (userid, createdat DESC) — Stripe-style optimization:
+        // la query piu frequente e' WHERE userid = ? ORDER BY createdat DESC.
+        // Con questo indice PostgreSQL usa l'index scan gia' ordinato, senza step sort separato.
+        // SQL migration manuale: CREATE INDEX ix_subscriptions_userid_createdat ON subscriptions(userid, createdat DESC);
+        builder.HasIndex(x => new { x.UserId, x.CreatedAt })
+            .HasDatabaseName("ix_subscriptions_userid_createdat");
     }
 }

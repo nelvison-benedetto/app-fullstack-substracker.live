@@ -52,12 +52,12 @@ public sealed class UserAggregateLoader : IUserAggregateLoader
         //parallel loads dei childrens target
         var refreshTokensTask = refreshContext.Set<RefreshToken>()
             .AsNoTracking()
-            .Where(rt => EF.Property<Guid>(rt, "UserId") == userId.Value)
+            .Where(rt => EF.Property<UserId>(rt, "UserId") == userId)
             .ToListAsync(ct);
 
         var sharedLinksTask = linkContext.Set<SharedLink>()
             .AsNoTracking()
-            .Where(sl => EF.Property<Guid>(sl, "UserId") == userId.Value)
+            .Where(sl => EF.Property<UserId>(sl, "UserId") == userId)
             .ToListAsync(ct);
 
         await Task.WhenAll(userTask, refreshTokensTask, sharedLinksTask);  //run queries in parallelo!!
@@ -99,7 +99,7 @@ public sealed class UserAggregateLoader : IUserAggregateLoader
 
         var sharedLinksTask = linkContext.Set<SharedLink>()
             .AsNoTracking()
-            .Where(sl => EF.Property<Guid>(sl, "UserId") == userId.Value)
+            .Where(sl => EF.Property<UserId>(sl, "UserId") == userId)
             .ToListAsync(ct);
 
         await Task.WhenAll( userTask, sharedLinksTask );

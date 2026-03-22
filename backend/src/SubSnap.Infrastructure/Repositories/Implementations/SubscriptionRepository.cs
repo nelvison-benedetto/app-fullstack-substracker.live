@@ -67,4 +67,11 @@ public class SubscriptionRepository : ISubscriptionRepository
         _context.Subscriptions.Remove(subscription);
         return Task.CompletedTask;
     }
+
+    public Task AddHistoryAsync(SubscriptionHistory history, SubscriptionId subscriptionId, CancellationToken ct)
+    {
+        var entry = _context.Set<SubscriptionHistory>().Add(history);
+        entry.Property("SubscriptionId").CurrentValue = subscriptionId;  //imposta la shadow FK
+        return Task.CompletedTask;
+    }
 }

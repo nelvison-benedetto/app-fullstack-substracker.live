@@ -12,4 +12,5 @@ public interface ISubscriptionRepository
     Task AddAsync(Subscription subscription, CancellationToken ct);
     Task UpdateAsync(Subscription subscription, CancellationToken ct);
     Task DeleteAsync(Subscription subscription, CancellationToken ct);
+    Task AddHistoryAsync(SubscriptionHistory history, SubscriptionId subscriptionId, CancellationToken ct);
 }

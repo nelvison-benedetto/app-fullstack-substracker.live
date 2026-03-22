@@ -100,4 +100,25 @@ public class UpdateSubHandlerTests
 
         await _repo.DidNotReceive().UpdateAsync(Arg.Any<Subscription>(), Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Handle_OwnerUpdates_WritesUpdatedHistoryEntry()
+    {
+        var userId = UserId.New();
+        var sub = MakeSub(userId);  // Netflix | 15.99 | Mensile
+
+        _repo.GetByIdAsync(sub.Id, Arg.Any<CancellationToken>()).Returns(sub);
+
+        var cmd = new UpdateSubCommand(sub.Id, userId, "Netflix Plus", 19.99m, "Annuale", null, null);
+
+        await _sut.Handle(cmd, CancellationToken.None);
+
+        await _repo.Received(1).AddHistoryAsync(
+            Arg.Is<SubSnap.Core.Domain.Entities.SubscriptionHistory>(h =>
+                h.Action == "Updated" &&
+                h.OldValue != null && h.OldValue.Contains("Netflix") &&
+                h.NewValue != null && h.NewValue.Contains("Netflix Plus")),
+            sub.Id,
+            Arg.Any<CancellationToken>());
+    }
 }

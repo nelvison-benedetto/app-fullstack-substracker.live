@@ -25,6 +25,13 @@ public sealed class CreateSubHandler : IRequestHandler<CreateSubCommand, CreateS
             cmd.Category);
 
         await _repo.AddAsync(sub, ct);
+
+        var history = new SubscriptionHistory(
+            action: "Created",
+            oldValue: null,
+            newValue: $"{sub.Name} | {sub.Amount} | {sub.BillingCycle}",
+            createdAt: DateTime.UtcNow);
+        await _repo.AddHistoryAsync(history, sub.Id, ct);
         //savechangesasync e' nel transactionbehavior.cs
 
         return new CreateSubResult(
