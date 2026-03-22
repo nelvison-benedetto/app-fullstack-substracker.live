@@ -7,9 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="AbstractionsOLDNOWALLIN.application-ports\Clock\" />
-    <Folder Include="AbstractionsOLDNOWALLIN.application-ports\Messaging\" />
-    <Folder Include="ContractsOLDNOWALLIN.application-ports\External\" />
+    <Compile Remove="AbstractionsOLDNOWALLIN.application-ports\**" />
+    <Compile Remove="ContractsOLDNOWALLIN.application-ports\**" />
+    <Compile Remove="ServicesOLDNOWALLINtargets\**" />
+    <EmbeddedResource Remove="AbstractionsOLDNOWALLIN.application-ports\**" />
+    <EmbeddedResource Remove="ContractsOLDNOWALLIN.application-ports\**" />
+    <EmbeddedResource Remove="ServicesOLDNOWALLINtargets\**" />
+    <None Remove="AbstractionsOLDNOWALLIN.application-ports\**" />
+    <None Remove="ContractsOLDNOWALLIN.application-ports\**" />
+    <None Remove="ServicesOLDNOWALLINtargets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Domain\Constants\" />
     <Folder Include="Domain\Specifications\" />
     <Folder Include="DTOsOLDNOWISIN.Application_dontdeletebackup\Shared\" />
@@ -20,8 +29,6 @@
     <Folder Include="HelpersGeneric\GuardClauses\" />
     <Folder Include="HelpersGeneric\ExtensionsSCONSIGLIATO-hereonly-no-http-ef-serialization\" />
     <Folder Include="HelpersGeneric\Result\" />
-    <Folder Include="ServicesOLDNOWALLINtargets\DomainOLD%28neverused%29\" />
-    <Folder Include="ServicesOLDNOWALLINtargets\ValidatorsOLD%28neverused%29\" />
   </ItemGroup>
 
   <ItemGroup>
