@@ -1,9 +1,16 @@
-﻿using SubSnap.Core.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using SubSnap.Application.Ports.Persistence;
+using SubSnap.Core.Domain.Aggregates;
+using SubSnap.Core.Domain.Entities;
+using SubSnap.Core.Domain.ValueObjects;
 using SubSnap.Infrastructure.Persistence.Context;
 
 namespace SubSnap.Infrastructure.Repositories.Implementations;
 
-public class SubscriptionRepository
+//repository = composizione query
+//here NO savechangesasync!!, because it's done in unit of work!!
+
+public class SubscriptionRepository : ISubscriptionRepository
 {
     private readonly ApplicationDbContext _context;
 
@@ -12,15 +19,37 @@ public class SubscriptionRepository
         _context = context;
     }
 
+    public async Task<Subscription?> GetByIdAsync(SubscriptionId id, CancellationToken ct)
+    {
+        return await _context.Subscriptions
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+    }
+
+    public async Task<SubscriptionAggregate?> GetAggregateAsync(SubscriptionId id, CancellationToken ct)
+    {
+        var subscription = await _context.Subscriptions
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+
+        if (subscription is null) return null;
+
+        var history = await _context.Set<SubscriptionHistory>()
+            .Where(h => EF.Property<SubscriptionId>(h, "SubscriptionId") == id)
+            .OrderBy(h => h.CreatedAt)
+            .ToListAsync(ct);
+
+        return new SubscriptionAggregate(subscription, history);
+    }
+
     public Task AddAsync(Subscription subscription, CancellationToken ct)
     {
         _context.Subscriptions.Add(subscription);
         return Task.CompletedTask;
+        //savechangesasync sara fatto in transactionbehavior.cs durante la risalita verso il controller
     }
+
     public Task DeleteAsync(Subscription subscription, CancellationToken ct)
     {
         _context.Subscriptions.Remove(subscription);
         return Task.CompletedTask;
     }
-
 }

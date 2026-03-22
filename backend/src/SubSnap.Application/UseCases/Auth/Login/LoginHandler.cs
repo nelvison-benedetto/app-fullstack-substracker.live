@@ -105,7 +105,7 @@ public sealed class LoginHandler : IRequestHandler<LoginCommand, LoginResult> //
         var access = _jwt.GenerateAccessToken(user);
         var refreshRaw = _jwt.GenerateRefreshToken();
         var refreshHash = _hasher.Hash(refreshRaw);
-        var expiry = DateTime.UtcNow.AddDays(30);
+        var expiry = _jwt.GetRefreshTokenExpiry();  //da config: JwtSettings:RefreshTokenExpiryDays
         user.AddRefreshToken(refreshHash.Value, expiry);  //!top!
         //await _uow.SaveChangesAsync(ct);  //lo faccio automaticamente gia nel transactionbehavior.cs, durante la risalita verso in controller. ct ce l'hoha gia il transactionbehavior.
         return new(access, refreshRaw);

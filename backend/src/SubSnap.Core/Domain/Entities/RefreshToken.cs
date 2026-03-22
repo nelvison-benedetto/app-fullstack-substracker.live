@@ -3,7 +3,7 @@
 public class RefreshToken
 {
     public Guid Id { get; private set; }
-    public string Token { get; private set; }  //questo meglio salvarlo Hashato(come un psw), non in plain chiaro!!TODO
+    public string Token { get; private set; }  //salvato hashato (PBKDF2 via AspNetPasswordHasherService) — vedi LoginHandler.cs e RTHandler.cs
     public DateTime ExpiresAt { get; private set; }
     public bool IsRevoked { get; private set; }
 

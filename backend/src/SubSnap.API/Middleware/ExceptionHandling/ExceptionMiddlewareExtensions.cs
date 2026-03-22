@@ -41,8 +41,10 @@ public static class ExceptionMiddlewareExtensions
                         StatusCodes.Status400BadRequest,
                         exception.Message
                     ),
-                    ValidationException => ( StatusCodes.Status400BadRequest, exception.Message ),
-                        _ => ( StatusCodes.Status500InternalServerError, "Unexpected server error"),
+                    ValidationException => (StatusCodes.Status400BadRequest, exception.Message),
+                    ArgumentException => (StatusCodes.Status400BadRequest, exception.Message),  //es. VO constructor (Email, UserId) con input invalido
+                    UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
+                    _ => (StatusCodes.Status500InternalServerError, "Unexpected server error"),
                 };
                 context.Response.StatusCode = statusCode;
                 var error = new ApiError(statusCode, message);

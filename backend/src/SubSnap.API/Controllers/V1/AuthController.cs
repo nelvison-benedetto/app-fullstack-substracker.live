@@ -46,10 +46,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<ApiResult<LoginResponseAuth>>> LoginAsync([FromBody] LoginRequestAuth request, CancellationToken ct)
     {
-        var email = new Email(request.Email);  //validation
         //var (access, refresh) = await _authHandler.LoginAsync(email, request.Password,ct); OLD
         //var command = new LoginCommand( new Email(request.Email), request.Password );  oppure meglio usi il mapper per essere pulito .API.mapping/
-        var command = _mapper.Map<LoginCommand>(request);  //more info in .API.mapping/
+        var command = _mapper.Map<LoginCommand>(request);  //AutoMapper crea new Email(request.Email) internamente — il VO constructor valida il formato, lancia ArgumentException->400 se invalida
         //var result = await _loginHandler.HandleAsync(command, ct);  //OLD w ILoginHandler
         //var result = await _mediator.Send(command, ct);  //x plugin MediatR
         var result = await _loginOrchestrator.Execute(command, ct);

@@ -80,7 +80,7 @@ public sealed class RTHandler : IRequestHandler<RTCommand, RTResult>
 
         user.AddRefreshToken(
             newRefreshHash.Value,
-            DateTime.UtcNow.AddDays(30)
+            _jwtTokenService.GetRefreshTokenExpiry()  //da config: JwtSettings:RefreshTokenExpiryDays
         );
 
         //await _uow.SaveChangesAsync(ct); ora lo faccio nel transactionbehavior.cs durante la risalita verso il controller.

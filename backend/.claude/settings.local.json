@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /f/.NET/ASP.NETcore/APP-SUBSTRACKER/AppSubsTrackerFrontBack_complete/backend -name *Migration* -type f)",
+      "Bash(grep -E \"\\\\.\\(cs|json|csproj|sln\\)$\")",
+      "Bash(dotnet build:*)"
+    ]
+  }
+}

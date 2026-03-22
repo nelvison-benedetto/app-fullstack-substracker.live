@@ -52,7 +52,8 @@ public static class ServiceCollectionExtensions
 
         //registrazione dei repositories!!
         //quando qualcuno chiede IUserRepository, la DI darà un’istanza concreta di UserRepository
-        services.AddScoped<IUserRepository, UserRepository>();  //!!!repositories
+        services.AddScoped<IUserRepository, UserRepository>();          //!!!repositories
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();  //!!!repositories
         services.AddScoped<IUnitOfWork, EFUnitOfWork>();     //!!!unit of work
         services.AddScoped<IPasswordHasherService, AspNetPasswordHasherService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
