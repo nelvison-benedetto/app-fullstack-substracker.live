@@ -39,7 +39,7 @@ public sealed class GetSubDetailHandler : IRequestHandler<GetSubDetailCommand, G
             aggregate.Subscription.Category,
             aggregate.Subscription.CreatedAt,
             aggregate.Subscription.UpdatedAt,
-            aggregate.History
+            aggregate.SubscriptionHistories
                 .OrderByDescending(h => h.CreatedAt)
                 .Select(h => new SubHistoryItemResult(
                     h.Id.Value,

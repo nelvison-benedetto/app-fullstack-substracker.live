@@ -1,10 +1,2 @@
+// File mantenuto vuoto — i test sono organizzati per feature in Subscriptions/ e Users/
 namespace test1;
-
-public class UnitTest1
-{
-    [Fact]
-    public void Test1()
-    {
-
-    }
-}
