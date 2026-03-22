@@ -12,6 +12,7 @@ using SubSnap.Infrastructure.DataLoaders.Aggregates;
 using SubSnap.Infrastructure.DataLoaders.Batch;
 using SubSnap.Infrastructure.External.Storage;
 using SubSnap.Infrastructure.Identity.Services;
+using SubSnap.Infrastructure.Repositories.Implementations;
 using SubSnap.Infrastructure.Persistence.Context;
 using SubSnap.Infrastructure.Persistence.UnitOfWork;
 using SubSnap.Infrastructure.Repositories.Implementations;
@@ -82,20 +83,25 @@ public static class ServiceCollectionExtensions
         //services.AddScoped<ISharedLinkBatchLoader, SharedLinkBatchLoader>();
 
 
+        // Cloudflare R2 — compatibile S3 API (ForcePathStyle obbligatorio x R2)
+        // ServiceURL: https://{AccountId}.r2.cloudflarestorage.com
+        // CDN pubblico: https://cdn.substracker.live/{fileKey}
+        // see CloudflareR2StorageService.cs  MediaController.cs  IObjectStorageService.cs
         services.AddSingleton<IAmazonS3>(sp =>
         {
-            var config = new AmazonS3Config
+            var accountId = configuration["CloudflareR2:AccountId"]!;
+            var r2Config = new AmazonS3Config
             {
-                ServiceURL = configuration["ObjectStorage:Endpoint"],
+                ServiceURL = $"https://{accountId}.r2.cloudflarestorage.com",
                 ForcePathStyle = true
             };
             return new AmazonS3Client(
-                configuration["ObjectStorage:AccessKey"],
-                configuration["ObjectStorage:SecretKey"],
-                config);
+                configuration["CloudflareR2:AccessKey"],
+                configuration["CloudflareR2:SecretKey"],
+                r2Config);
         });
-        services.AddScoped<IObjectStorageService,HetznerObjectStorageService>();
-        //see IObjectStorageService.cs HetznerObjectStorageService.cs UserMedia.cs xxxhandler.cs
+        services.AddScoped<IObjectStorageService, CloudflareR2StorageService>();
+        services.AddScoped<IUserMediaRepository, UserMediaRepository>();
 
         return services;
         //scoped: una nuova istanza per ogni richiesta HTTP, condivisa all’interno della stessa richiesta. Perfetto x DbContext e servizi che lavorano con esso.

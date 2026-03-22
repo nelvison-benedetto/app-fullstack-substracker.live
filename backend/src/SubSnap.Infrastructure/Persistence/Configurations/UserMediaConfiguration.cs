@@ -22,12 +22,12 @@ public sealed class UserMediaConfiguration
             .HasColumnType("uuid")
             .ValueGeneratedNever(); //!!, dice a EF di non aspettarsi che il db generei l'id(xk lo genero io nel Domain)
 
-        builder.Property<UserId>("UserId")  //SHADOW FK (Value Object)
+        builder.Property(x => x.UserId)
             .HasConversion(
                 id => id.Value,
                 value => new UserId(value))
             .HasColumnName("userid")
-            .IsRequired();  //sempre required!!
+            .IsRequired();
 
         builder.Property(x => x.ObjectKey)
             .HasColumnName("objectkey")
@@ -46,11 +46,10 @@ public sealed class UserMediaConfiguration
             .IsRequired();
 
 
-        //x relazione User->Subscription ma senza navigation property(che è un problema xk non è loosing)!!
         builder
             .HasOne<User>()
             .WithMany()
-            .HasForeignKey("UserId")
+            .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
     }

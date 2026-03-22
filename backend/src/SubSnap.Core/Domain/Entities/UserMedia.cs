@@ -7,7 +7,7 @@ namespace SubSnap.Core.Domain.Entities;
 public class UserMedia : AggregateRoot
 {
     public UserMediaId Id { get; private set; }
-    //public UserId UserId { get; private set; }
+    public UserId UserId { get; private set; }
 
     public string ObjectKey { get; private set; }
     public string ContentType { get; private set; }
@@ -28,7 +28,7 @@ public class UserMedia : AggregateRoot
         )
     {
         Id = UserMediaId.New();
-        //UserId = userId;
+        UserId = userId;
         ObjectKey = objectKey;
         ContentType = contentType;
         Size = size;

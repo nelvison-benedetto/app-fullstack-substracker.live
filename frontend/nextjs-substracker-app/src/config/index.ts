@@ -18,6 +18,13 @@ export const API_ENDPOINTS = {
     update: (id: string) => `${API_BASE_URL}/api/v1/subscriptions/${id}`,
     delete: (id: string) => `${API_BASE_URL}/api/v1/subscriptions/${id}`,
   },
+  // Cloudflare R2 upload flow
+  // Step 1: chiedi presigned URL → Step 2: PUT diretto R2 → Step 3: confirm
+  media: {
+    uploadUrl: `${API_BASE_URL}/api/v1/media/upload-url`,
+    confirmUpload: `${API_BASE_URL}/api/v1/media/confirm-upload`,
+    myMedia: `${API_BASE_URL}/api/v1/media`,
+  },
 };
 
 export const COOKIE_NAMES = {

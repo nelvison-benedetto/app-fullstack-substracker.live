@@ -23,9 +23,9 @@ public class ApplicationDbContext : DbContext
         : base(options) { }
 
     //SOLO AGGREGATE ROOTS
-    public DbSet<User> Users => Set<User>();  //solo la ROOT DELL'AGGREGATE deve essere esposto al dbset. ora EF puo PUO TRACCIARE questa aggregate root. 
-    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();  //x dire a ef di creare tab OutboxMessages
-    //public DbSet<UserMedia> userMedias => Set<UserMedia>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<UserMedia> UserMedias => Set<UserMedia>();  //x upload avatar/media su Cloudflare R2
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
 

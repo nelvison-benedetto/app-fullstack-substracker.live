@@ -17,3 +17,5 @@ export type {
   CreateSubscriptionData,
   UpdateSubscriptionData,
 } from "./subscription.types";
+
+export type { UploadUrlResponse, ConfirmUploadResponse } from "./media.types";
