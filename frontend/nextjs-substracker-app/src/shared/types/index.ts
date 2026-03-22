@@ -9,3 +9,11 @@ export type {
 } from "./auth.types";
 
 export type { User } from "./user.types";
+
+export type {
+  Subscription,
+  SubHistoryItem,
+  SubscriptionDetail,
+  CreateSubscriptionData,
+  UpdateSubscriptionData,
+} from "./subscription.types";

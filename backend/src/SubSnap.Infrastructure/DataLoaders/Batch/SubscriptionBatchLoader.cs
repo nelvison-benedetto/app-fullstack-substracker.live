@@ -139,7 +139,7 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
                 var sw = Stopwatch.StartNew();  //x performace monitoring in tempo reale. see performancebehvior.cs
 
                 var subs = await db.Set<Subscription>()
-                    .Where(s => ids.Contains(EF.Property<Guid>(s, "UserId")))
+                    .Where(s => ids.Contains(s.UserId.Value))
                     .ToListAsync();
 
                 sw.Stop();
@@ -150,7 +150,7 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
                     subs.Count);
 
                 var grouped = subs
-                    .GroupBy(s => EF.Property<Guid>(s, "UserId"))
+                    .GroupBy(s => s.UserId.Value)
                     .ToDictionary(g => g.Key, g => (IReadOnlyList<Subscription>)g.ToList());
 
                 foreach (var (id, tcs) in snapshot)

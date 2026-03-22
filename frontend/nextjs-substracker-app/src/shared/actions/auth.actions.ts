@@ -96,10 +96,14 @@ export async function logoutAction(): Promise<void> {
   const refreshToken = cookieStore.get(COOKIE_NAMES.refreshToken)?.value;
 
   if (refreshToken) {
+    const accessToken = cookieStore.get(COOKIE_NAMES.accessToken)?.value;
     try {
       await fetch(API_ENDPOINTS.auth.logout, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
         body: JSON.stringify({ refreshToken }),
       });
     } catch {

@@ -14,7 +14,7 @@ public readonly struct SubscriptionId
     public override string ToString() => Value.ToString();
 
     //equals
-    public bool Equals(UserId other) => Value.Equals(other.Value);
+    public bool Equals(SubscriptionId other) => Value.Equals(other.Value);
     public override bool Equals(object? obj) => obj is SubscriptionId other && Equals(other);
     public static bool operator == (SubscriptionId left, SubscriptionId right) => left.Equals(right);
     public static bool operator != (SubscriptionId left, SubscriptionId right) => !(left == right);

@@ -10,9 +10,15 @@ export const API_ENDPOINTS = {
   },
   users: {
     me: `${API_BASE_URL}/api/v1/users/me`,
-    changePassword: `${API_BASE_URL}/api/v1/users/me/password`,
   },
-} as const;
+  subscriptions: {
+    list: `${API_BASE_URL}/api/v1/subscriptions`,
+    detail: (id: string) => `${API_BASE_URL}/api/v1/subscriptions/${id}`,
+    create: `${API_BASE_URL}/api/v1/subscriptions`,
+    update: (id: string) => `${API_BASE_URL}/api/v1/subscriptions/${id}`,
+    delete: (id: string) => `${API_BASE_URL}/api/v1/subscriptions/${id}`,
+  },
+};
 
 export const COOKIE_NAMES = {
   accessToken: "access_token",

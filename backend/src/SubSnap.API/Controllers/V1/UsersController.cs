@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SubSnap.API.Contracts.Responses;
 using SubSnap.API.Contracts.Users.Requests;
 using SubSnap.API.Contracts.Users.Responses;
 using SubSnap.Application.UseCases.Users.DeleteUser;
+using SubSnap.Application.UseCases.Users.GetUserProfile;
 using SubSnap.Application.UseCases.Users.RegisterUser;
+using SubSnap.Application.UseCases.Users.UpdateUserProfile;
+using SubSnap.Core.Domain.ValueObjects;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace SubSnap.API.Controllers.V1;
 
@@ -15,24 +19,31 @@ namespace SubSnap.API.Controllers.V1;
 public class UsersController : ControllerBase
 {
     private readonly IMapper _mapper;
-    //private readonly IValidator<RUCommand> _validator; non serve, intanto il flow della pipeline passa sempre anche da validationbehavior.cs
-    //private readonly IRUHandler _ruHandler;
-
-    //private readonly IMediator _mediator;
     private readonly RUOrchestrator _ruOrchestrator;
     private readonly DeleteUserOrchestrator _deleteUserOrchestrator;
-    public UsersController( 
-        IMapper mapper, 
-        //IValidator<RUCommand> validator,
-        //IRUHandler ruHandler
+    private readonly GetUserProfileOrchestrator _getUserProfileOrchestrator;
+    private readonly UpdateUserProfileOrchestrator _updateUserProfileOrchestrator;
+
+    public UsersController(
+        IMapper mapper,
         RUOrchestrator ruOrchestrator,
-        DeleteUserOrchestrator deleteUserOrchestrator
-    )
+        DeleteUserOrchestrator deleteUserOrchestrator,
+        GetUserProfileOrchestrator getUserProfileOrchestrator,
+        UpdateUserProfileOrchestrator updateUserProfileOrchestrator)
     {
         _mapper = mapper;
-        //_mediator = mediator;
         _ruOrchestrator = ruOrchestrator;
         _deleteUserOrchestrator = deleteUserOrchestrator;
+        _getUserProfileOrchestrator = getUserProfileOrchestrator;
+        _updateUserProfileOrchestrator = updateUserProfileOrchestrator;
+    }
+
+    private UserId GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (userIdClaim is null) throw new UnauthorizedAccessException();
+        return new UserId(Guid.Parse(userIdClaim));
     }
 
     [HttpPost("register")]
@@ -90,9 +101,46 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUserAsync([FromBody] DeleteUserRequest request, CancellationToken ct)
     {
         var command = _mapper.Map<DeleteUserCommand>(request);
-        await _deleteUserOrchestrator.Execute(command,ct);
+        await _deleteUserOrchestrator.Execute(command, ct);
         return NoContent();
     }
 
+    /// <summary>
+    /// GET /api/v1/users/me
+    /// Profilo dell'utente loggato.
+    /// </summary>
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResult<UserProfileResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResult<UserProfileResponse>>> GetProfileAsync(CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _getUserProfileOrchestrator.Execute(new GetUserProfileQuery(userId), ct);
+        var response = _mapper.Map<UserProfileResponse>(result);
+        return Ok(ApiResult<UserProfileResponse>.Ok(response));
+    }
 
+    /// <summary>
+    /// PUT /api/v1/users/me
+    /// Aggiorna email e/o password dell'utente loggato.
+    /// </summary>
+    [HttpPut("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResult<UserProfileResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResult<UserProfileResponse>>> UpdateProfileAsync(
+        [FromBody] UpdateUserProfileRequest request,
+        CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        var command = new UpdateUserProfileCommand(
+            userId,
+            request.NewEmail,
+            request.CurrentPassword,
+            request.NewPassword);
+
+        var result = await _updateUserProfileOrchestrator.Execute(command, ct);
+        var response = _mapper.Map<UserProfileResponse>(result);
+        return Ok(ApiResult<UserProfileResponse>.Ok(response));
+    }
 }

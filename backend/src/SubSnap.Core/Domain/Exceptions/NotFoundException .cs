@@ -14,3 +14,9 @@ public sealed class UserNotFoundException : NotFoundException
         : base($"User with id {userId} was not found.") { }
 }
 
+public sealed class SubscriptionNotFoundException : NotFoundException
+{
+    public SubscriptionNotFoundException(SubscriptionId subscriptionId)
+        : base($"Subscription with id {subscriptionId} was not found.") { }
+}
+

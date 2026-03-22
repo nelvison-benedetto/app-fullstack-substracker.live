@@ -40,11 +40,26 @@ public class SubscriptionRepository : ISubscriptionRepository
         return new SubscriptionAggregate(subscription, history);
     }
 
+    public async Task<IReadOnlyList<Subscription>> GetByUserIdAsync(UserId userId, CancellationToken ct)
+    {
+        return await _context.Subscriptions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync(ct);
+    }
+
     public Task AddAsync(Subscription subscription, CancellationToken ct)
     {
         _context.Subscriptions.Add(subscription);
         return Task.CompletedTask;
         //savechangesasync sara fatto in transactionbehavior.cs durante la risalita verso il controller
+    }
+
+    public Task UpdateAsync(Subscription subscription, CancellationToken ct)
+    {
+        _context.Subscriptions.Update(subscription);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Subscription subscription, CancellationToken ct)

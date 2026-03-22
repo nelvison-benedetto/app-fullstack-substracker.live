@@ -64,6 +64,18 @@ public class User : AggregateRoot  //aggregateroot x domain events, ora User (l'
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void UpdateEmail(Email newEmail)
+    {
+        Email = newEmail;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdatePassword(PasswordHash newHash)
+    {
+        PasswordHash = newHash;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
 
     public void AddRefreshToken(string token, DateTime expiresAt)
     {

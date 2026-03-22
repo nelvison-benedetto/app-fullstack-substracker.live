@@ -25,10 +25,7 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
             .HasColumnType("uuid")
             .ValueGeneratedNever(); //!!, dice a EF di non aspettarsi che il db generei l'id(xk lo genero io nel Domain)
 
-        //builder.Property<Guid>("UserId")  //shadow fk (domain non la conosce), esiste solo dentro EF non dentro le classi c#!! fk verso User. la puoi usare nelle quesri w e.g. EF.Property<Guid>(s, "UserId")
-        //    .HasColumnName("userid")
-        //    .IsRequired();  //sempre required!!
-        builder.Property<UserId>("UserId")  //SHADOW FK (Value Object)
+        builder.Property(x => x.UserId)  //FK reale (Value Object) — Subscription conosce UserId del suo User (DDD: aggr.roots si referenziano per Id)
             .HasConversion(
                 id => id.Value,
                 value => new UserId(value))
@@ -71,11 +68,11 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
             .HasColumnType("timestamptz(3)")
             .IsRequired();
 
-        //x relazione User->Subscription ma senza navigation property(che è un problema xk non è loosing)!!
+        //x relazione User->Subscription senza navigation property (vera clean arch, no .Include() overload)
         builder
-            .HasOne<User>()  //NON nav prop diretta, solo FK shadow
+            .HasOne<User>()
             .WithMany()
-            .HasForeignKey("UserId")
+            .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

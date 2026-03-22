@@ -8,6 +8,8 @@ public interface ISubscriptionRepository
 {
     Task<Subscription?> GetByIdAsync(SubscriptionId id, CancellationToken ct);
     Task<SubscriptionAggregate?> GetAggregateAsync(SubscriptionId id, CancellationToken ct);  //Subscription + SubscriptionHistories
+    Task<IReadOnlyList<Subscription>> GetByUserIdAsync(UserId userId, CancellationToken ct);
     Task AddAsync(Subscription subscription, CancellationToken ct);
+    Task UpdateAsync(Subscription subscription, CancellationToken ct);
     Task DeleteAsync(Subscription subscription, CancellationToken ct);
 }

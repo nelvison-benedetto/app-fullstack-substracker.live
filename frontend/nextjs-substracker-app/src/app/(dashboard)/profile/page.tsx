@@ -1,25 +1,21 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { COOKIE_NAMES } from "@/config";
-import type { AuthUser } from "@/shared/types";
+import { getProfileAction } from "@/shared/actions/user.actions";
 import ProfileInfo from "@/features/auth/components/ProfileInfo";
+import ChangeEmailForm from "@/features/profile/components/ChangeEmailForm";
+import ChangePasswordForm from "@/features/profile/components/ChangePasswordForm";
+import type { AuthUser } from "@/shared/types";
 
 export const metadata: Metadata = {
   title: "Profile – SubsTracker",
 };
 
 export default async function ProfilePage() {
-  
-  const cookieStore = await cookies();
-  let user: AuthUser | null = null;
-  const userInfoCookie = cookieStore.get(COOKIE_NAMES.userInfo)?.value;
-  if (userInfoCookie) {
-    try {
-      user = JSON.parse(userInfoCookie) as AuthUser;
-    } catch {
-      user = null;
-    }
-  }
+  const result = await getProfileAction();
+  const profile = result.data ?? null;
+
+  const user: AuthUser | null = profile
+    ? { id: profile.id, email: profile.email }
+    : null;
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -30,7 +26,16 @@ export default async function ProfilePage() {
         </p>
       </div>
 
-      <ProfileInfo user={user} />
+      {/* Account info + logout */}
+      <ProfileInfo user={user} profile={profile} />
+
+      {/* Change email */}
+      {profile && (
+        <ChangeEmailForm currentEmail={profile.email} />
+      )}
+
+      {/* Change password */}
+      <ChangePasswordForm />
     </div>
   );
 }
