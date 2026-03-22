@@ -9,6 +9,9 @@
     <Project Path="backend/src/SubSnap.Core/SubSnap.Core.csproj" />
     <Project Path="backend/src/SubSnap.Infrastructure/SubSnap.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/backend/tests/">
+    <Project Path="backend/tests/test1/test1.csproj" Id="bff866aa-1abf-4ca2-af29-fd2dee017312" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="README.md" />
   </Folder>
