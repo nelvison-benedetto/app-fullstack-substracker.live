@@ -1,11 +1,9 @@
 ﻿using MediatR;
-using MediatR;
 using SubSnap.Application.Ports.Auth;
 using SubSnap.Application.Ports.Persistence;
 using SubSnap.Core.Domain.Entities;
 using SubSnap.Core.Domain.Exceptions;
 using SubSnap.Core.Domain.ValueObjects;
-using System.Runtime.Intrinsics.X86;
 
 namespace SubSnap.Application.UseCases.Users.RegisterUser;
 

@@ -96,12 +96,12 @@ public class UsersController : ControllerBase
       -> JSON Response
      */
 
-    [HttpPost]
+    [HttpDelete("me")]
     [Authorize]
-    public async Task<IActionResult> DeleteUserAsync([FromBody] DeleteUserRequest request, CancellationToken ct)
+    public async Task<IActionResult> DeleteUserAsync(CancellationToken ct)
     {
-        var command = _mapper.Map<DeleteUserCommand>(request);
-        await _deleteUserOrchestrator.Execute(command, ct);
+        var userId = GetCurrentUserId();
+        await _deleteUserOrchestrator.Execute(new DeleteUserCommand(userId), ct);
         return NoContent();
     }
 

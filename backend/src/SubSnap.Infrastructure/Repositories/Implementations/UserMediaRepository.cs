@@ -28,7 +28,7 @@ public class UserMediaRepository : IUserMediaRepository
     {
         return await _context.UserMedias
             .Where(m => m.UserId == userId)
-            .OrderByDescending(m => m.UploatedAt)
+            .OrderByDescending(m => m.UploadedAt)
             .ToListAsync(ct);
     }
 }

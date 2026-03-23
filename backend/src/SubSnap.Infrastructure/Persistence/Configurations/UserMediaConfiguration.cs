@@ -40,7 +40,7 @@ public sealed class UserMediaConfiguration
         builder.Property(x => x.Size)
             .HasColumnName("size");
 
-        builder.Property(x => x.UploatedAt)
+        builder.Property(x => x.UploadedAt)
             .HasColumnName("uploadedat")
             .HasColumnType("timestamptz(3)")
             .IsRequired();

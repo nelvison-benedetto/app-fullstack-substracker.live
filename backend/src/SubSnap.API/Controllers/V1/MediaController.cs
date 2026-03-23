@@ -95,8 +95,7 @@ public class MediaController : ControllerBase
             userId,
             request.FileKey,
             request.ContentType,
-            request.Size,
-            DateTime.UtcNow);
+            request.Size);
 
         await _userMediaRepository.AddAsync(media, ct);
         await _unitOfWork.SaveChangesAsync(ct);

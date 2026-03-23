@@ -12,7 +12,7 @@ public class UserMedia : AggregateRoot
     public string ObjectKey { get; private set; }
     public string ContentType { get; private set; }
     public long Size { get; private set; }
-    public DateTime UploatedAt { get; }
+    public DateTime UploadedAt { get; }
 
     //public string FileName { get; private set; }
     //public string Url { get; private set; }
@@ -23,15 +23,13 @@ public class UserMedia : AggregateRoot
         UserId userId,
         string objectKey,
         string contentType,
-        long size,
-        DateTime uploatedAt
-        )
+        long size)
     {
         Id = UserMediaId.New();
         UserId = userId;
         ObjectKey = objectKey;
         ContentType = contentType;
         Size = size;
-        UploatedAt = DateTime.UtcNow;
+        UploadedAt = DateTime.UtcNow;
     }
 }
