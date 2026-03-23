@@ -51,7 +51,7 @@ export async function requestUploadUrlAction(
     const json: ApiResponse<UploadUrlResponse> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Impossibile generare URL di upload." };
+      return { success: false, error: json.error?.message ??"Impossibile generare URL di upload." };
     }
 
     return { success: true, data: json.data };
@@ -80,7 +80,7 @@ export async function confirmUploadAction(
     const json: ApiResponse<ConfirmUploadResponse> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Impossibile confermare upload." };
+      return { success: false, error: json.error?.message ??"Impossibile confermare upload." };
     }
 
     return { success: true, data: json.data };

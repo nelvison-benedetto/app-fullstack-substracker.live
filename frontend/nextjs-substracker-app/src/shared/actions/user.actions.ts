@@ -31,7 +31,7 @@ export async function getProfileAction(): Promise<ActionResult<User>> {
     const json: ApiResponse<User> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Failed to fetch profile" };
+      return { success: false, error: json.error?.message ?? "Failed to fetch profile" };
     }
 
     return { success: true, data: json.data };
@@ -56,10 +56,27 @@ export async function updateProfileAction(data: {
     const json: ApiResponse<User> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Failed to update profile" };
+      return { success: false, error: json.error?.message ?? "Failed to update profile" };
     }
 
     return { success: true, data: json.data };
+  } catch {
+    return { success: false, error: "Network error. Please try again." };
+  }
+}
+
+export async function deleteUserAction(): Promise<ActionResult> {
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(API_ENDPOINTS.users.delete, {
+      method: "DELETE",
+      headers,
+    });
+
+    if (res.status === 204) return { success: true };
+
+    const json = await res.json();
+    return { success: false, error: json.error?.message ?? "Failed to delete account" };
   } catch {
     return { success: false, error: "Network error. Please try again." };
   }

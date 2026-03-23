@@ -37,7 +37,7 @@ export async function getSubscriptionsAction(): Promise<ActionResult<Subscriptio
     const json: ApiResponse<Subscription[]> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Failed to fetch subscriptions" };
+      return { success: false, error: json.error?.message ??"Failed to fetch subscriptions" };
     }
 
     return { success: true, data: json.data };
@@ -58,7 +58,7 @@ export async function getSubscriptionDetailAction(id: string): Promise<ActionRes
     const json: ApiResponse<SubscriptionDetail> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Subscription not found" };
+      return { success: false, error: json.error?.message ??"Subscription not found" };
     }
 
     return { success: true, data: json.data };
@@ -81,7 +81,7 @@ export async function createSubscriptionAction(
     const json: ApiResponse<Subscription> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Failed to create subscription" };
+      return { success: false, error: json.error?.message ??"Failed to create subscription" };
     }
 
     return { success: true, data: json.data };
@@ -105,7 +105,7 @@ export async function updateSubscriptionAction(
     const json: ApiResponse<Subscription> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Failed to update subscription" };
+      return { success: false, error: json.error?.message ??"Failed to update subscription" };
     }
 
     return { success: true, data: json.data };
@@ -125,7 +125,7 @@ export async function deleteSubscriptionAction(id: string): Promise<ActionResult
     if (res.status === 204) return { success: true };
 
     const json = await res.json();
-    return { success: false, error: json.error ?? "Failed to delete subscription" };
+    return { success: false, error: json.error?.message ??"Failed to delete subscription" };
   } catch {
     return { success: false, error: "Network error. Please try again." };
   }

@@ -113,7 +113,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
             alt="Avatar"
             fill
             className="object-cover"
-            unoptimized // CDN già ottimizzata da Cloudflare
+            unoptimized
           />
         ) : (
           <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">

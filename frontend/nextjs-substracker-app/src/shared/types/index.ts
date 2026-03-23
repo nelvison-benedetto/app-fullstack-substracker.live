@@ -1,4 +1,4 @@
-export type { ApiResponse } from "./api.types";
+export type { ApiResponse, ApiError } from "./api.types";
 
 export type {
   AuthUser,

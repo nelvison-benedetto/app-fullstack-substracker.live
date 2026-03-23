@@ -9,6 +9,7 @@ import type {
   RegisterResponseData,
   AuthUser,
 } from "@/shared/types";
+import type { User } from "@/shared/types/user.types";
 
 type ActionResult = {
   success: boolean;
@@ -29,31 +30,49 @@ export async function loginAction(
     const json: ApiResponse<LoginResponseData> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Login failed" };
+      return { success: false, error: json.error?.message ?? "Login failed" };
     }
 
-    const { accessToken, refreshToken, user } = json.data;  //spacchetto data
+    const { accessToken, refreshToken } = json.data;
     const cookieStore = await cookies();
 
-    cookieStore.set(COOKIE_NAMES.accessToken, accessToken, {  //salva token login
-      httpOnly: true,  //non accessibile da js, x security
-      secure: process.env.NODE_ENV === "production",  //solo https in produzione
-      maxAge: 60 * 60,  //dura 1h
-      path: "/",
-      sameSite: "lax",  //protegge da CSRF, security
-    });
-
-    cookieStore.set(COOKIE_NAMES.refreshToken, refreshToken, {  //salva refresh token
+    cookieStore.set(COOKIE_NAMES.accessToken, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 30,  //30gg
+      maxAge: 60 * 60,
       path: "/",
       sameSite: "lax",
     });
 
-    const userInfo: AuthUser = user ?? { id: "", email };  //get userinfo, o fallback.
-    cookieStore.set(COOKIE_NAMES.userInfo, JSON.stringify(userInfo), {  //salvi user info
-      httpOnly: false,  //accessibile dal browser (UI)!!
+    cookieStore.set(COOKIE_NAMES.refreshToken, refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30,
+      path: "/",
+      sameSite: "lax",
+    });
+
+    // Fetch real user info (id + email) using the token we just got
+    let userInfo: AuthUser = { id: "", email };
+    try {
+      const profileRes = await fetch(API_ENDPOINTS.users.me, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
+      });
+      const profileJson: ApiResponse<User> = await profileRes.json();
+      if (profileJson.success && profileJson.data) {
+        userInfo = { id: profileJson.data.id, email: profileJson.data.email };
+      }
+    } catch {
+      // Non-blocking: fallback to email only
+    }
+
+    cookieStore.set(COOKIE_NAMES.userInfo, JSON.stringify(userInfo), {
+      httpOnly: false,  // accessibile dal browser (UI)
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60,
       path: "/",
@@ -81,7 +100,7 @@ export async function registerAction(
     const json: ApiResponse<RegisterResponseData> = await res.json();
 
     if (!json.success || !json.data) {
-      return { success: false, error: json.error ?? "Registration failed" };
+      return { success: false, error: json.error?.message ?? "Registration failed" };
     }
 
     return { success: true, data: json.data };
@@ -111,7 +130,6 @@ export async function logoutAction(): Promise<void> {
     }
   }
 
-  //dicono al browser 'alla prossima risposta http, manda un'istruzione al browser web per cancellare questi cookie'.
   cookieStore.delete(COOKIE_NAMES.accessToken);
   cookieStore.delete(COOKIE_NAMES.refreshToken);
   cookieStore.delete(COOKIE_NAMES.userInfo);

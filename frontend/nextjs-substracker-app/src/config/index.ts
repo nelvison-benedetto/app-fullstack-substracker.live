@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   },
   users: {
     me: `${API_BASE_URL}/api/v1/users/me`,
+    delete: `${API_BASE_URL}/api/v1/users/me`,  // DELETE /api/v1/users/me
   },
   subscriptions: {
     list: `${API_BASE_URL}/api/v1/subscriptions`,
