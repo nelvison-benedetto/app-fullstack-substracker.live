@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LoginForm from "@/features/auth/components/LoginForm";
+import AnimatedAuthCard from "@/shared/components/molecules/AnimatedAuthCard";
 
 export const metadata: Metadata = {
   title: "Sign In – SubsTracker",
@@ -10,11 +11,10 @@ type Props = {
 };
 
 export default async function LoginPage({ searchParams }: Props) {
-  
   const { registered } = await searchParams;
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
+    <AnimatedAuthCard>
       {registered === "true" && (
         <div className="mb-5 rounded-md bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-400">
           Account created successfully! Please sign in.
@@ -29,6 +29,6 @@ export default async function LoginPage({ searchParams }: Props) {
       </div>
 
       <LoginForm />
-    </div>
+    </AnimatedAuthCard>
   );
 }

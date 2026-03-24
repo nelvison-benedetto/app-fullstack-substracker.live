@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";  //x input validazione errori
+import { motion } from "motion/react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
@@ -11,9 +12,19 @@ import Label from "@/shared/components/atoms/Label";
 import {
   loginSchema,
   type LoginSchema,
-} from "@/features/auth/validation/auth.validation";  //schema Zod + type TS
+} from "@/features/auth/validation/auth.validation";
 import { loginAction } from "@/shared/actions/auth.actions";
 import { ROUTES } from "@/config";
+
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
+};
 
 export default function LoginForm() {
   const router = useRouter();
@@ -22,18 +33,18 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const {
-    register,  //collega input->form
+    register,
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<LoginSchema>();
 
   const onSubmit = async (data: LoginSchema) => {
-    const result = loginSchema.safeParse(data);  //validazione Zod!!
+    const result = loginSchema.safeParse(data);
     if (!result.success) {
       result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof LoginSchema;  //campo di errore
-        setError(field, { message: issue.message });  //manda errore a Rect Hook Form
+        const field = issue.path[0] as keyof LoginSchema;
+        setError(field, { message: issue.message });
       });
       return;
     }
@@ -55,14 +66,25 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <motion.form
+      variants={container}
+      initial="hidden"
+      animate="visible"
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-5"
+      noValidate
+    >
       {serverError && (
-        <div className="rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400"
+        >
           {serverError}
-        </div>
+        </motion.div>
       )}
 
-      <div className="space-y-1.5">
+      <motion.div variants={item} className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
@@ -75,9 +97,9 @@ export default function LoginForm() {
         {errors.email && (
           <p className="text-xs text-red-500">{errors.email.message}</p>
         )}
-      </div>
+      </motion.div>
 
-      <div className="space-y-1.5">
+      <motion.div variants={item} className="space-y-1.5">
         <Label htmlFor="password">Password</Label>
         <div className="relative">
           <Input
@@ -100,19 +122,21 @@ export default function LoginForm() {
         {errors.password && (
           <p className="text-xs text-red-500">{errors.password.message}</p>
         )}
-      </div>
+      </motion.div>
 
-      <Button
-        type="submit"
-        variant="default"
-        size="base"
-        disabled={isLoading}
-        className="w-full"
-      >
-        {isLoading ? "Signing in…" : "Sign in"}
-      </Button>
+      <motion.div variants={item}>
+        <Button
+          type="submit"
+          variant="default"
+          size="base"
+          disabled={isLoading}
+          className="w-full"
+        >
+          {isLoading ? "Signing in…" : "Sign in"}
+        </Button>
+      </motion.div>
 
-      <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+      <motion.p variants={item} className="text-center text-sm text-gray-600 dark:text-gray-400">
         Don&apos;t have an account?{" "}
         <Link
           href={ROUTES.register}
@@ -120,7 +144,7 @@ export default function LoginForm() {
         >
           Register
         </Link>
-      </p>
-    </form>
+      </motion.p>
+    </motion.form>
   );
 }

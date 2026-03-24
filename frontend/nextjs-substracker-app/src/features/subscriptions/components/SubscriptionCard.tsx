@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { Pencil, Trash2 } from "lucide-react";
 import type { Subscription } from "@/shared/types";
 
@@ -36,7 +37,16 @@ export default function SubscriptionCard({ subscription: sub, onEdit, onDelete }
       : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300";
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors group">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -16, transition: { duration: 0.2 } }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors group"
+    >
       <div className="flex items-center gap-4 min-w-0">
         {/* Avatar lettera */}
         <div className="flex-shrink-0 h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -63,24 +73,28 @@ export default function SubscriptionCard({ subscription: sub, onEdit, onDelete }
         </span>
 
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => onEdit(sub)}
             className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Edit"
           >
             <Pencil size={14} />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => onDelete(sub)}
             className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             aria-label="Delete"
           >
             <Trash2 size={14} />
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

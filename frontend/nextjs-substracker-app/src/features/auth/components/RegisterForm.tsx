@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -14,6 +15,16 @@ import {
 } from "@/features/auth/validation/auth.validation";
 import { registerAction } from "@/shared/actions/auth.actions";
 import { ROUTES } from "@/config";
+
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
+};
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -55,14 +66,25 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <motion.form
+      variants={container}
+      initial="hidden"
+      animate="visible"
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-5"
+      noValidate
+    >
       {serverError && (
-        <div className="rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400"
+        >
           {serverError}
-        </div>
+        </motion.div>
       )}
 
-      <div className="space-y-1.5">
+      <motion.div variants={item} className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
@@ -75,9 +97,9 @@ export default function RegisterForm() {
         {errors.email && (
           <p className="text-xs text-red-500">{errors.email.message}</p>
         )}
-      </div>
+      </motion.div>
 
-      <div className="space-y-1.5">
+      <motion.div variants={item} className="space-y-1.5">
         <Label htmlFor="password">Password</Label>
         <div className="relative">
           <Input
@@ -100,9 +122,9 @@ export default function RegisterForm() {
         {errors.password && (
           <p className="text-xs text-red-500">{errors.password.message}</p>
         )}
-      </div>
+      </motion.div>
 
-      <div className="space-y-1.5">
+      <motion.div variants={item} className="space-y-1.5">
         <Label htmlFor="confirmPassword">Confirm Password</Label>
         <div className="relative">
           <Input
@@ -127,26 +149,28 @@ export default function RegisterForm() {
             {errors.confirmPassword.message}
           </p>
         )}
-      </div>
+      </motion.div>
 
-      <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1 list-disc list-inside">
+      <motion.ul variants={item} className="text-xs text-gray-500 dark:text-gray-400 space-y-1 list-disc list-inside">
         <li>At least 8 characters</li>
         <li>One uppercase letter</li>
         <li>One number</li>
         <li>One special character (!@#$%…)</li>
-      </ul>
+      </motion.ul>
 
-      <Button
-        type="submit"
-        variant="default"
-        size="base"
-        disabled={isLoading}
-        className="w-full"
-      >
-        {isLoading ? "Creating account…" : "Create account"}
-      </Button>
+      <motion.div variants={item}>
+        <Button
+          type="submit"
+          variant="default"
+          size="base"
+          disabled={isLoading}
+          className="w-full"
+        >
+          {isLoading ? "Creating account…" : "Create account"}
+        </Button>
+      </motion.div>
 
-      <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+      <motion.p variants={item} className="text-center text-sm text-gray-600 dark:text-gray-400">
         Already have an account?{" "}
         <Link
           href={ROUTES.login}
@@ -154,7 +178,7 @@ export default function RegisterForm() {
         >
           Sign in
         </Link>
-      </p>
-    </form>
+      </motion.p>
+    </motion.form>
   );
 }

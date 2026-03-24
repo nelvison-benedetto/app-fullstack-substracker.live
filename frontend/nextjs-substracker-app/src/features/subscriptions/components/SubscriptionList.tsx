@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Plus } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
 import SubscriptionCard from "./SubscriptionCard";
@@ -100,7 +101,12 @@ export default function SubscriptionList({ initialSubscriptions }: Props) {
 
   return (
     <>
-      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.35, ease: "easeOut" }}
+        className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
+      >
         <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
           <h2 className="text-base font-semibold">Your Subscriptions</h2>
           <Button variant="default" size="sm" onClick={handleAdd} className="flex items-center gap-1.5">
@@ -109,34 +115,48 @@ export default function SubscriptionList({ initialSubscriptions }: Props) {
           </Button>
         </div>
 
-        {error && (
-          <div className="mx-6 mt-4 rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400">
-            {error}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mx-6 mt-4 rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {subscriptions.length === 0 ? (
-          <div className="px-6 py-12 text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="px-6 py-12 text-center"
+          >
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
               No subscriptions yet.
             </p>
             <Button variant="outline" size="sm" onClick={handleAdd}>
               Add your first subscription
             </Button>
-          </div>
+          </motion.div>
         ) : (
           <div className="p-4 flex flex-col gap-2">
-            {subscriptions.map((sub) => (
-              <SubscriptionCard
-                key={sub.id}
-                subscription={sub}
-                onEdit={handleEdit}
-                onDelete={handleDeleteRequest}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {subscriptions.map((sub) => (
+                <SubscriptionCard
+                  key={sub.id}
+                  subscription={sub}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteRequest}
+                />
+              ))}
+            </AnimatePresence>
           </div>
         )}
-      </div>
+      </motion.div>
 
       <SubscriptionFormModal
         open={isFormOpen}

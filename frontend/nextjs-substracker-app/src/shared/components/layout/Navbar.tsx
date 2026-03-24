@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
@@ -20,14 +21,21 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur-sm">
+    <motion.header
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur-sm"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-        <Link
-          href={ROUTES.dashboard}
-          className="text-base font-semibold tracking-tight hover:opacity-80 transition-opacity"
-        >
-          SubsTracker
-        </Link>
+        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} transition={{ duration: 0.15 }}>
+          <Link
+            href={ROUTES.dashboard}
+            className="text-base font-semibold tracking-tight hover:opacity-80 transition-opacity"
+          >
+            SubsTracker
+          </Link>
+        </motion.div>
 
         <nav className="flex items-center gap-1">
           <ToggleDarkMode />
@@ -57,6 +65,6 @@ export default function Navbar() {
           )}
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 }
