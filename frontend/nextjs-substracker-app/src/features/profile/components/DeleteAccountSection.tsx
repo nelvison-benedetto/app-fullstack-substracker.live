@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import Button from "@/shared/components/atoms/Button";
 import { deleteUserAction } from "@/shared/actions/user.actions";
-import { useRouter } from "next/navigation";
 import { ROUTES } from "@/config";
 
 export default function DeleteAccountSection() {
+  const t = useTranslations("profile");
   const [confirmed, setConfirmed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +29,10 @@ export default function DeleteAccountSection() {
   return (
     <div className="rounded-xl border border-red-200 dark:border-red-900 bg-white dark:bg-gray-900 p-6">
       <h2 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">
-        Delete account
+        {t("delete_title")}
       </h2>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-        Permanently delete your account and all associated data. This action cannot be undone.
+        {t("delete_subtitle")}
       </p>
 
       {error && (
@@ -40,12 +42,8 @@ export default function DeleteAccountSection() {
       )}
 
       {!confirmed ? (
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={() => setConfirmed(true)}
-        >
-          Delete account
+        <Button variant="danger" size="sm" onClick={() => setConfirmed(true)}>
+          {t("delete_btn")}
         </Button>
       ) : (
         <div className="flex items-center gap-3">
@@ -55,7 +53,7 @@ export default function DeleteAccountSection() {
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            {isDeleting ? "Deleting…" : "Yes, delete my account"}
+            {isDeleting ? t("deleting_btn") : t("delete_confirm_btn")}
           </Button>
           <Button
             variant="default"
@@ -63,7 +61,7 @@ export default function DeleteAccountSection() {
             onClick={() => setConfirmed(false)}
             disabled={isDeleting}
           >
-            Cancel
+            {t("cancel_btn")}
           </Button>
         </div>
       )}

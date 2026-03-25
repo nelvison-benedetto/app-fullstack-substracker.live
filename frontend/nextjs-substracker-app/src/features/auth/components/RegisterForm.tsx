@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
 import Input from "@/shared/components/atoms/Input";
@@ -27,6 +28,7 @@ const item = {
 };
 
 export default function RegisterForm() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +58,7 @@ export default function RegisterForm() {
     try {
       const res = await registerAction(data.email, data.password);
       if (!res.success) {
-        setServerError(res.error ?? "Registration failed");
+        setServerError(res.error ?? t("register_failed"));
         return;
       }
       router.push(ROUTES.login + "?registered=true");
@@ -85,12 +87,12 @@ export default function RegisterForm() {
       )}
 
       <motion.div variants={item} className="space-y-1.5">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("email_label")}</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t("email_placeholder")}
           {...register("email")}
           className={errors.email ? "border-red-500" : ""}
         />
@@ -100,7 +102,7 @@ export default function RegisterForm() {
       </motion.div>
 
       <motion.div variants={item} className="space-y-1.5">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t("password_label")}</Label>
         <div className="relative">
           <Input
             id="password"
@@ -125,7 +127,7 @@ export default function RegisterForm() {
       </motion.div>
 
       <motion.div variants={item} className="space-y-1.5">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">{t("confirm_password_label")}</Label>
         <div className="relative">
           <Input
             id="confirmPassword"
@@ -145,17 +147,15 @@ export default function RegisterForm() {
           </button>
         </div>
         {errors.confirmPassword && (
-          <p className="text-xs text-red-500">
-            {errors.confirmPassword.message}
-          </p>
+          <p className="text-xs text-red-500">{errors.confirmPassword.message}</p>
         )}
       </motion.div>
 
       <motion.ul variants={item} className="text-xs text-gray-500 dark:text-gray-400 space-y-1 list-disc list-inside">
-        <li>At least 8 characters</li>
-        <li>One uppercase letter</li>
-        <li>One number</li>
-        <li>One special character (!@#$%…)</li>
+        <li>{t("req_1")}</li>
+        <li>{t("req_2")}</li>
+        <li>{t("req_3")}</li>
+        <li>{t("req_4")}</li>
       </motion.ul>
 
       <motion.div variants={item}>
@@ -166,17 +166,17 @@ export default function RegisterForm() {
           disabled={isLoading}
           className="w-full"
         >
-          {isLoading ? "Creating account…" : "Create account"}
+          {isLoading ? t("creating_account_btn") : t("create_account_btn")}
         </Button>
       </motion.div>
 
       <motion.p variants={item} className="text-center text-sm text-gray-600 dark:text-gray-400">
-        Already have an account?{" "}
+        {t("has_account")}{" "}
         <Link
           href={ROUTES.login}
           className="font-medium underline hover:text-black dark:hover:text-white"
         >
-          Sign in
+          {t("login_link")}
         </Link>
       </motion.p>
     </motion.form>

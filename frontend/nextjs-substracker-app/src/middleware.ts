@@ -1,34 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
-import { COOKIE_NAMES, ROUTES } from "@/config";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "@/i18n/routing";
+import { COOKIE_NAMES } from "@/config";
 
-const protectedRoutes = ["/dashboard", "/profile"];  //queste routes richiedono login
-const authRoutes = ["/login", "/register"];  //in queste routes non vuoi utenti loggati
+const intlMiddleware = createIntlMiddleware(routing);
 
-//intercetta ogni request, e decide se puo continuare o deve essere redirect da qualche parte (xk magari non sei auth)
+// Rotte che richiedono autenticazione (senza prefisso locale)
+const protectedRoutes = ["/dashboard", "/profile"];
+// Rotte accessibili solo a utenti NON autenticati
+const authRoutes = ["/login", "/register"];
+
+/** Rileva la locale dalla request (senza eseguire il middleware intl completo) */
+function detectLocale(request: NextRequest): string {
+  // 1. Cookie preferenza utente
+  const localeCookie = request.cookies.get("NEXT_LOCALE")?.value;
+  if (localeCookie && routing.locales.includes(localeCookie as "it" | "en")) {
+    return localeCookie;
+  }
+
+  // 2. Cloudflare CF-IPCountry header
+  const cfCountry = request.headers.get("CF-IPCountry");
+  if (cfCountry && cfCountry !== "IT") {
+    return "en";
+  }
+  if (cfCountry === "IT") {
+    return "it";
+  }
+
+  // 3. Accept-Language header
+  const acceptLang = request.headers.get("Accept-Language") ?? "";
+  if (acceptLang.toLowerCase().startsWith("en")) return "en";
+
+  // 4. Default: italiano
+  return routing.defaultLocale;
+}
+
+/** Rimuove il prefisso locale dall'URL path */
+function getBasePath(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (locale === routing.defaultLocale) continue;
+    if (pathname.startsWith(`/${locale}/`)) return pathname.slice(`/${locale}`.length);
+    if (pathname === `/${locale}`) return "/";
+  }
+  return pathname;
+}
+
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;  //e.g. url site.com/dashboard/settings  allora il pathname è '/dashboard/settings'
-  const token = request.cookies.get(COOKIE_NAMES.accessToken)?.value;  //legge il cookie, se non esiste return undefined
+  const { pathname } = request.nextUrl;
+  const token = request.cookies.get(COOKIE_NAMES.accessToken)?.value;
+  const basePath = getBasePath(pathname);
+  const locale = detectLocale(request);
+  const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;
 
-  const isProtected = protectedRoutes.some((route) =>  //.some() vuol dire Almeno UNO degli elementi soddisfa la condizione?
-    pathname.startsWith(route)  //condition
-  );
-  const isAuthRoute = authRoutes.some((route) => 
-    pathname.startsWith(route)
-  );
+  const isProtected = protectedRoutes.some((r) => basePath.startsWith(r));
+  const isAuthRoute = authRoutes.some((r) => basePath.startsWith(r));
 
-  if (isProtected && !token) {  //e.g. se vai su /dasboard e NON hai il token
-    const loginUrl = new URL(ROUTES.login, request.url); //new URL(path, base)  e.g.new URL("/login", "http://localhost:3000/dashboard"). quindi loginUrl diventa http://localhost:3000/login
-    loginUrl.searchParams.set("from", pathname);  //aggiunge query param /login?from=/dashboard, cosi dopo il login ritorno alla pagina originale
+  // Utente non autenticato su rotta protetta → login
+  if (isProtected && !token) {
+    const loginUrl = new URL(`${prefix}/login`, request.url);
+    loginUrl.searchParams.set("from", basePath);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthRoute && token) {  //e.g. se sei su /login ma sei gia loggato
-    return NextResponse.redirect(new URL(ROUTES.dashboard, request.url));  //redirect automatico a /dashboard
+  // Utente autenticato su rotta auth → dashboard
+  if (isAuthRoute && token) {
+    return NextResponse.redirect(new URL(`${prefix}/dashboard`, request.url));
   }
 
-  return NextResponse.next();  //nessun 'problema', continua normalmente
+  // Delega tutto il resto a next-intl (locale detection + URL rewriting)
+  return intlMiddleware(request);
 }
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-};  //applica questo middleware a TUTTE le rotte tranne /api /_next/static /_next/image /favicon.ico
+};

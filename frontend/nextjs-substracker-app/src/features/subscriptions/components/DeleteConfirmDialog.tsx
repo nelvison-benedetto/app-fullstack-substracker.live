@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,8 @@ export default function DeleteConfirmDialog({
   onCancel,
   isLoading = false,
 }: Props) {
+  const t = useTranslations("subscriptions");
+
   return (
     <AnimatePresence>
       {open && (
@@ -39,11 +42,9 @@ export default function DeleteConfirmDialog({
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative w-full max-w-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-xl"
           >
-            <h2 className="text-base font-semibold mb-2">Delete subscription</h2>
+            <h2 className="text-base font-semibold mb-2">{t("delete_dialog_title")}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-              Are you sure you want to delete{" "}
-              <span className="font-medium text-gray-900 dark:text-gray-100">{name}</span>?
-              This action cannot be undone.
+              {t("delete_dialog_msg").replace("{name}", name)}
             </p>
 
             <div className="flex gap-3">
@@ -53,7 +54,7 @@ export default function DeleteConfirmDialog({
                 disabled={isLoading}
                 className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
               >
-                Cancel
+                {t("cancel_btn")}
               </button>
               <motion.button
                 type="button"
@@ -63,7 +64,7 @@ export default function DeleteConfirmDialog({
                 disabled={isLoading}
                 className="flex-1 rounded-md bg-red-500 text-white px-4 py-2 text-sm font-medium hover:bg-red-600 disabled:opacity-50 transition-colors"
               >
-                {isLoading ? "Deleting…" : "Delete"}
+                {isLoading ? t("deleting_btn") : t("delete_btn_confirm")}
               </motion.button>
             </div>
           </motion.div>

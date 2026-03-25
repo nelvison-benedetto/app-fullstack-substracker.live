@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import Link from "next/link";
 import { LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Button from "@/shared/components/atoms/Button";
 import ToggleDarkMode from "@/shared/components/molecules/ToggleDarkMode";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -18,6 +19,7 @@ function UserAvatar({ email }: { email: string }) {
 }
 
 export default function Navbar() {
+  const t = useTranslations("nav");
   const { user, logout } = useAuth();
 
   return (
@@ -33,7 +35,7 @@ export default function Navbar() {
             href={ROUTES.dashboard}
             className="text-base font-semibold tracking-tight hover:opacity-80 transition-opacity"
           >
-            SubsTracker
+            {t("brand")}
           </Link>
         </motion.div>
 
@@ -55,11 +57,11 @@ export default function Navbar() {
                 variant="ghost"
                 size="sm"
                 onClick={logout}
-                aria-label="Logout"
+                aria-label={t("logout")}
                 className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
               >
                 <LogOut size={15} />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t("logout")}</span>
               </Button>
             </>
           )}

@@ -1,17 +1,16 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { COOKIE_NAMES, ROUTES } from "@/config";
+import { COOKIE_NAMES } from "@/config";
+import type { AuthUser } from "@/shared/types";
 import { AuthProvider } from "@/features/auth/context/AuthContext";
 import Navbar from "@/shared/components/layout/Navbar";
-import type { AuthUser } from "@/shared/types";
 
-export default async function DashboardLayout({children,}: {children: React.ReactNode;}) 
-{
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAMES.accessToken);
 
   if (!token) {
-    redirect(ROUTES.login);
+    redirect("/login");
   }
 
   let initialUser: AuthUser | null = null;

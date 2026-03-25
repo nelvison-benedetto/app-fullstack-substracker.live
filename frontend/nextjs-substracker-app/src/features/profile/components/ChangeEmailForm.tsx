@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 import Button from "@/shared/components/atoms/Button";
 import Input from "@/shared/components/atoms/Input";
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function ChangeEmailForm({ currentEmail, onUpdated }: Props) {
+  const t = useTranslations("profile");
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +28,6 @@ export default function ChangeEmailForm({ currentEmail, onUpdated }: Props) {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<Schema>({ defaultValues: { newEmail: currentEmail } });
 
@@ -52,14 +53,14 @@ export default function ChangeEmailForm({ currentEmail, onUpdated }: Props) {
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-      <h2 className="text-sm font-semibold mb-1">Change email</h2>
+      <h2 className="text-sm font-semibold mb-1">{t("change_email_title")}</h2>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-        Update the email address associated with your account.
+        {t("change_email_subtitle")}
       </p>
 
       {success && (
         <div className="mb-4 rounded-md bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-400">
-          Email updated successfully.
+          {t("email_updated")}
         </div>
       )}
 
@@ -71,7 +72,7 @@ export default function ChangeEmailForm({ currentEmail, onUpdated }: Props) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <div className="space-y-1.5">
-          <Label htmlFor="newEmail">Email address</Label>
+          <Label htmlFor="newEmail">{t("email_address_label")}</Label>
           <Input
             id="newEmail"
             type="email"
@@ -85,7 +86,7 @@ export default function ChangeEmailForm({ currentEmail, onUpdated }: Props) {
         </div>
 
         <Button type="submit" variant="default" size="sm" disabled={isLoading}>
-          {isLoading ? "Saving…" : "Save email"}
+          {isLoading ? t("saving_btn") : t("save_email_btn")}
         </Button>
       </form>
     </div>

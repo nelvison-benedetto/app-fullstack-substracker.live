@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import Button from "@/shared/components/atoms/Button";
@@ -28,6 +29,7 @@ const schema = z
 type Schema = z.infer<typeof schema>;
 
 export default function ChangePasswordForm() {
+  const t = useTranslations("profile");
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,14 +71,14 @@ export default function ChangePasswordForm() {
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-      <h2 className="text-sm font-semibold mb-1">Change password</h2>
+      <h2 className="text-sm font-semibold mb-1">{t("change_pw_title")}</h2>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-        Choose a strong password with uppercase, number and special character.
+        {t("change_pw_subtitle")}
       </p>
 
       {success && (
         <div className="mb-4 rounded-md bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-400">
-          Password updated successfully.
+          {t("pw_updated")}
         </div>
       )}
 
@@ -88,7 +90,7 @@ export default function ChangePasswordForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <div className="space-y-1.5">
-          <Label htmlFor="currentPassword">Current password</Label>
+          <Label htmlFor="currentPassword">{t("current_pw_label")}</Label>
           <div className="relative">
             <Input
               id="currentPassword"
@@ -113,7 +115,7 @@ export default function ChangePasswordForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="newPassword">New password</Label>
+          <Label htmlFor="newPassword">{t("new_pw_label")}</Label>
           <div className="relative">
             <Input
               id="newPassword"
@@ -138,7 +140,7 @@ export default function ChangePasswordForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword">Confirm new password</Label>
+          <Label htmlFor="confirmPassword">{t("confirm_pw_label")}</Label>
           <Input
             id="confirmPassword"
             type="password"
@@ -153,7 +155,7 @@ export default function ChangePasswordForm() {
         </div>
 
         <Button type="submit" variant="default" size="sm" disabled={isLoading}>
-          {isLoading ? "Updating…" : "Update password"}
+          {isLoading ? t("updating_btn") : t("update_pw_btn")}
         </Button>
       </form>
     </div>

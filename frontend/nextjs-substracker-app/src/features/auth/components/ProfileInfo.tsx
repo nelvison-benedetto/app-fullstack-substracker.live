@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { User, Mail, Shield, Calendar, Clock } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
 import { logoutAction } from "@/shared/actions/auth.actions";
@@ -11,9 +12,10 @@ type Props = {
   profile?: UserProfile | null;
 };
 
-function formatDate(iso?: string | null) {
+function formatDate(iso?: string | null, locale?: string) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("it-IT", {
+  const dateLocale = locale === "en" ? "en-US" : "it-IT";
+  return new Date(iso).toLocaleDateString(dateLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -21,6 +23,8 @@ function formatDate(iso?: string | null) {
 }
 
 export default function ProfileInfo({ user, profile }: Props) {
+  const t = useTranslations("profile");
+  const locale = useLocale();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -36,9 +40,9 @@ export default function ProfileInfo({ user, profile }: Props) {
             <User size={18} className="text-gray-500 dark:text-gray-400" />
           </div>
           <div>
-            <p className="text-sm font-medium">Account</p>
+            <p className="text-sm font-medium">{t("account_title")}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Your personal information
+              {t("account_subtitle")}
             </p>
           </div>
         </div>
@@ -46,7 +50,7 @@ export default function ProfileInfo({ user, profile }: Props) {
         <div className="px-6 py-4 flex items-center gap-3">
           <Mail size={15} className="text-gray-400 shrink-0" />
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t("email_label")}</p>
             <p className="text-sm font-medium">{user?.email ?? "—"}</p>
           </div>
         </div>
@@ -54,7 +58,7 @@ export default function ProfileInfo({ user, profile }: Props) {
         <div className="px-6 py-4 flex items-center gap-3">
           <Shield size={15} className="text-gray-400 shrink-0" />
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">User ID</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t("uid_label")}</p>
             <p className="text-sm font-mono text-gray-600 dark:text-gray-300 break-all">
               {user?.id ?? "—"}
             </p>
@@ -66,16 +70,16 @@ export default function ProfileInfo({ user, profile }: Props) {
             <div className="px-6 py-4 flex items-center gap-3">
               <Calendar size={15} className="text-gray-400 shrink-0" />
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Member since</p>
-                <p className="text-sm font-medium">{formatDate(profile.createdAt)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t("member_since")}</p>
+                <p className="text-sm font-medium">{formatDate(profile.createdAt, locale)}</p>
               </div>
             </div>
 
             <div className="px-6 py-4 flex items-center gap-3">
               <Clock size={15} className="text-gray-400 shrink-0" />
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Last login</p>
-                <p className="text-sm font-medium">{formatDate(profile.lastLogin)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t("last_login")}</p>
+                <p className="text-sm font-medium">{formatDate(profile.lastLogin, locale)}</p>
               </div>
             </div>
           </>
@@ -83,9 +87,9 @@ export default function ProfileInfo({ user, profile }: Props) {
       </div>
 
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <h2 className="text-sm font-semibold mb-1">Session</h2>
+        <h2 className="text-sm font-semibold mb-1">{t("session_title")}</h2>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-          Sign out of your account on this device.
+          {t("session_subtitle")}
         </p>
         <Button
           variant="danger"
@@ -93,7 +97,7 @@ export default function ProfileInfo({ user, profile }: Props) {
           onClick={handleLogout}
           disabled={isLoggingOut}
         >
-          {isLoggingOut ? "Signing out…" : "Sign out"}
+          {isLoggingOut ? t("signing_out_btn") : t("sign_out_btn")}
         </Button>
       </div>
     </div>

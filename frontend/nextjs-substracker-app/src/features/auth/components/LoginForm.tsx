@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
 import Input from "@/shared/components/atoms/Input";
@@ -27,6 +28,7 @@ const item = {
 };
 
 export default function LoginForm() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +57,7 @@ export default function LoginForm() {
     try {
       const res = await loginAction(data.email, data.password);
       if (!res.success) {
-        setServerError(res.error ?? "Login failed");
+        setServerError(res.error ?? t("login_failed"));
         return;
       }
       router.push(ROUTES.dashboard);
@@ -85,12 +87,12 @@ export default function LoginForm() {
       )}
 
       <motion.div variants={item} className="space-y-1.5">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("email_label")}</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t("email_placeholder")}
           {...register("email")}
           className={errors.email ? "border-red-500" : ""}
         />
@@ -100,7 +102,7 @@ export default function LoginForm() {
       </motion.div>
 
       <motion.div variants={item} className="space-y-1.5">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t("password_label")}</Label>
         <div className="relative">
           <Input
             id="password"
@@ -132,17 +134,17 @@ export default function LoginForm() {
           disabled={isLoading}
           className="w-full"
         >
-          {isLoading ? "Signing in…" : "Sign in"}
+          {isLoading ? t("signing_in_btn") : t("sign_in_btn")}
         </Button>
       </motion.div>
 
       <motion.p variants={item} className="text-center text-sm text-gray-600 dark:text-gray-400">
-        Don&apos;t have an account?{" "}
+        {t("no_account")}{" "}
         <Link
           href={ROUTES.register}
           className="font-medium underline hover:text-black dark:hover:text-white"
         >
-          Register
+          {t("register_link")}
         </Link>
       </motion.p>
     </motion.form>

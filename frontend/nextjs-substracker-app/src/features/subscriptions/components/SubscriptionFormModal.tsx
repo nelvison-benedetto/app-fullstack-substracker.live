@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
@@ -30,6 +31,7 @@ export default function SubscriptionFormModal({
   initial,
   isLoading = false,
 }: Props) {
+  const t = useTranslations("subscriptions");
   const [serverError, setServerError] = useState<string | null>(null);
   const isEdit = !!initial;
 
@@ -106,7 +108,7 @@ export default function SubscriptionFormModal({
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">
-                {isEdit ? "Edit subscription" : "Add subscription"}
+                {isEdit ? t("edit_modal_title") : t("add_modal_title")}
               </h2>
               <motion.button
                 type="button"
@@ -132,7 +134,7 @@ export default function SubscriptionFormModal({
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
               <div className="space-y-1.5">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("name_label")}</Label>
                 <Input
                   id="name"
                   placeholder="e.g. Netflix"
@@ -144,7 +146,7 @@ export default function SubscriptionFormModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="amount">Amount (€)</Label>
+                  <Label htmlFor="amount">{t("amount_label")}</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -158,7 +160,7 @@ export default function SubscriptionFormModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="billingCycle">Billing cycle</Label>
+                  <Label htmlFor="billingCycle">{t("billing_cycle_label")}</Label>
                   <select
                     id="billingCycle"
                     {...register("billingCycle")}
@@ -173,7 +175,7 @@ export default function SubscriptionFormModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="startDate">Start date</Label>
+                  <Label htmlFor="startDate">{t("start_date_label")}</Label>
                   <Input
                     id="startDate"
                     type="date"
@@ -183,7 +185,7 @@ export default function SubscriptionFormModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="endDate">End date (optional)</Label>
+                  <Label htmlFor="endDate">{t("end_date_label")}</Label>
                   <Input
                     id="endDate"
                     type="date"
@@ -193,13 +195,13 @@ export default function SubscriptionFormModal({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="category">Category (optional)</Label>
+                <Label htmlFor="category">{t("category_label")}</Label>
                 <select
                   id="category"
                   {...register("category")}
                   className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 >
-                  <option value="">— None —</option>
+                  <option value="">{t("none_option")}</option>
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
@@ -215,7 +217,7 @@ export default function SubscriptionFormModal({
                   className="flex-1"
                   disabled={isLoading}
                 >
-                  Cancel
+                  {t("cancel_btn")}
                 </Button>
                 <Button
                   type="submit"
@@ -224,7 +226,7 @@ export default function SubscriptionFormModal({
                   className="flex-1"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Saving…" : isEdit ? "Save changes" : "Add subscription"}
+                  {isLoading ? t("saving_btn") : isEdit ? t("save_btn") : t("add_submit_btn")}
                 </Button>
               </div>
             </form>

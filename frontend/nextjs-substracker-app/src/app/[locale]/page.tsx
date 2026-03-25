@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { COOKIE_NAMES, ROUTES } from "@/config";
+import { COOKIE_NAMES } from "@/config";
 import WelcomePageContent from "@/features/welcome/WelcomePageContent";
 
 export default async function Home() {
@@ -8,7 +8,7 @@ export default async function Home() {
   const token = cookieStore.get(COOKIE_NAMES.accessToken);
 
   if (token) {
-    redirect(ROUTES.dashboard);
+    redirect("/dashboard");
   }
 
   return <WelcomePageContent />;

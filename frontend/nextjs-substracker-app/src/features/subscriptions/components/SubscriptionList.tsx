@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { Plus } from "lucide-react";
 import Button from "@/shared/components/atoms/Button";
 import SubscriptionCard from "./SubscriptionCard";
@@ -14,13 +16,13 @@ import {
   deleteSubscriptionAction,
 } from "@/shared/actions/subscription.actions";
 import type { SubscriptionSchema } from "@/features/subscriptions/validation/subscription.validation";
-import { useRouter } from "next/navigation";
 
 type Props = {
   initialSubscriptions: Subscription[];
 };
 
 export default function SubscriptionList({ initialSubscriptions }: Props) {
+  const t = useTranslations("subscriptions");
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -31,19 +33,9 @@ export default function SubscriptionList({ initialSubscriptions }: Props) {
   const [, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const handleAdd = () => {
-    setEditTarget(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (sub: Subscription) => {
-    setEditTarget(sub);
-    setIsFormOpen(true);
-  };
-
-  const handleDeleteRequest = (sub: Subscription) => {
-    setDeleteTarget(sub);
-  };
+  const handleAdd = () => { setEditTarget(null); setIsFormOpen(true); };
+  const handleEdit = (sub: Subscription) => { setEditTarget(sub); setIsFormOpen(true); };
+  const handleDeleteRequest = (sub: Subscription) => { setDeleteTarget(sub); };
 
   const handleSave = async (data: SubscriptionSchema) => {
     setError(null);
@@ -88,7 +80,7 @@ export default function SubscriptionList({ initialSubscriptions }: Props) {
     try {
       const res = await deleteSubscriptionAction(deleteTarget.id);
       if (!res.success) {
-        setError(res.error ?? "Delete failed");
+        setError(res.error ?? t("delete_failed"));
         return;
       }
       setSubscriptions((prev) => prev.filter((s) => s.id !== deleteTarget.id));
@@ -108,10 +100,10 @@ export default function SubscriptionList({ initialSubscriptions }: Props) {
         className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
       >
         <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
-          <h2 className="text-base font-semibold">Your Subscriptions</h2>
+          <h2 className="text-base font-semibold">{t("title")}</h2>
           <Button variant="default" size="sm" onClick={handleAdd} className="flex items-center gap-1.5">
             <Plus size={14} />
-            Add
+            {t("add_btn")}
           </Button>
         </div>
 
@@ -135,11 +127,9 @@ export default function SubscriptionList({ initialSubscriptions }: Props) {
             transition={{ duration: 0.3 }}
             className="px-6 py-12 text-center"
           >
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-              No subscriptions yet.
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{t("empty")}</p>
             <Button variant="outline" size="sm" onClick={handleAdd}>
-              Add your first subscription
+              {t("add_first")}
             </Button>
           </motion.div>
         ) : (
