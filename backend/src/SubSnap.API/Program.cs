@@ -44,7 +44,8 @@ app.UseCorrelationId();  //1° nella chain: aggiunge X-Correlation-ID a ogni req
 app.UseGlobalExceptionHandler();  //2° nella chain: cattura tutte le eccezioni non gestite, restituisce ApiResult.Fail al client
 app.UseSwaggerConfiguration();
 app.UseCorsConfiguration();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.MapGet("/", () => "API OK");
 app.UseAuthentication(); //legge JWT dal header, valida token, popola HttpContext.User
 app.UseAuthorization();  //applica [Authorize]
 app.UseHealthChecksConfiguration();
