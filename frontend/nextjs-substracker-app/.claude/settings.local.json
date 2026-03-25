@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cd:*)",
       "Bash(npx tsc:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(find F:/.NET/ASP.NETcore/APP-SUBSTRACKER/AppSubsTrackerFrontBack_complete/frontend/nextjs-substracker-app -type f -name package.json -o -name next.config.* -o -name middleware.ts -o -name middleware.js)"
     ]
   }
 }
