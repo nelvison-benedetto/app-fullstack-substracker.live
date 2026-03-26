@@ -1,11 +1,11 @@
 using FluentValidation;
-using SubSnap.Application.UseCases.Subscriptions.CreateSubscription;
+using SubSnap.Application.UseCases.Subscriptions.UpdateSubscription;
 
-namespace SubSnap.API.Validators;
+namespace SubSnap.Application.Validators;
 
-public class CreateSubCommandValidator : AbstractValidator<CreateSubCommand>
+public class UpdateSubCommandValidator : AbstractValidator<UpdateSubCommand>
 {
-    public CreateSubCommandValidator()
+    public UpdateSubCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required")

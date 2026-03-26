@@ -39,7 +39,7 @@ export async function loginAction(
     cookieStore.set(COOKIE_NAMES.accessToken, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60,
+      maxAge: 60 * 10,   // 10 minuti — allineato all'AccessTokenExpiryMinutes nel backend
       path: "/",
       sameSite: "lax",
     });
@@ -47,7 +47,7 @@ export async function loginAction(
     cookieStore.set(COOKIE_NAMES.refreshToken, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 60 * 60 * 24 * 30,  // 30 giorni — allineato al RefreshTokenExpiryDays nel backend
       path: "/",
       sameSite: "lax",
     });
@@ -74,7 +74,7 @@ export async function loginAction(
     cookieStore.set(COOKIE_NAMES.userInfo, JSON.stringify(userInfo), {
       httpOnly: false,  // accessibile dal browser (UI)
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60,
+      maxAge: 60 * 10,   // 10 minuti — allineato all'access token
       path: "/",
       sameSite: "lax",
     });

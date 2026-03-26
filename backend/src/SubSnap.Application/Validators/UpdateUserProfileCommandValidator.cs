@@ -1,7 +1,7 @@
 using FluentValidation;
 using SubSnap.Application.UseCases.Users.UpdateUserProfile;
 
-namespace SubSnap.API.Validators;
+namespace SubSnap.Application.Validators;
 
 public class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserProfileCommand>
 {

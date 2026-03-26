@@ -175,12 +175,23 @@ export default function SubscriptionFormModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="startDate">{t("start_date_label")}</Label>
+                  <Label htmlFor="startDate">
+                    {t("start_date_label")}
+                    {isEdit && (
+                      <span className="ml-1.5 text-xs text-gray-400 font-normal">
+                        ({t("not_editable")})
+                      </span>
+                    )}
+                  </Label>
                   <Input
                     id="startDate"
                     type="date"
                     {...register("startDate")}
-                    className={errors.startDate ? "border-red-500" : ""}
+                    disabled={isEdit}
+                    className={[
+                      errors.startDate ? "border-red-500" : "",
+                      isEdit ? "opacity-50 cursor-not-allowed" : "",
+                    ].join(" ").trim()}
                   />
                 </div>
 

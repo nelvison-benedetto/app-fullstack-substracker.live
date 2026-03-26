@@ -1,7 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { API_ENDPOINTS, COOKIE_NAMES } from "@/config";
+import { redirect } from "next/navigation";
+import { API_ENDPOINTS, ROUTES } from "@/config";
+import { fetchWithAuth } from "@/shared/utils/fetchWithAuth";
 import type {
   ApiResponse,
   Subscription,
@@ -16,30 +17,19 @@ type ActionResult<T = void> = {
   error?: string;
 };
 
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAMES.accessToken)?.value;
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
 export async function getSubscriptionsAction(): Promise<ActionResult<Subscription[]>> {
+  const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.list, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (result.sessionExpired) redirect(ROUTES.login);
+
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(API_ENDPOINTS.subscriptions.list, {
-      method: "GET",
-      headers,
-      cache: "no-store",  //sempre dati freschi
-    });
-
-    const json: ApiResponse<Subscription[]> = await res.json();
-
+    const json: ApiResponse<Subscription[]> = await result.response.json();
     if (!json.success || !json.data) {
-      return { success: false, error: json.error?.message ??"Failed to fetch subscriptions" };
+      return { success: false, error: json.error?.message ?? "Failed to fetch subscriptions" };
     }
-
     return { success: true, data: json.data };
   } catch {
     return { success: false, error: "Network error. Please try again." };
@@ -47,20 +37,18 @@ export async function getSubscriptionsAction(): Promise<ActionResult<Subscriptio
 }
 
 export async function getSubscriptionDetailAction(id: string): Promise<ActionResult<SubscriptionDetail>> {
+  const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.detail(id), {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (result.sessionExpired) redirect(ROUTES.login);
+
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(API_ENDPOINTS.subscriptions.detail(id), {
-      method: "GET",
-      headers,
-      cache: "no-store",
-    });
-
-    const json: ApiResponse<SubscriptionDetail> = await res.json();
-
+    const json: ApiResponse<SubscriptionDetail> = await result.response.json();
     if (!json.success || !json.data) {
-      return { success: false, error: json.error?.message ??"Subscription not found" };
+      return { success: false, error: json.error?.message ?? "Subscription not found" };
     }
-
     return { success: true, data: json.data };
   } catch {
     return { success: false, error: "Network error. Please try again." };
@@ -70,20 +58,18 @@ export async function getSubscriptionDetailAction(id: string): Promise<ActionRes
 export async function createSubscriptionAction(
   data: CreateSubscriptionData
 ): Promise<ActionResult<Subscription>> {
+  const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.create, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (result.sessionExpired) redirect(ROUTES.login);
+
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(API_ENDPOINTS.subscriptions.create, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    });
-
-    const json: ApiResponse<Subscription> = await res.json();
-
+    const json: ApiResponse<Subscription> = await result.response.json();
     if (!json.success || !json.data) {
-      return { success: false, error: json.error?.message ??"Failed to create subscription" };
+      return { success: false, error: json.error?.message ?? "Failed to create subscription" };
     }
-
     return { success: true, data: json.data };
   } catch {
     return { success: false, error: "Network error. Please try again." };
@@ -94,20 +80,18 @@ export async function updateSubscriptionAction(
   id: string,
   data: UpdateSubscriptionData
 ): Promise<ActionResult<Subscription>> {
+  const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.update(id), {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+  if (result.sessionExpired) redirect(ROUTES.login);
+
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(API_ENDPOINTS.subscriptions.update(id), {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(data),
-    });
-
-    const json: ApiResponse<Subscription> = await res.json();
-
+    const json: ApiResponse<Subscription> = await result.response.json();
     if (!json.success || !json.data) {
-      return { success: false, error: json.error?.message ??"Failed to update subscription" };
+      return { success: false, error: json.error?.message ?? "Failed to update subscription" };
     }
-
     return { success: true, data: json.data };
   } catch {
     return { success: false, error: "Network error. Please try again." };
@@ -115,17 +99,16 @@ export async function updateSubscriptionAction(
 }
 
 export async function deleteSubscriptionAction(id: string): Promise<ActionResult> {
+  const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.delete(id), {
+    method: "DELETE",
+  });
+
+  if (result.sessionExpired) redirect(ROUTES.login);
+
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(API_ENDPOINTS.subscriptions.delete(id), {
-      method: "DELETE",
-      headers,
-    });
-
-    if (res.status === 204) return { success: true };
-
-    const json = await res.json();
-    return { success: false, error: json.error?.message ??"Failed to delete subscription" };
+    if (result.response.status === 204) return { success: true };
+    const json = await result.response.json();
+    return { success: false, error: json.error?.message ?? "Failed to delete subscription" };
   } catch {
     return { success: false, error: "Network error. Please try again." };
   }
