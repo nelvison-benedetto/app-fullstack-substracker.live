@@ -67,8 +67,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`${prefix}/dashboard`, request.url));
   }
 
+  // Sovrascrive Accept-Language con la locale rilevata (CF-IPCountry > cookie > browser)
+  // così next-intl usa la nostra logica invece di quella del browser
+  const modifiedHeaders = new Headers(request.headers);
+  modifiedHeaders.set("Accept-Language", locale);
+  const modifiedRequest = new NextRequest(request.url, {
+    headers: modifiedHeaders,
+    method: request.method,
+    body: request.body,
+  });
+
   // Delega tutto il resto a next-intl (locale detection + URL rewriting)
-  return intlMiddleware(request);
+  return intlMiddleware(modifiedRequest);
 }
 
 export const config = {
