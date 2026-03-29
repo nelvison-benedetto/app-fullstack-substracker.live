@@ -121,6 +121,18 @@
     "deleting_btn": "Deleting…",
     "cancel_btn": "Cancel"
   },
+  "charts": {
+    "title": "Spending Analytics",
+    "trend_title": "Monthly Trend",
+    "trend_subtitle": "Monthly spending over the last 12 months",
+    "category_title": "Spending by Category",
+    "category_subtitle": "Breakdown by category (normalized €/month)",
+    "billing_title": "Billing Cycles",
+    "billing_subtitle": "Normalized monthly spend by billing cycle",
+    "top_title": "Top Subscriptions",
+    "top_subtitle": "Most expensive subscriptions (normalized monthly cost)",
+    "no_data": "No data available"
+  },
   "subscriptions": {
     "title": "Your Subscriptions",
     "add_btn": "Add",

@@ -5,6 +5,7 @@ import { COOKIE_NAMES } from "@/config";
 import type { AuthUser, Subscription } from "@/shared/types";
 import { getSubscriptionsAction } from "@/shared/actions/subscription.actions";
 import SubscriptionList from "@/features/subscriptions/components/SubscriptionList";
+import ChartsSection from "@/features/subscriptions/components/ChartsSection";
 import StatsGrid from "@/shared/components/molecules/StatsGrid";
 import AnimatedSection from "@/shared/components/molecules/AnimatedSection";
 
@@ -66,6 +67,8 @@ export default async function DashboardPage() {
       </AnimatedSection>
 
       <StatsGrid cards={statCards} />
+
+      <ChartsSection subscriptions={subscriptions} />
 
       <SubscriptionList initialSubscriptions={subscriptions} />
     </div>

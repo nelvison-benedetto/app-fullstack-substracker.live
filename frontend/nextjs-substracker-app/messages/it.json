@@ -121,6 +121,18 @@
     "deleting_btn": "Eliminazione…",
     "cancel_btn": "Annulla"
   },
+  "charts": {
+    "title": "Analisi della spesa",
+    "trend_title": "Andamento mensile",
+    "trend_subtitle": "Spesa mensile negli ultimi 12 mesi",
+    "category_title": "Spesa per categoria",
+    "category_subtitle": "Distribuzione per categoria (€/mese normalizzati)",
+    "billing_title": "Cicli di fatturazione",
+    "billing_subtitle": "Spesa mensile normalizzata per ciclo di rinnovo",
+    "top_title": "Top subscriptions",
+    "top_subtitle": "Subscriptions più costose (costo mensile normalizzato)",
+    "no_data": "Nessun dato disponibile"
+  },
   "subscriptions": {
     "title": "Le tue subscriptions",
     "add_btn": "Aggiungi",
