@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ using SubSnap.Infrastructure.External.Storage;
 using SubSnap.Infrastructure.Identity.Services;
 using SubSnap.Infrastructure.Persistence.Context;
 using SubSnap.Infrastructure.Persistence.UnitOfWork;
+using SubSnap.Infrastructure.Pipeline;
 using SubSnap.Infrastructure.Repositories.Implementations;
 
 namespace SubSnap.Infrastructure.DependencyInjection;
@@ -101,6 +103,11 @@ public static class ServiceCollectionExtensions
         });
         services.AddScoped<IObjectStorageService, CloudflareR2StorageService>();
         services.AddScoped<IUserMediaRepository, UserMediaRepository>();
+
+        // Sentry tracing behavior — innermost MediatR wrapper.
+        // Ogni command/query diventa uno span figlio della HTTP transaction su Sentry.
+        // see SentryTracingBehavior.cs
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SentryTracingBehavior<,>));
 
         return services;
         //scoped: una nuova istanza per ogni richiesta HTTP, condivisa all’interno della stessa richiesta. Perfetto x DbContext e servizi che lavorano con esso.

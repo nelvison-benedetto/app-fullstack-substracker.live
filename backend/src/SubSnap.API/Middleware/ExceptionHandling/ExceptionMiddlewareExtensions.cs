@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using Sentry;
 using SubSnap.API.Contracts.Errors;
 using SubSnap.API.Contracts.Responses;
 using SubSnap.Core.Domain.Exceptions;
@@ -46,6 +47,10 @@ public static class ExceptionMiddlewareExtensions
                     UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
                     _ => (StatusCodes.Status500InternalServerError, "Unexpected server error"),
                 };
+                // Cattura su Sentry SOLO gli errori 500 (bug veri, non errori di dominio/validazione)
+                if (statusCode == StatusCodes.Status500InternalServerError)
+                    SentrySdk.CaptureException(exception);
+
                 context.Response.StatusCode = statusCode;
                 var error = new ApiError(statusCode, message);
                 var result = ApiResult<object>.Fail(error);

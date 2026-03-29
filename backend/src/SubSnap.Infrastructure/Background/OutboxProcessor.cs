@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Sentry;
 using SubSnap.Infrastructure.Persistence.Context;
 using System.Text.Json;
 
@@ -82,6 +83,9 @@ public sealed class OutboxProcessor : BackgroundService
             }
             catch (Exception ex)
             {
+                // Cattura esplicita: il background service non passa per la HTTP pipeline,
+                // quindi Sentry non lo vedrebbe senza questa chiamata.
+                SentrySdk.CaptureException(ex);
                 _logger.LogError(ex, "Outbox processor encountered an error while processing messages");
             }
             await Task.Delay(2000, ct);  //!!POLLING OGNI 2 SEC

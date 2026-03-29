@@ -13,6 +13,16 @@ using SubSnap.Infrastructure.Persistence.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Sentry — error tracking, tracing, logs
+builder.WebHost.UseSentry(o =>
+{
+    o.Dsn = builder.Configuration["Sentry:Dsn"];
+    o.TracesSampleRate = 0.2;   // 20% delle transazioni tracciate (non 1.0 in prod!)
+    o.EnableLogs = true;        // ILogger → breadcrumbs + eventi di errore su Sentry
+    o.SendDefaultPii = false;   // non mandare password / token
+    o.Debug = false;            // metti true temporaneamente per debug locale
+});
+
 // Controllers
 builder.Services.AddControllers();
 
@@ -42,6 +52,7 @@ var app = builder.Build();  //crei l'istanza finale dell'app. ora elenchi i midd
 // Middleware pipeline
 app.UseCorrelationId();  //1° nella chain: aggiunge X-Correlation-ID a ogni request
 app.UseGlobalExceptionHandler();  //2° nella chain: cattura tutte le eccezioni non gestite, restituisce ApiResult.Fail al client
+app.UseSentryTracing();  //3° abilita tracing HTTP: ogni request diventa una transaction su Sentry
 app.UseSwaggerConfiguration();
 app.UseCorsConfiguration();
 //app.UseHttpsRedirection();

@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Configuration;
+using Sentry;
 using SubSnap.Application.Ports.Storage;
 
 namespace SubSnap.Infrastructure.External.Storage;
@@ -16,12 +17,14 @@ public class CloudflareR2StorageService : IObjectStorageService
     private readonly IAmazonS3 _s3;
     private readonly string _bucketName;
     private readonly string _cdnBaseUrl;
+    private readonly IHub _sentryHub;
 
-    public CloudflareR2StorageService(IAmazonS3 s3, IConfiguration configuration)
+    public CloudflareR2StorageService(IAmazonS3 s3, IConfiguration configuration, IHub sentryHub)
     {
         _s3 = s3;
         _bucketName = configuration["CloudflareR2:BucketName"]!;
         _cdnBaseUrl = configuration["CloudflareR2:CdnBaseUrl"]!; // https://cdn.substracker.live
+        _sentryHub = sentryHub;
     }
 
     /// <summary>
@@ -67,28 +70,49 @@ public class CloudflareR2StorageService : IObjectStorageService
         CancellationToken ct)
     {
         var fileKey = $"uploads/{Guid.NewGuid()}-{fileName}";
+        var span = _sentryHub.GetSpan()?.StartChild("r2.upload", $"PUT {_bucketName}/{fileKey}");
 
-        var request = new PutObjectRequest
+        try
         {
-            BucketName = _bucketName,
-            Key = fileKey,
-            InputStream = file,
-            ContentType = contentType
-        };
+            var request = new PutObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileKey,
+                InputStream = file,
+                ContentType = contentType
+            };
 
-        await _s3.PutObjectAsync(request, ct);
+            await _s3.PutObjectAsync(request, ct);
 
-        return $"{_cdnBaseUrl}/{fileKey}";
+            span?.Finish(SpanStatus.Ok);
+            return $"{_cdnBaseUrl}/{fileKey}";
+        }
+        catch (Exception ex)
+        {
+            span?.Finish(ex);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(string fileKey, CancellationToken ct)
     {
-        var request = new DeleteObjectRequest
-        {
-            BucketName = _bucketName,
-            Key = fileKey
-        };
+        var span = _sentryHub.GetSpan()?.StartChild("r2.delete", $"DELETE {_bucketName}/{fileKey}");
 
-        await _s3.DeleteObjectAsync(request, ct);
+        try
+        {
+            var request = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileKey
+            };
+
+            await _s3.DeleteObjectAsync(request, ct);
+            span?.Finish(SpanStatus.Ok);
+        }
+        catch (Exception ex)
+        {
+            span?.Finish(ex);
+            throw;
+        }
     }
 }
