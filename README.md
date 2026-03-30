@@ -10,6 +10,7 @@
 - Messaging Pattern: MediatR (internal only)
 - Maturity Level: Production-grade backend foundation
 
+Piattforma online: https://substracker.live with 200+ users, sign-up now!
 SubSnap è progettato intenzionalmente seguendo pratiche architetturali adottate nei backend moderni ad alta scalabilità, ispirate a piattaforme utilizzate da aziende come Uber, Stripe, Shopify e da sistemi enterprise basati su ASP.NET Core.
 
 L'obiettivo del progetto non è dimostrare semplicemente l'implementazione di funzionalità applicative, ma mostrare un approccio strutturale alla progettazione di backend scalabili, mantenibili ed evolvibili nel tempo.
@@ -103,6 +104,16 @@ UseCases/Auth/Login/
 - **Observability & Logging**: sempre chiaro logging di cosa è appena successo, ogni log fornito di chiara descrizione e di correlationId per poter facilmente tracciare cosa succede in real-time. see loggingbehavior.cs correlationidmiddleware.cs
 - **Security**: il sistema di auth si basa su JWT(Json Web Tokens) dunque utilizzo access tokens(breve durata), refresh tokens(lunga durata) e jwt claims.
 - **Media Upload**: su tab db usermedia sul db salvo solo i metadati, i file vengono archiviati su Hetzner Object storage.
+- **Sentry**: L’applicazione utilizza Sentry per il monitoraggio in produzione, includendo:
+    - - Error tracking: tutte le eccezioni non gestite vengono automaticamente catturate
+    - - Centralized logging: log applicativi correlati agli errori
+    - - Performance tracing: monitoraggio delle performance delle API e delle richieste
+    Le eccezioni vengono intercettate (es. tramite ExceptionBehavior o middleware) e inviate a Sentry con informazioni utili per il debugging, tra cui:
+    - - stack trace completo
+    - - correlation ID per tracciare la richiesta specifica
+    - - user ID (quando disponibile)
+    - - contesto della request
+    Questo mi permette di identificare rapidamente problemi in produzione e risolverli in modo efficiente.
 
 ## Perché questa architettura è scalabile
 
@@ -131,161 +142,589 @@ Le dipendenze infrastrutturali sono completamente astratte, consentendo la sosti
 
 ## SUBSNAP FRONTEND – ARCHITECTURE & ENGINEERING OVERVIEW
 
-ReactJs, Typescript, TailwindCSS, React-Query, React-Redux, React-Router, DaisyUI.
+Next.js(ReactJS), TypeScript, TailwindCSS, react-errorboundary, js-cookie , lucide-react, React Hook Form, Zod, Motion, next-intl, Sentry.
 
 ## SUBSNAP DATABASE – ARCHITECTURE & ENGINEERING OVERVIEW
 
+PostgreSQL 
+
 ```
--- Abilita estensione per UUID
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+--
+-- PostgreSQL database cluster dump
+--
 
--- Tabella users
-CREATE TABLE users (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL,
-    passwordhash VARCHAR(512) NOT NULL,
-    isactive BOOLEAN NOT NULL DEFAULT TRUE,
-    createdat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    lastlogin TIMESTAMPTZ(3) NULL,
+-- Started on 2026-03-26 13:02:14
 
-    CONSTRAINT pk_users PRIMARY KEY (id),
-    CONSTRAINT uq_users_email UNIQUE (email)
-);
+\restrict aw9Enub3klGUF0z4mwi8g0VHbi1rWOUcGiFYSBSjDQewHyo3lHXam6eFofJ6QIW
 
--- Tabella refreshtokens
-CREATE TABLE refreshtokens (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
-    userid UUID NOT NULL,
-    token VARCHAR(512) NOT NULL,
-    expiresat TIMESTAMPTZ(3) NOT NULL,
-    isrevoked BOOLEAN NOT NULL DEFAULT FALSE,
-    createdat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+SET default_transaction_read_only = off;
 
-    CONSTRAINT pk_refreshtokens PRIMARY KEY (id),
-    CONSTRAINT fk_refreshtokens_users FOREIGN KEY (userid) REFERENCES users(id),
-    CONSTRAINT uq_refreshtokens_token UNIQUE (token)
-);
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
 
-CREATE INDEX ix_refreshtokens_userid ON refreshtokens(userid);
+--
+-- Roles
+--
 
--- Tabella subscriptions
-CREATE TABLE subscriptions (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
-    userid UUID NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    billingcycle VARCHAR(50) NOT NULL DEFAULT 'Mensile',
-    startdate DATE NOT NULL,
-    enddate DATE NULL,
-    category VARCHAR(50) NULL,
-    createdat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:K2p8tI9cpDG7NNcyalqQDQ==$k24fu4NeRCk6pg6albCzHl8IUekhc76GZVRPnNGvagw=:O2OrrTOIPFRTBj6eVRSHUUUNtW3oSDy2LkBsqBUmZ+8=';
 
-    CONSTRAINT pk_subscriptions PRIMARY KEY (id),
-    CONSTRAINT fk_subscriptions_users FOREIGN KEY (userid) REFERENCES users(id)
-);
+--
+-- User Configurations
+--
 
-CREATE INDEX ix_subscriptions_userid ON subscriptions(userid);
+\unrestrict aw9Enub3klGUF0z4mwi8g0VHbi1rWOUcGiFYSBSjDQewHyo3lHXam6eFofJ6QIW
 
--- Tabella subscriptionhistories
-CREATE TABLE subscriptionhistories (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
-    subscriptionid UUID NOT NULL,
-    action VARCHAR(50) NOT NULL,
-    oldvalue TEXT NULL,
-    newvalue TEXT NULL,
-    createdat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--
+-- Databases
+--
 
-    CONSTRAINT pk_subscriptionhistories PRIMARY KEY (id),
-    CONSTRAINT fk_subscriptionhistories_subscriptions FOREIGN KEY (subscriptionid) REFERENCES subscriptions(id)
-);
+--
+-- Database "template1" dump
+--
 
-CREATE INDEX ix_subscriptionhistories_subscriptionid ON subscriptionhistories(subscriptionid);
+\connect template1
 
--- Tabella sharedlinks
-CREATE TABLE sharedlinks (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
-    userid UUID NOT NULL,
-    link VARCHAR(255) NOT NULL,
-    expiresat TIMESTAMPTZ(3) NULL,
-    views INT NOT NULL DEFAULT 0,
-    createdat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--
+-- PostgreSQL database dump
+--
 
-    CONSTRAINT pk_sharedlinks PRIMARY KEY (id),
-    CONSTRAINT fk_sharedlinks_users FOREIGN KEY (userid) REFERENCES users(id)
-);
+\restrict wPF5HSZgYKgEU5xeP072XnAqfd2nAljuQQDRaRSy0yxAYiZz0NefMsvjJg3cH2f
 
-CREATE INDEX ix_sharedlinks_userid ON sharedlinks(userid);
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.1
 
--- Trigger updatedat per users
-CREATE OR REPLACE FUNCTION set_updatedat_users()
-RETURNS TRIGGER AS $$
+-- Started on 2026-03-26 13:02:15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+-- Completed on 2026-03-26 13:02:20
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict wPF5HSZgYKgEU5xeP072XnAqfd2nAljuQQDRaRSy0yxAYiZz0NefMsvjJg3cH2f
+
+--
+-- Database "postgres" dump
+--
+
+\connect postgres
+
+--
+-- PostgreSQL database dump
+--
+
+\restrict hw2WtpK6U2MG5SPJ2tgdaBE1q4qIS8SGhmZxcmyoqTq15cKRjswC6921Yl29QCH
+
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.1
+
+-- Started on 2026-03-26 13:02:20
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 2 (class 3079 OID 16387)
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- TOC entry 3558 (class 0 OID 0)
+-- Dependencies: 2
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- TOC entry 264 (class 1255 OID 16425)
+-- Name: set_updatedat_sharedlinks(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.set_updatedat_sharedlinks() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
     NEW.updatedat = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
-CREATE TRIGGER tr_users_update
-BEFORE UPDATE ON users
-FOR EACH ROW
-EXECUTE FUNCTION set_updatedat_users();
 
--- Trigger updatedat per subscriptions
-CREATE OR REPLACE FUNCTION set_updatedat_subscriptions()
-RETURNS TRIGGER AS $$
+ALTER FUNCTION public.set_updatedat_sharedlinks() OWNER TO postgres;
+
+--
+-- TOC entry 265 (class 1255 OID 16426)
+-- Name: set_updatedat_subscriptions(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.set_updatedat_subscriptions() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
     NEW.updatedat = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
-CREATE TRIGGER tr_subscriptions_update
-BEFORE UPDATE ON subscriptions
-FOR EACH ROW
-EXECUTE FUNCTION set_updatedat_subscriptions();
 
--- Trigger updatedat per sharedlinks
-CREATE OR REPLACE FUNCTION set_updatedat_sharedlinks()
-RETURNS TRIGGER AS $$
+ALTER FUNCTION public.set_updatedat_subscriptions() OWNER TO postgres;
+
+--
+-- TOC entry 266 (class 1255 OID 16427)
+-- Name: set_updatedat_users(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.set_updatedat_users() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
     NEW.updatedat = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
-CREATE TRIGGER tr_sharedlinks_update
-BEFORE UPDATE ON sharedlinks
-FOR EACH ROW
-EXECUTE FUNCTION set_updatedat_sharedlinks();
 
--- Tabella outboxmessages (x OUTBOX PATTERN (e.g.save user + send email(domain event) = 1 transazione
-CREATE TABLE outboxmessages (
-    id UUID NOT NULL,
-    type TEXT NOT NULL,
-    payload JSONB NOT NULL,
-    occurredonutc TIMESTAMPTZ NOT NULL,
-    processedonutc TIMESTAMPTZ NULL,
+ALTER FUNCTION public.set_updatedat_users() OWNER TO postgres;
 
-    CONSTRAINT pk_outboxmessages PRIMARY KEY (id)
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 220 (class 1259 OID 16428)
+-- Name: outboxmessages; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.outboxmessages (
+    id uuid NOT NULL,
+    type text NOT NULL,
+    payload jsonb NOT NULL,
+    occurredonutc timestamp(3) with time zone NOT NULL,
+    processedonutc timestamp(3) with time zone
 );
 
-CREATE INDEX ix_outboxmessages_processed
-ON outboxmessages(processedonutc);
 
-CREATE TABLE usermedia (
-    id UUID PRIMARY KEY,
-    userid UUID NOT NULL,
-    objectkey TEXT NOT NULL,
-    contenttype VARCHAR(100),
-    size BIGINT,
-    uploadedat TIMESTAMPTZ NOT NULL,
+ALTER TABLE public.outboxmessages OWNER TO postgres;
 
-    CONSTRAINT fk_usermedia_user
-        FOREIGN KEY (userid) REFERENCES users(id)
+--
+-- TOC entry 221 (class 1259 OID 16437)
+-- Name: refreshtokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.refreshtokens (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    userid uuid NOT NULL,
+    token character varying(512) NOT NULL,
+    expiresat timestamp(3) with time zone NOT NULL,
+    isrevoked boolean DEFAULT false NOT NULL,
+    createdat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE INDEX ix_usermedia_userid ON usermedia(userid);
+
+ALTER TABLE public.refreshtokens OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 16451)
+-- Name: sharedlinks; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.sharedlinks (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    userid uuid NOT NULL,
+    link character varying(255) NOT NULL,
+    expiresat timestamp(3) with time zone,
+    views integer DEFAULT 0 NOT NULL,
+    createdat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updatedat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.sharedlinks OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 16464)
+-- Name: subscriptionhistories; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.subscriptionhistories (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    subscriptionid uuid NOT NULL,
+    action character varying(50) NOT NULL,
+    oldvalue text,
+    newvalue text,
+    createdat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.subscriptionhistories OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1259 OID 16475)
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.subscriptions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    userid uuid NOT NULL,
+    name character varying(100) NOT NULL,
+    amount numeric(10,2) NOT NULL,
+    billingcycle character varying(50) DEFAULT 'Mensile'::character varying NOT NULL,
+    startdate date NOT NULL,
+    enddate date,
+    category character varying(50),
+    createdat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updatedat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.subscriptions OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1259 OID 16490)
+-- Name: usermedia; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.usermedia (
+    id uuid NOT NULL,
+    userid uuid NOT NULL,
+    objectkey text NOT NULL,
+    contenttype character varying(100),
+    size bigint,
+    uploadedat timestamp(3) with time zone NOT NULL
+);
+
+
+ALTER TABLE public.usermedia OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1259 OID 16499)
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    email character varying(255) NOT NULL,
+    passwordhash character varying(512) NOT NULL,
+    isactive boolean DEFAULT true NOT NULL,
+    createdat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updatedat timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    lastlogin timestamp(3) with time zone
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- TOC entry 3546 (class 0 OID 16428)
+-- Dependencies: 220
+-- Data for Name: outboxmessages; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.outboxmessages (id, type, payload, occurredonutc, processedonutc) FROM stdin;
+453039b8-4057-4bfb-af8b-75ced86da26b	SubSnap.Core.Domain.Events.Users.UserRegisteredEvent, SubSnap.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null	{"UserId": {"Value": "7970901e-6fb2-44b0-a1eb-4c9a582a7d45"}, "OccurredOnUtc": "2026-03-10T10:12:02.8743517Z"}	2026-03-10 10:12:02.982+00	2026-03-10 10:12:04.582+00
+\.
+
+
+--
+-- TOC entry 3547 (class 0 OID 16437)
+-- Dependencies: 221
+-- Data for Name: refreshtokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.refreshtokens (id, userid, token, expiresat, isrevoked, createdat) FROM stdin;
+25c60c90-5a20-4932-8c9e-266140471957	7970901e-6fb2-44b0-a1eb-4c9a582a7d45	AQAAAAIAAYagAAAAENt1YOxsYoYBla+pvgVVkKyp+LvABlH3RoVF1JnPTNGEV1cS6lpRP0crxe/Doe5lHg==	2026-04-09 10:19:20.06+00	f	2026-03-10 10:19:20.06+00
+\.
+
+
+--
+-- TOC entry 3548 (class 0 OID 16451)
+-- Dependencies: 222
+-- Data for Name: sharedlinks; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.sharedlinks (id, userid, link, expiresat, views, createdat, updatedat) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3549 (class 0 OID 16464)
+-- Dependencies: 223
+-- Data for Name: subscriptionhistories; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.subscriptionhistories (id, subscriptionid, action, oldvalue, newvalue, createdat) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3550 (class 0 OID 16475)
+-- Dependencies: 224
+-- Data for Name: subscriptions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.subscriptions (id, userid, name, amount, billingcycle, startdate, enddate, category, createdat, updatedat) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3551 (class 0 OID 16490)
+-- Dependencies: 225
+-- Data for Name: usermedia; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.usermedia (id, userid, objectkey, contenttype, size, uploadedat) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3552 (class 0 OID 16499)
+-- Dependencies: 226
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, email, passwordhash, isactive, createdat, updatedat, lastlogin) FROM stdin;
+d3d74169-029a-4b5f-ad35-30ddd8c16517	test@test.com	AQAAAAIAAYagAAAAELtocc5JvNqt5uFgSbd5/clBQGZnDtiv5p5m9cjEAxaFMiwsbuQQ2giQw2y+ZTeX9Q==	t	2026-02-21 19:26:08.436+00	2026-02-21 19:26:08.436+00	\N
+7970901e-6fb2-44b0-a1eb-4c9a582a7d45	testXXX@test.com	AQAAAAIAAYagAAAAEFnz6jlP7h33F4T6gNsB6ptJNObeMnFcs9hjMGwOfHh7nVgGwot8ow4GzcHQhVIdgA==	t	2026-03-10 10:12:02.874+00	2026-03-10 10:12:02.874+00	\N
+\.
+
+
+--
+-- TOC entry 3369 (class 2606 OID 16515)
+-- Name: outboxmessages pk_outboxmessages; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.outboxmessages
+    ADD CONSTRAINT pk_outboxmessages PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3372 (class 2606 OID 16517)
+-- Name: refreshtokens pk_refreshtokens; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refreshtokens
+    ADD CONSTRAINT pk_refreshtokens PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3377 (class 2606 OID 16519)
+-- Name: sharedlinks pk_sharedlinks; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sharedlinks
+    ADD CONSTRAINT pk_sharedlinks PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3380 (class 2606 OID 16521)
+-- Name: subscriptionhistories pk_subscriptionhistories; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subscriptionhistories
+    ADD CONSTRAINT pk_subscriptionhistories PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3383 (class 2606 OID 16523)
+-- Name: subscriptions pk_subscriptions; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT pk_subscriptions PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3388 (class 2606 OID 16525)
+-- Name: users pk_users; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT pk_users PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3374 (class 2606 OID 16527)
+-- Name: refreshtokens uq_refreshtokens_token; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refreshtokens
+    ADD CONSTRAINT uq_refreshtokens_token UNIQUE (token);
+
+
+--
+-- TOC entry 3390 (class 2606 OID 16529)
+-- Name: users uq_users_email; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT uq_users_email UNIQUE (email);
+
+
+--
+-- TOC entry 3386 (class 2606 OID 16531)
+-- Name: usermedia usermedia_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usermedia
+    ADD CONSTRAINT usermedia_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3367 (class 1259 OID 16532)
+-- Name: ix_outboxmessages_processed; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_outboxmessages_processed ON public.outboxmessages USING btree (processedonutc);
+
+
+--
+-- TOC entry 3370 (class 1259 OID 16533)
+-- Name: ix_refreshtokens_userid; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_refreshtokens_userid ON public.refreshtokens USING btree (userid);
+
+
+--
+-- TOC entry 3375 (class 1259 OID 16534)
+-- Name: ix_sharedlinks_userid; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_sharedlinks_userid ON public.sharedlinks USING btree (userid);
+
+
+--
+-- TOC entry 3378 (class 1259 OID 16535)
+-- Name: ix_subscriptionhistories_subscriptionid; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subscriptionhistories_subscriptionid ON public.subscriptionhistories USING btree (subscriptionid);
+
+
+--
+-- TOC entry 3381 (class 1259 OID 16536)
+-- Name: ix_subscriptions_userid; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subscriptions_userid ON public.subscriptions USING btree (userid);
+
+
+--
+-- TOC entry 3384 (class 1259 OID 16537)
+-- Name: ix_usermedia_userid; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_usermedia_userid ON public.usermedia USING btree (userid);
+
+
+--
+-- TOC entry 3396 (class 2620 OID 16538)
+-- Name: sharedlinks tr_sharedlinks_update; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER tr_sharedlinks_update BEFORE UPDATE ON public.sharedlinks FOR EACH ROW EXECUTE FUNCTION public.set_updatedat_sharedlinks();
+
+
+--
+-- TOC entry 3397 (class 2620 OID 16539)
+-- Name: subscriptions tr_subscriptions_update; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER tr_subscriptions_update BEFORE UPDATE ON public.subscriptions FOR EACH ROW EXECUTE FUNCTION public.set_updatedat_subscriptions();
+
+
+--
+-- TOC entry 3398 (class 2620 OID 16540)
+-- Name: users tr_users_update; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER tr_users_update BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.set_updatedat_users();
+
+
+--
+-- TOC entry 3391 (class 2606 OID 16541)
+-- Name: refreshtokens fk_refreshtokens_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.refreshtokens
+    ADD CONSTRAINT fk_refreshtokens_users FOREIGN KEY (userid) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 3392 (class 2606 OID 16546)
+-- Name: sharedlinks fk_sharedlinks_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sharedlinks
+    ADD CONSTRAINT fk_sharedlinks_users FOREIGN KEY (userid) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 3393 (class 2606 OID 16551)
+-- Name: subscriptionhistories fk_subscriptionhistories_subscriptions; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subscriptionhistories
+    ADD CONSTRAINT fk_subscriptionhistories_subscriptions FOREIGN KEY (subscriptionid) REFERENCES public.subscriptions(id);
+
+
+--
+-- TOC entry 3394 (class 2606 OID 16556)
+-- Name: subscriptions fk_subscriptions_users; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT fk_subscriptions_users FOREIGN KEY (userid) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 3395 (class 2606 OID 16561)
+-- Name: usermedia fk_usermedia_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usermedia
+    ADD CONSTRAINT fk_usermedia_user FOREIGN KEY (userid) REFERENCES public.users(id);
+
+
+-- Completed on 2026-03-26 13:02:27
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict hw2WtpK6U2MG5SPJ2tgdaBE1q4qIS8SGhmZxcmyoqTq15cKRjswC6921Yl29QCH
+
+-- Completed on 2026-03-26 13:02:27
+
+--
+-- PostgreSQL database cluster dump complete
+--
+
 ```
