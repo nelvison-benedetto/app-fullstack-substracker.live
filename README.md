@@ -10,7 +10,7 @@
 - Messaging Pattern: MediatR (internal only)
 - Maturity Level: Production-grade backend foundation
 
-Piattforma online: https://substracker.live with 200+ users, sign-up now!
+Piattforma online: https://substracker.live with 200+ users, sign-up now!<br>
 SubSnap è progettato intenzionalmente seguendo pratiche architetturali adottate nei backend moderni ad alta scalabilità, ispirate a piattaforme utilizzate da aziende come Uber, Stripe, Shopify e da sistemi enterprise basati su ASP.NET Core.
 
 L'obiettivo del progetto non è dimostrare semplicemente l'implementazione di funzionalità applicative, ma mostrare un approccio strutturale alla progettazione di backend scalabili, mantenibili ed evolvibili nel tempo.
@@ -105,14 +105,14 @@ UseCases/Auth/Login/
 - **Security**: il sistema di auth si basa su JWT(Json Web Tokens) dunque utilizzo access tokens(breve durata), refresh tokens(lunga durata) e jwt claims.
 - **Media Upload**: su tab db usermedia sul db salvo solo i metadati, i file vengono archiviati su Hetzner Object storage.
 - **Sentry**: L’applicazione utilizza Sentry per il monitoraggio in produzione, includendo:
-    - - Error tracking: tutte le eccezioni non gestite vengono automaticamente catturate
-    - - Centralized logging: log applicativi correlati agli errori
-    - - Performance tracing: monitoraggio delle performance delle API e delle richieste
+    - Error tracking: tutte le eccezioni non gestite vengono automaticamente catturate
+    - Centralized logging: log applicativi correlati agli errori
+    - Performance tracing: monitoraggio delle performance delle API e delle richieste
     Le eccezioni vengono intercettate (es. tramite ExceptionBehavior o middleware) e inviate a Sentry con informazioni utili per il debugging, tra cui:
-    - - stack trace completo
-    - - correlation ID per tracciare la richiesta specifica
-    - - user ID (quando disponibile)
-    - - contesto della request
+    - stack trace completo
+    - correlation ID per tracciare la richiesta specifica
+    - user ID (quando disponibile)
+    - contesto della request
     Questo mi permette di identificare rapidamente problemi in produzione e risolverli in modo efficiente.
 
 ## Perché questa architettura è scalabile
