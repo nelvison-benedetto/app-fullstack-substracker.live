@@ -12,6 +12,7 @@ namespace SubSnap.Infrastructure.DataLoaders.Batch;
 
 /*
  * ottimizza query READS multiple simultanee: N richieste -> 1 query!
+ * RISOLVE PROBLEMA e.g. 100 users -> 100 query per prendere le subscription di ogni user, invece fai 1 sola query che prende tutte le subscription dei 100 users in una volta sola, e poi distribuisce i risultati a ciascuna richiesta originale.
  * 
  * NON SONO query parallele(quer1 - query2 ...tutte in parallelo. db overload!!)! sono CUNCURRENT BATCHED (requests parallele -> 1 sola query ottimizzata! db happy!!), 
  * 
@@ -39,10 +40,16 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
 {
     private readonly IDbContextFactory<ApplicationDbContext> _factory;
     private readonly ILogger<SubscriptionBatchLoader> _logger;
-    private readonly IHttpContextAccessor _httpContextAccessor;  //x leggere correlationId dal middlewre corrente
+    private readonly IHttpContextAccessor _httpContextAccessor;  //x leggere correlationId dal middleware corrente
 
     private readonly ConcurrentDictionary<Guid, TaskCompletionSource<IReadOnlyList<Subscription>>> _pending = new();
-    //TaskCompletionSource è un promise manuale, tu prometti 'ti darò il risultato piu tardi'.
+    /*TaskCompletionSource è un promise manuale, tu prometti 'ti darò il risultato piu tardi'.
+    quindi _pending contiene UserId → promessa del risultato, 
+    e.g.
+    user1 → TaskCompletionSource
+    user2 → TaskCompletionSource
+    user3 → TaskCompletionSource
+    */
 
     private bool _scheduled;
     private readonly object _lock = new();
@@ -70,11 +77,19 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
         var key = userId.Value; //serve per raggruppare le req duplicate
 
         var tcs = _pending.GetOrAdd( key, _ => new TaskCompletionSource<IReadOnlyList<Subscription>>(TaskCreationOptions.RunContinuationsAsynchronously));
-        //dice 'se già qualcuno ha chiesto questo user → riusa promessa, altrimenti creala.'
+        /*dice 'se già qualcuno ha chiesto questo user → riusa promessa, altrimenti creala.'
+         * e.g.
+         se arrivano 3 req
+         Load(user1)
+         Load(user1)
+         Load(user1)
+        non crei 3 req, ma ne crei solo 1.
+         */
 
         ScheduleExecution(ct);  //serve ad evitare 100 req -> 100 query
+        //dice "Ok, prima o poi eseguiamo la query batch"
 
-        return tcs.Task;
+        return tcs.Task;  //ritorni una Task NON ancora completata
     }
 
     private void ScheduleExecution(CancellationToken ct = default)
@@ -95,7 +110,7 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
         {
             await Task.Delay(5, ct); //aspetti 5ms, perche serve un po di tempo x raccogliere le req simultanee. e.g. t=0ms user1 t=1ms user2 t=3ms user3...
 
-            var snapshot = _pending.ToArray(); //congeli le req attuali
+            var snapshot = _pending.ToArray(); //'congeli' le req attuali (lo stato attuale)
             var ids = snapshot.Select(x => x.Key).ToList();  //ora hai e.g. [user1, user2, user3]
 
             await using var db =
@@ -122,9 +137,11 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
 
             //LOGGING SPECIFICO anche X BATCH LOADERS
             // Recupero CorrelationId dal contesto HTTP
+
             var correlationId = _httpContextAccessor.HttpContext?.Items["CorrelationId"]
                 ?? _httpContextAccessor.HttpContext?.Request.Headers["X-Correlation-Id"].FirstOrDefault()
                 ?? Guid.NewGuid().ToString();
+            //x leggere correlationId dal middleware [INFO]
 
             using (_logger.BeginScope(new Dictionary<string, object>
             {
@@ -141,6 +158,7 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
                 var subs = await db.Set<Subscription>()
                     .Where(s => ids.Contains(s.UserId.Value))
                     .ToListAsync();
+                //1 QUERY SOLA!!
 
                 sw.Stop();
 
@@ -152,13 +170,21 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
                 var grouped = subs
                     .GroupBy(s => s.UserId.Value)
                     .ToDictionary(g => g.Key, g => (IReadOnlyList<Subscription>)g.ToList());
+                /*
+                 trasformi [subscription1, subscription2, ...] in
+                 user1 → [sub1, sub2]
+                 user2 → [sub3]
+                 */
 
                 foreach (var (id, tcs) in snapshot)
                 {
                     grouped.TryGetValue(id, out var result);
                     tcs.TrySetResult(result ?? new List<Subscription>());
+                    //QUI COMPLETI OGNI TASK, e CHI AVEVA FATTO await Load() RICEVE IL RISULTATO!
                     _pending.TryRemove(id, out _);
+                    //CLEANUP, rimuovi dal dizionario
                 }
+                
             }
         }
         catch (Exception ex)
@@ -172,8 +198,11 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
         }
         finally { 
             lock (_lock)
-                _scheduled = false; //reset, cosi permette prossimo batch
+                _scheduled = false; 
+            //RESET, permette prossimi batch
         }
 
     }
+
+
 }

@@ -9,6 +9,7 @@ LO UTILIZZO IN TUTTI I LOADS, BATCHEERS no xk è gia una forma di cache temporan
  */
 public class QueryCache
 {
+
     private readonly ConcurrentDictionary<string, object> _cache = new();
     public bool TryGet<T>(string key, out T value)
     {

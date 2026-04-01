@@ -83,8 +83,8 @@ public sealed class OutboxProcessor : BackgroundService
             }
             catch (Exception ex)
             {
-                // Cattura esplicita: il background service non passa per la HTTP pipeline,
-                // quindi Sentry non lo vedrebbe senza questa chiamata.
+                //Cattura esplicita: il background service non passa per la HTTP pipeline,
+                //quindi Sentry non lo vedrebbe senza questa chiamata.
                 SentrySdk.CaptureException(ex);
                 _logger.LogError(ex, "Outbox processor encountered an error while processing messages");
             }
