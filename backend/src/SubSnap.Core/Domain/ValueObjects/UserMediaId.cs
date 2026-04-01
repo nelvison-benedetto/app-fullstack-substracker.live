@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SubSnap.Core.Domain.ValueObjects;
+﻿namespace SubSnap.Core.Domain.ValueObjects;
 
 public readonly struct UserMediaId
 {
@@ -26,4 +20,6 @@ public readonly struct UserMediaId
     public static bool operator !=(UserMediaId left, UserMediaId right) => !(left == right);
 
     public override int GetHashCode() => Value.GetHashCode(); //x warning CS0659, xk quando fai override di Equal è consigliato farlo anche x GetHashCode()
+
+
 }

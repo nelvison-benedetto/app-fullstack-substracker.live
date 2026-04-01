@@ -3,6 +3,9 @@
 namespace SubSnap.Core.Domain.Aggregates;
 
 // Subscription + History = confine di consistenza
+
+//QUESTO è gia fatto in SubscriptionsSubscriptionHistoriesAggregare.cs 
+
 public sealed class SubscriptionAggregate
 {
     public Subscription Subscription { get; }

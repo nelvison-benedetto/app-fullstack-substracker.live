@@ -17,7 +17,7 @@ public class UserMedia : AggregateRoot
     //public string FileName { get; private set; }
     //public string Url { get; private set; }
 
-    private UserMedia() { }  //x ORM
+    private UserMedia() { }  //constructor x ORM
 
     public UserMedia(
         UserId userId,

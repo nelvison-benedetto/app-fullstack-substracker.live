@@ -12,7 +12,7 @@ public class SharedLink
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    public SharedLink() { }
+    public SharedLink() { }  //constructor x ORM
 
     public SharedLink(
         string link,

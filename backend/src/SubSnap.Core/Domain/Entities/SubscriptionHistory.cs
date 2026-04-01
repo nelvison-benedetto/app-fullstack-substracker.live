@@ -11,7 +11,7 @@ public class SubscriptionHistory
 
     public DateTime CreatedAt { get; }
 
-    protected SubscriptionHistory() { }
+    protected SubscriptionHistory() { }  //constructor x ORM
 
     public SubscriptionHistory(
         string action,

@@ -4,8 +4,11 @@ using SubSnap.Core.Domain.ValueObjects;
 
 namespace SubSnap.Core.Domain.Entities;
 
+//AGGREGATE ROOT, childrens: refreshtoken sharedlinks 
+
 //user domain semplice (no ICollection no EF no navigation props), w no list of SharedLink e Subscription 
 //rappresentare concetti di business, contenere logica (es. ChangeEmail, Login()), essere indipendente da EF, SQL, Docker, VPS
+
 public class User : AggregateRoot  //aggregateroot x domain events, ora User (l'aggregate root) puo emettere domain events (e.g. UserRegisteredEvent) che poi saranno raccolti e pubblicati da MediatR dopo che la transazione è stata completata con successo.
 {
     private readonly List<RefreshToken> _refreshTokens = new();  //private xk SOLO user puo modificarli, quindi i refreshtokens fanno parte dell'aggregate user!!(non hanno un lifecycle indipendente, non hanno un Repository proprio, non possono vivere senza user!!)
@@ -24,7 +27,7 @@ public class User : AggregateRoot  //aggregateroot x domain events, ora User (l'
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens;
     public IReadOnlyCollection<SharedLink> SharedLinks => _sharedLinks;  
 
-    protected User() { }  //constructor!! x ORM only
+    protected User() { }  //constructor x ORM
 
     public User(   //constructor
         //UserId? id,  //nullable
@@ -76,7 +79,7 @@ public class User : AggregateRoot  //aggregateroot x domain events, ora User (l'
         UpdatedAt = DateTime.UtcNow;
     }
 
-
+    //utils of CHILDREN OF THIS AGGREGATE ROOT
     public void AddRefreshToken(string token, DateTime expiresAt)
     {
         _refreshTokens.Add(new RefreshToken(token, expiresAt));

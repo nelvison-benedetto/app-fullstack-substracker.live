@@ -9,7 +9,7 @@ public class RefreshToken
 
     public DateTime CreatedAt { get; }
 
-    private RefreshToken() { }  //x ORM
+    private RefreshToken() { }  //constructor x ORM
 
     internal RefreshToken(string token, DateTime expiresAt)
     {

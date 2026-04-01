@@ -8,6 +8,8 @@ public abstract class NotFoundException : Exception
 }
 
 // esempio specifico per User, see .api\middleware\exceptionhandling\ExceptionMiddlewareExtensions.cs x more info!!!
+
+
 public sealed class UserNotFoundException : NotFoundException
 {
     public UserNotFoundException(UserId userId)

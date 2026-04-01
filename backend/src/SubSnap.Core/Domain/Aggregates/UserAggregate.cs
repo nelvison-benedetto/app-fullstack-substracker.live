@@ -12,7 +12,7 @@ public sealed class UserAggregate
 
     public UserAggregate(
         User user,
-        IEnumerable<Subscription> subscriptions,
+        IEnumerable<Subscription> subscriptions,  //TODO PERO SUBSCRIPTIONS E' UN'ALTRA AGGREG ROOT!!
         IEnumerable<SharedLink> sharedLinks)
     {
         User = user ?? throw new ArgumentNullException(nameof(user));

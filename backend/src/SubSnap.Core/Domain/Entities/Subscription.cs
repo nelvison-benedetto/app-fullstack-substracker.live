@@ -1,8 +1,10 @@
-﻿using SubSnap.Core.Domain.ValueObjects;
+﻿using SubSnap.Core.Domain.Common;
+using SubSnap.Core.Domain.ValueObjects;
 
 namespace SubSnap.Core.Domain.Entities;
 
-public class Subscription
+//AGGREGATE ROOT
+public class Subscription : AggregateRoot
 {
     public SubscriptionId Id { get; private set; }
     public UserId UserId { get; private set; }  //reference to User aggregate root by ID (DDD: aggr.roots si referenziano per Id, non per navigation property)
@@ -16,7 +18,7 @@ public class Subscription
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    protected Subscription() { }  //constructor x ORM only
+    protected Subscription() { }  //constructor x ORM
 
     public Subscription(
         UserId userId,
