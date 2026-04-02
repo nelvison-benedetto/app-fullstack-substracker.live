@@ -14,9 +14,9 @@ namespace SubSnap.Infrastructure.External.Storage;
 
 public class CloudflareR2StorageService : IObjectStorageService
 {
-    private readonly IAmazonS3 _s3;
+    private readonly IAmazonS3 _s3;  //client S3-compatible (Cloudflare R2 usa API S3)
     private readonly string _bucketName;
-    private readonly string _cdnBaseUrl;
+    private readonly string _cdnBaseUrl;  //public domain e.g.https://cdn.substracker.live
     private readonly IHub _sentryHub;
 
     public CloudflareR2StorageService(IAmazonS3 s3, IConfiguration configuration, IHub sentryHub)

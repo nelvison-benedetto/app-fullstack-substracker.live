@@ -23,10 +23,11 @@ public class UserSubscriptionsProjectionLoader
         UserId userId,
         CancellationToken ct = default)
     {
-        var userTask = _userLoader.LoadWithFullAsync(userId, ct);
+        var userTask = _userLoader.LoadWithFullAsync(userId, ct);  //return type UserFullAggregate (custom only x i dati di return dell'aggregate)
         var subsTask = _subscriptionLoader.Load(userId, ct);
 
         await Task.WhenAll(userTask, subsTask);
+        //esegue le 2 query in parallelo, aspettando che entrambe siano completate prima di procedere.
 
         var userAggregate = userTask.Result;
 

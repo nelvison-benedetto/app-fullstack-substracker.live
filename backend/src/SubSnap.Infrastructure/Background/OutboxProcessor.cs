@@ -32,16 +32,13 @@ Background Worker:
 public sealed class OutboxProcessor : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IMediator _mediator;
     private readonly ILogger<OutboxProcessor> _logger;
 
     public OutboxProcessor(
         IServiceScopeFactory scopeFactory,
-        IMediator mediator,
         ILogger<OutboxProcessor> logger)
     {
         _scopeFactory = scopeFactory;
-        _mediator = mediator;
         _logger = logger;
     }
 
@@ -58,12 +55,33 @@ public sealed class OutboxProcessor : BackgroundService
                 var db = scope.ServiceProvider
                     .GetRequiredService<ApplicationDbContext>(); //nuovo dbcontext per ogni ciclo, cosi eviti problemi di concorrenza
 
+                var mediator = scope.ServiceProvider
+                    .GetRequiredService<IMediator>(); //risolto dallo scope, non dal costruttore (singleton safety)
+
+                //!! TRANSACTION + FOR UPDATE SKIP LOCKED = claiming atomico !!
+                //Garantisce che se girano piu worker (es. restart Docker/Coolify),
+                //ognuno prende righe DIVERSE. Nessun duplicato, nessuna race condition.
+                await using var transaction = await db.Database.BeginTransactionAsync(ct);
+
                 var messages = await db.OutboxMessages
-                    .Where(x => x.ProcessedOnUtc == null)
-                    .Take(20)
-                    .OrderBy(x => x.OccurredOnUtc)
+                    .FromSqlRaw(@"
+                        SELECT *
+                        FROM outboxmessages
+                        WHERE processedonutc IS NULL
+                        ORDER BY occurredonutc
+                        FOR UPDATE SKIP LOCKED
+                        LIMIT 20")
                     .ToListAsync(ct);
-                //lettura outbox, prendi i primi 20 messaggi non processati
+                //FOR UPDATE = locka le righe lette, nessun altro worker puo toccarle finche non facciamo commit
+                //SKIP LOCKED = se un'altra istanza le ha gia lockate, le salta (invece di aspettare)
+                //Risultato: ogni worker processa righe diverse, zero duplicati
+
+                if (!messages.Any())
+                {
+                    await transaction.RollbackAsync(ct);
+                    await Task.Delay(5000, ct);  //backoff adattivo: nessun messaggio -> aspetta piu a lungo
+                    continue;
+                }
 
                 foreach (var msg in messages)
                 {
@@ -72,7 +90,7 @@ public sealed class OutboxProcessor : BackgroundService
                     var domainEvent = JsonSerializer.Deserialize(msg.Payload, type);
                     //deserializzazione evento di dominio, cosi ricostruisci l'evento di dominio originale a partire dal payload JSON salvato nell'outbox
 
-                    await _mediator.Publish((INotification)domainEvent!, ct);  //TROVA TUTTI GLI EVENTHANDLERS REGISTRATI PER QUELL'EVENTO, E LI ESEGUE.
+                    await mediator.Publish((INotification)domainEvent!, ct);  //TROVA TUTTI GLI EVENTHANDLERS REGISTRATI PER QUELL'EVENTO, E LI ESEGUE.
 
                     msg.ProcessedOnUtc = DateTime.UtcNow;  //lo marchi (see OutboxMessage.cs)
 
@@ -80,6 +98,7 @@ public sealed class OutboxProcessor : BackgroundService
                 }
 
                 await db.SaveChangesAsync(ct);
+                await transaction.CommitAsync(ct);  //commit -> rilascia i lock FOR UPDATE
             }
             catch (Exception ex)
             {
@@ -87,10 +106,11 @@ public sealed class OutboxProcessor : BackgroundService
                 //quindi Sentry non lo vedrebbe senza questa chiamata.
                 SentrySdk.CaptureException(ex);
                 _logger.LogError(ex, "Outbox processor encountered an error while processing messages");
+                await Task.Delay(5000, ct);  //backoff su errore: evita tight loop in caso di errori ripetuti
+                continue;
             }
-            await Task.Delay(2000, ct);  //!!POLLING OGNI 2 SEC
+
+            await Task.Delay(500, ct);  //POLLING OGNI 500ms quando ci sono messaggi, 5s quando vuoto (vedi sopra)
         }
     }
-
-
 }
