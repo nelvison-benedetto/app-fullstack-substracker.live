@@ -17,10 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseSentry(o =>
 {
     o.Dsn = builder.Configuration["Sentry:Dsn"];
-    o.TracesSampleRate = 0.2;   // 20% delle transazioni tracciate (non 1.0 in prod!)
-    o.EnableLogs = true;        // ILogger → breadcrumbs + eventi di errore su Sentry
-    o.SendDefaultPii = false;   // non mandare password / token
-    o.Debug = false;            // metti true temporaneamente per debug locale
+    o.TracesSampleRate = 0.2;   //20% delle transazioni tracciate (non 1.0 in prod!)
+    o.EnableLogs = true;        //ILogger → breadcrumbs + eventi di errore su Sentry
+    o.SendDefaultPii = false;   //non mandare password / token
+    o.Debug = false;            //metti true temporaneamente per debug locale
 });
 
 // Controllers
@@ -34,7 +34,7 @@ builder.Services.AddAuthenticationConfiguration(builder.Configuration);
 builder.Services.AddAuthorizationConfiguration();
 builder.Services.AddHealthChecksConfiguration();
 
-//validators. OLD now in .application uso plugin MediatR + plugin FluentValidation per validazione automatica, per non dover ogni volta esplicitare nel code. see more validationbehaviour.cs dependencyinjection.cs
+//validators. OLD now in .application uso plugin MediatR + plugin FluentValidation (check ValidationBehavior.cs) per validazione automatica, per non dover ogni volta esplicitare nel code. see more validationbehaviour.cs dependencyinjection.cs
 //builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
 
 // AutoMapper
@@ -67,6 +67,7 @@ app.MapGet("/health/db", async (ApplicationDbContext db) =>
 {
     await db.Database.CanConnectAsync();
     return Results.Ok("DB OK");
-});  //non e CleanArchitecture, ma ok mi serve solo x check connessione su server backend<-->db
+});  
+//is't technique CleanArchitecture, ma ok mi serve solo x check connessione su server backend<-->db!! testo on PostMan
 
 app.Run();

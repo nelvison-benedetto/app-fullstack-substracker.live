@@ -105,10 +105,10 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>
-    /// GET /api/v1/users/me
-    /// Profilo dell'utente loggato.
-    /// </summary>
+    /*
+    GET /api/v1/users/me
+    Profilo dell'utente loggato.
+    */
     [HttpGet("me")]
     [Authorize]
     [ProducesResponseType(typeof(ApiResult<UserProfileResponse>), StatusCodes.Status200OK)]
@@ -120,10 +120,10 @@ public class UsersController : ControllerBase
         return Ok(ApiResult<UserProfileResponse>.Ok(response));
     }
 
-    /// <summary>
-    /// PUT /api/v1/users/me
-    /// Aggiorna email e/o password dell'utente loggato.
-    /// </summary>
+    /*
+    PUT /api/v1/users/me
+    Aggiorna email e/o password dell'utente loggato.
+    */
     [HttpPut("me")]
     [Authorize]
     [ProducesResponseType(typeof(ApiResult<UserProfileResponse>), StatusCodes.Status200OK)]

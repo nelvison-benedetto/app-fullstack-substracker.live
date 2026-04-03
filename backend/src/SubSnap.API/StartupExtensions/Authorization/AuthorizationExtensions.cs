@@ -5,15 +5,17 @@ public static class AuthorizationExtensions
     public static IServiceCollection AddAuthorizationConfiguration(
         this IServiceCollection services)
     {
-        services.AddAuthorization(options =>
+        services.AddAuthorization(options =>  //activate the system of auth policies (.net will use these rules when found '[Authorize]' !)
         {
-            options.AddPolicy("UserOnly", policy =>
+            //policy 1.
+            options.AddPolicy("UserOnly", policy =>  //create policy called 'UserOnly'
             {
-                policy.RequireAuthenticatedUser();
+                policy.RequireAuthenticatedUser();  //rule: you need to be authenticated
             });
+            //so now u can use this policy w [Authorize(Policy = "UserOnly")], on the ur target endpoints
+
         });
         return services;
     }
 
-    //e poi la usi cosi  [Authorize(Policy = "UserOnly")]
 }

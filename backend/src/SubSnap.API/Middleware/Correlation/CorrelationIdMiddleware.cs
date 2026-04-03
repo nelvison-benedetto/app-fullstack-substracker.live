@@ -7,10 +7,10 @@
  */
 public sealed class CorrelationIdMiddleware
 {
-    private const string Header = "X-Correlation-Id";  //standart industry header
+    private const string Header = "X-Correlation-Id";  //header, nome standart usato in industry
 
-    private readonly RequestDelegate _next;
-    private readonly ILogger<CorrelationIdMiddleware> _logger;
+    private readonly RequestDelegate _next;  //rapresent the next middleware
+    private readonly ILogger<CorrelationIdMiddleware> _logger;  //x write log
 
     public CorrelationIdMiddleware(
         RequestDelegate next,
@@ -27,23 +27,26 @@ public sealed class CorrelationIdMiddleware
             ?? Guid.NewGuid().ToString();
         //legge l'header, se è presente lo usa come correlationId, altrimenti ne genera uno nuovo (Guid.NewGuid().ToString()) per garantire che ogni richiesta abbia un correlationId unico, anche se il client non lo fornisce.
 
-        context.Response.Headers[Header] = correlationId;
+        context.Response.Headers[Header] = correlationId;  //put that in the response
 
         using (_logger.BeginScope(
             new Dictionary<string, object>
             {
                 ["CorrelationId"] = correlationId
-            }))
+            }
+        ))
         /*
-         * ora ogni log che viene scritto all'interno di questo scope includerà automaticamente il CorrelationId, così puoi facilmente tracciare tutte le operazioni correlate a quella richiesta specifica nei tuoi log, anche in scenari complessi come microservizi o applicazioni con molte richieste concorrenti.
-         * e.g.
+        ora ogni log che viene scritto all'interno di questo scope includerà automaticamente il CorrelationId, così puoi facilmente tracciare tutte le operazioni correlate a quella richiesta specifica nei tuoi log, anche in scenari complessi come microservizi o applicazioni con molte richieste concorrenti.
+         e.g.
          [CorrelationId=abc123]
          Handling RegisterUserCommand
          User registered
          Handled RegisterUserCommand in 45ms
          */
+        //funziona xk i logger (Serilog, ecc.) leggono automaticamente lo scope
         {
             await _next(context);
         }
+
     }
 }

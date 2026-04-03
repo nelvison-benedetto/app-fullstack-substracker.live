@@ -51,11 +51,11 @@ public class SubscriptionsController : ControllerBase
         return new UserId(Guid.Parse(userIdClaim));
     }
 
-    /// <summary>
-    /// GET /api/v1/subscriptions
-    /// Tutte le subscriptions dell'utente loggato.
-    /// Query ottimizzata: BatchLoader → 1 sola SELECT WHERE userid = @id
-    /// </summary>
+    /*
+    GET /api/v1/subscriptions
+    Tutte le subscriptions dell'utente loggato.
+    Query ottimizzata: BatchLoader → 1 sola SELECT WHERE userid = @id
+    */
     [HttpGet]
     [ProducesResponseType(typeof(ApiResult<List<SubscriptionResponse>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResult<List<SubscriptionResponse>>>> GetSubscriptionsAsync(CancellationToken ct)
@@ -66,11 +66,11 @@ public class SubscriptionsController : ControllerBase
         return Ok(ApiResult<List<SubscriptionResponse>>.Ok(response));
     }
 
-    /// <summary>
-    /// GET /api/v1/subscriptions/{id}
-    /// Singola subscription + storico modifiche.
-    /// Query ottimizzata: SubscriptionAggregateLoader → 2 query parallele via Task.WhenAll + QueryCache
-    /// </summary>
+    /*
+    GET /api/v1/subscriptions/{id}
+    Singola subscription + storico modifiche.
+    Query ottimizzata: SubscriptionAggregateLoader → 2 query parallele via Task.WhenAll + QueryCache
+    */
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ApiResult<SubscriptionDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status404NotFound)]
@@ -83,10 +83,10 @@ public class SubscriptionsController : ControllerBase
         return Ok(ApiResult<SubscriptionDetailResponse>.Ok(response));
     }
 
-    /// <summary>
-    /// POST /api/v1/subscriptions
-    /// Crea una nuova subscription per l'utente loggato.
-    /// </summary>
+    /*
+    POST /api/v1/subscriptions
+    Crea una nuova subscription per l'utente loggato.
+    */
     [HttpPost]
     [ProducesResponseType(typeof(ApiResult<SubscriptionResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status400BadRequest)]
@@ -109,10 +109,10 @@ public class SubscriptionsController : ControllerBase
         return Created($"/api/v1/subscriptions/{result.Id}", ApiResult<SubscriptionResponse>.Ok(response));
     }
 
-    /// <summary>
-    /// PUT /api/v1/subscriptions/{id}
-    /// Aggiorna una subscription dell'utente loggato.
-    /// </summary>
+    /*
+    PUT /api/v1/subscriptions/{id}
+    Aggiorna una subscription dell'utente loggato.
+    */
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ApiResult<SubscriptionResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status404NotFound)]
@@ -137,10 +137,10 @@ public class SubscriptionsController : ControllerBase
         return Ok(ApiResult<SubscriptionResponse>.Ok(response));
     }
 
-    /// <summary>
-    /// DELETE /api/v1/subscriptions/{id}
-    /// Elimina una subscription dell'utente loggato.
-    /// </summary>
+    /*
+    DELETE /api/v1/subscriptions/{id}
+    Elimina una subscription dell'utente loggato.
+    */
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status404NotFound)]
@@ -151,4 +151,5 @@ public class SubscriptionsController : ControllerBase
             new DeleteSubCommand(new SubscriptionId(id), userId), ct);
         return NoContent();
     }
+
 }

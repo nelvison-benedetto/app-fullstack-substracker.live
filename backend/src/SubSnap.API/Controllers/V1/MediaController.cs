@@ -14,13 +14,13 @@ using System.Security.Claims;
 namespace SubSnap.API.Controllers.V1;
 
 /*
- * Flow Cloudflare R2 + CDN:
- * 1. POST /api/v1/media/upload-url  → backend genera presigned URL (scade 5 min)
- * 2. Browser → PUT diretto su R2 usando il presigned URL
- * 3. POST /api/v1/media/confirm-upload → backend salva record UserMedia nel DB
- *
- * URL finale pubblico: https://cdn.substracker.live/{fileKey}
- * see IObjectStorageService.cs CloudflareR2StorageService.cs UserMedia.cs
+ flow Cloudflare R2 + CDN:
+ 1. POST /api/v1/media/upload-url  -> backend genera presigned URL (scade 5 min)
+ 2. Browser → PUT diretto su R2 usando il presigned URL
+ 3. POST /api/v1/media/confirm-upload -> backend salva record UserMedia nel DB
+ 
+ URL finale pubblico: https://cdn.substracker.live/{fileKey}
+ see IObjectStorageService.cs CloudflareR2StorageService.cs UserMedia.cs
  */
 
 [ApiController]
@@ -44,16 +44,16 @@ public class MediaController : ControllerBase
 
     private UserId GetCurrentUserId()
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)  //TODO info
             ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (userIdClaim is null) throw new UnauthorizedAccessException();
         return new UserId(Guid.Parse(userIdClaim));
     }
 
-    /// <summary>
-    /// Step 1 — Genera presigned URL per upload diretto browser→R2.
-    /// Max 5MB, solo immagini.
-    /// </summary>
+    /*
+    Step 1 — Genera presigned URL per upload diretto browser→R2.
+    Max 5MB, solo immagini.
+    */
     [HttpPost("upload-url")]
     [ProducesResponseType(typeof(ApiResult<UploadUrlResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status400BadRequest)]
@@ -74,10 +74,10 @@ public class MediaController : ControllerBase
         return Ok(ApiResult<UploadUrlResponse>.Ok(response));
     }
 
-    /// <summary>
-    /// Step 2 — Conferma upload completato: salva record UserMedia nel DB.
-    /// Chiamato DOPO che il browser ha fatto PUT diretto su R2.
-    /// </summary>
+    /*
+    Step 2 — Conferma upload completato: salva record UserMedia nel DB.
+    Chiamato DOPO che il browser ha fatto PUT diretto su R2.
+    */
     [HttpPost("confirm-upload")]
     [ProducesResponseType(typeof(ApiResult<ConfirmUploadResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResult<object>), StatusCodes.Status400BadRequest)]
@@ -103,9 +103,9 @@ public class MediaController : ControllerBase
         return Ok(ApiResult<ConfirmUploadResponse>.Ok(new ConfirmUploadResponse(publicUrl)));
     }
 
-    /// <summary>
-    /// GET tutti i media dell'utente corrente.
-    /// </summary>
+    /*
+    GET tutti i media dell'utente corrente.
+    */
     [HttpGet]
     [ProducesResponseType(typeof(ApiResult<IReadOnlyList<string>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResult<IReadOnlyList<string>>>> GetMyMediaAsync(CancellationToken ct)

@@ -27,12 +27,12 @@ public class CloudflareR2StorageService : IObjectStorageService
         _sentryHub = sentryHub;
     }
 
-    /// <summary>
-    /// Genera presigned URL per upload diretto browser→R2.
-    /// Scade in 5 minuti. Solo immagini consentite.
-    /// Struttura fileKey: {folder}/{guid}-{fileName}  →  es. avatars/uuid-photo.png
-    /// URL pubblico finale: https://cdn.substracker.live/{fileKey}
-    /// </summary>
+    /*
+    Genera presigned URL per upload diretto browser→R2.
+    Scade in 5 minuti. Solo immagini consentite.
+    Struttura fileKey: {folder}/{guid}-{fileName}  →  es. avatars/uuid-photo.png
+    URL pubblico finale: https://cdn.substracker.live/{fileKey}
+    */
     public Task<PresignedUploadResult> GetPresignedUploadUrlAsync(
         string fileName,
         string contentType,
@@ -42,7 +42,7 @@ public class CloudflareR2StorageService : IObjectStorageService
         if (!contentType.StartsWith("image/"))
             throw new ArgumentException("Solo file immagine consentiti.", nameof(contentType));
 
-        var fileKey = $"{folder}/{Guid.NewGuid()}-{fileName}";
+        var fileKey = $"{folder}/{Guid.NewGuid()}-{fileName}";  //e.g. avatars/abc123-photo.png
 
         var request = new GetPreSignedUrlRequest
         {
@@ -53,16 +53,17 @@ public class CloudflareR2StorageService : IObjectStorageService
             ContentType = contentType
         };
 
-        var uploadUrl = _s3.GetPreSignedURL(request);
-        var publicUrl = $"{_cdnBaseUrl}/{fileKey}";
+        var uploadUrl = _s3.GetPreSignedURL(request);  //genera e.g. https://r2.../file?signature=XYZ
+        var publicUrl = $"{_cdnBaseUrl}/{fileKey}";  //quello che userai nel frontend!!
 
         return Task.FromResult(new PresignedUploadResult(uploadUrl, fileKey, publicUrl));
+        //non è async vero, solo wrapper
     }
 
-    /// <summary>
-    /// Upload server-side diretto su R2 (per use case interni, non il flow principale).
-    /// Restituisce l'URL CDN pubblico del file caricato.
-    /// </summary>
+    /*
+    Upload server-side diretto su R2 (per use case interni, non il flow principale).
+    Restituisce l'URL CDN pubblico del file caricato.
+    */
     public async Task<string> UploadAsync(
         Stream file,
         string fileName,
@@ -71,6 +72,7 @@ public class CloudflareR2StorageService : IObjectStorageService
     {
         var fileKey = $"uploads/{Guid.NewGuid()}-{fileName}";
         var span = _sentryHub.GetSpan()?.StartChild("r2.upload", $"PUT {_bucketName}/{fileKey}");
+        //x Sentry, monitoring performance, crea una 'traccia' e.g. r2.upload → PUT bucket/file
 
         try
         {
@@ -83,14 +85,16 @@ public class CloudflareR2StorageService : IObjectStorageService
             };
 
             await _s3.PutObjectAsync(request, ct);
+            //HERE il backend prende stream e lo manda a cloudflare R2
 
-            span?.Finish(SpanStatus.Ok);
+            span?.Finish(SpanStatus.Ok);  //ok, success
             return $"{_cdnBaseUrl}/{fileKey}";
         }
         catch (Exception ex)
         {
             span?.Finish(ex);
             throw;
+            //logghi errore, e poi lo rilanci (non lo mangi)
         }
     }
 
@@ -104,10 +108,10 @@ public class CloudflareR2StorageService : IObjectStorageService
             {
                 BucketName = _bucketName,
                 Key = fileKey
-            };
+            };  //crei req
 
-            await _s3.DeleteObjectAsync(request, ct);
-            span?.Finish(SpanStatus.Ok);
+            await _s3.DeleteObjectAsync(request, ct);  //call a R2 per cancellare
+            span?.Finish(SpanStatus.Ok);  //ok, success
         }
         catch (Exception ex)
         {

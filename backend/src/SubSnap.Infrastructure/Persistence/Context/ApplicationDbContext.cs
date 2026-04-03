@@ -19,7 +19,7 @@ gli aggregate roots li linki nelle PK/FKshadow nelle loro xxxconfiguration.cs !
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    public ApplicationDbContext( DbContextOptions<ApplicationDbContext> options )
         : base(options) { }
 
     //SOLO AGGREGATE ROOTS

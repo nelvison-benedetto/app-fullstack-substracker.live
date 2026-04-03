@@ -71,9 +71,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("timestamptz(3)");
 
         //X CHILDRENS DI QUESTO AGGREGATE ROOT. poi Create/Delete/ect methods sono in User.cs
-        builder.Ignore(x => x.RefreshTokens);  //ignora xk EF altrimenti si confoderebbe tra RefreshTokens(property) e _refreshTokens(field str). intanto glielo dici here qua sotto cosa fare.
+        builder.Ignore(x => x.RefreshTokens);  //ignora xk EF altrimenti si confoderebbe tra RefreshTokens (property pubblica) e _refreshTokens (field privato). intanto glielo dici here qua sotto cosa fare.
         builder
-            .HasMany<RefreshToken>("_refreshTokens")  //lo trovi in User.cs, (stai passando una str non una property!, queindi ef fa 'ok, cerco un FIELD privato chiamato _refreshTokens' e lo usa direttamente)
+            .HasMany<RefreshToken>("_refreshTokens")  //lo trovi in User.cs, (stai passando una str non una property!, queindi EF fa 'ok, cerco un FIELD privato chiamato _refreshTokens' e lo usa direttamente)
+            //quindi dici a EF, "usa il FIELD privato _refreshTokens" NON la property!!
+            //QUESTO E' DDD PURO!! il domain rimane pulito, senza EF, senza ICollection pubbliche modificabili
             .WithOne()  //ogni refresh token ha un solo user
             .HasForeignKey("UserId")  //la FK è la SHADOW KEY!!
             .IsRequired()  //un token non può esistere senza user

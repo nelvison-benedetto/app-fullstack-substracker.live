@@ -4,18 +4,16 @@ using Sentry;
 namespace SubSnap.Infrastructure.Pipeline;
 
 /*
- * Crea uno span Sentry figlio per ogni MediatR command/query.
- * Lo span appare DENTRO la HTTP transaction su Sentry Performance:
- *
- *   Transaction: POST /api/v1/subscriptions  (200ms)
- *     └─ mediatR: CreateSubCommand           (150ms)   ← questo span
- *          └─ r2.upload: PUT assets/...      (40ms)    ← span figlio di R2
- *
- * Registrato come ULTIMO behavior (innermost): misura il tempo del vero Handler
- * senza overhead di validation/logging (che sono <1ms comunque).
- *
- * see ServiceCollectionExtensions.cs  CloudflareR2StorageService.cs  Program.cs
- */
+Crea uno span Sentry figlio per ogni MediatR command/query.
+Lo span appare DENTRO la HTTP transaction su Sentry Performance:
+Transaction: POST /api/v1/subscriptions  (200ms)
+    └─ mediatR: CreateSubCommand           (150ms)   ← questo span
+         └─ r2.upload: PUT assets/...      (40ms)    ← span figlio di R2
+Registrato come ULTIMO behavior (innermost): misura il tempo del vero Handler
+senza overhead di validation/logging (che sono <1ms comunque).
+
+see ServiceCollectionExtensions.cs  CloudflareR2StorageService.cs  Program.cs
+*/
 public sealed class SentryTracingBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull

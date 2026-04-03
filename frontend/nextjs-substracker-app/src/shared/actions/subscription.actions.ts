@@ -28,11 +28,13 @@ export async function getSubscriptionsAction(): Promise<ActionResult<Subscriptio
   try {
     const json: ApiResponse<Subscription[]> = await result.response.json();
     if (!json.success || !json.data) {
-      return { success: false, error: json.error?.message ?? "Failed to fetch subscriptions" };
+      console.error("[getSubscriptionsAction] API error:", result.response.status, json.error);
+      return { success: false, error: json.error?.message ?? `Server error ${result.response.status}` };
     }
     return { success: true, data: json.data };
-  } catch {
-    return { success: false, error: "Network error. Please try again." };
+  } catch (err) {
+    console.error("[getSubscriptionsAction] Parse error:", err, "status:", result.response.status);
+    return { success: false, error: `Network error (status ${result.response.status})` };
   }
 }
 

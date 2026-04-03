@@ -6,10 +6,10 @@ using SubSnap.Infrastructure.Persistence.Context;
 
 namespace SubSnap.Infrastructure.Repositories.Implementations;
 
-/// <summary>
-/// Repository per UserMedia: salva i record dei file caricati su Cloudflare R2.
-/// see IUserMediaRepository.cs UserMediaRepository.cs MediaController.cs
-/// </summary>
+/*
+Repository per UserMedia: salva i record dei file caricati su Cloudflare R2.
+see IUserMediaRepository.cs UserMediaRepository.cs MediaController.cs
+*/
 public class UserMediaRepository : IUserMediaRepository
 {
     private readonly ApplicationDbContext _context;

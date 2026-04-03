@@ -24,7 +24,7 @@ public sealed class RequestToCommandProfile : Profile  //Profile è classe di Au
             .ConstructUsing(src => new RTCommand(src.RefreshToken));
 
         CreateMap<RegisterUserRequest, RUCommand>();
-        //non necessario fare .ConstructUsing() xk properties matchano stesso nome & no value objects (e.g.no Email Email)
+        //non necessario fare .ConstructUsing() xk properties matchano stesso nome & no value objects (e.g.no Email Email) !!
 
         CreateMap<DeleteUserRequest, DeleteUserCommand>()
             .ConstructUsing(src => new DeleteUserCommand( new Core.Domain.ValueObjects.UserId(src.UserId) ));

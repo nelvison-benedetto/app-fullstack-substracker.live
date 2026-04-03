@@ -8,9 +8,7 @@ using SubSnap.Core.Domain.Exceptions;
 namespace SubSnap.API.Middleware.ExceptionHandling;
 
 //Cattura tutte le eccezioni NON GESTITE NELLA PIPELINE, mappa eccezioni di dominio o validation → 400, mappa altre eccezioni → 500. Restituisce sempre ApiResult.Fail al client.
-
 //lo chiami w  app.UseGlobalExceptionHandler(); in program.cs o un extension starter.
-
 //Se il service lancia EmailAlreadyRegisteredException, il middleware (ExceptionMiddlewareExtensions.cs) lo cattura come DomainException!! e restituisce 400 con il messaggio che hai definito in EmailAlreadyRegisteredException
 //analogamente se il service lancia UserNotFoundException (lo lanci tu), il client riceverà:
 /*
@@ -23,18 +21,19 @@ namespace SubSnap.API.Middleware.ExceptionHandling;
   }
 }
  */
-public static class ExceptionMiddlewareExtensions
+public static class ExceptionMiddlewareExtensions  //is a extension class
 {
-    public static void UseGlobalExceptionHandler(this WebApplication app)
+    public static void UseGlobalExceptionHandler( this WebApplication app )
     {
-        app.UseExceptionHandler(errorApp =>
+        app.UseExceptionHandler(errorApp =>  //middleware built-in of .net
         {
-            errorApp.Run(async context =>
+            errorApp.Run(async context =>  //flow enter here when an error is occurred
             {
-                context.Response.ContentType = "application/json";
+                context.Response.ContentType = "application/json";  //force always response in Json
                 var exception = context.Features
                     .Get<IExceptionHandlerFeature>()?.Error; //.NET TI PASSA L'EXCEPTION NON GESTITA (CHE PROVIENE DA ExceptionBehvior.cs)
-                if (exception is null) return;
+                //.net put the exception rilevated in context.Features, and IExceptionHandlerFeature contains the catched error
+                if (exception is null) return;  //x check
                 var (statusCode, message) = exception switch
                 {
                     NotFoundException => (StatusCodes.Status404NotFound, exception.Message),
@@ -47,15 +46,18 @@ public static class ExceptionMiddlewareExtensions
                     UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
                     _ => (StatusCodes.Status500InternalServerError, "Unexpected server error"),
                 };
-                // Cattura su Sentry SOLO gli errori 500 (bug veri, non errori di dominio/validazione)
+                //here transform Exception -> HTTP status + messaggio
+
                 if (statusCode == StatusCodes.Status500InternalServerError)
                     SentrySdk.CaptureException(exception);
+                //cattura su Sentry SOLO gli errori 500 (bug veri, non errori di dominio/validazione)
 
-                context.Response.StatusCode = statusCode;
+                context.Response.StatusCode = statusCode;  //http response
                 var error = new ApiError(statusCode, message);
                 var result = ApiResult<object>.Fail(error);
-                await context.Response.WriteAsJsonAsync(result);
+                await context.Response.WriteAsJsonAsync(result);  //serializza in JSON e manda al client
             });
         });
     }
+
 }

@@ -81,7 +81,7 @@ public sealed class LoginHandler : IRequestHandler<LoginCommand, LoginResult> //
     private readonly PasswordPolicy _passwordPolicy;
     private readonly IJwtTokenService _jwt;
     private readonly IPasswordHasherService _hasher;
-    private readonly IUnitOfWork _uow;
+    private readonly IUnitOfWork _uow;  //non piu necessario, xk intanto alla risalita di nuove verso l'uscita, cmnq il flow passa di nuovo su TransactionBehavior.cs
     
     public LoginHandler(
         UserByEmailLoader loader,

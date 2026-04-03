@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> LogoutAsync([FromBody] LogoutRequestAuth request, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)   //TODO info??
             ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (userIdClaim is null)
             return Unauthorized();
