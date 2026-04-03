@@ -1,4 +1,5 @@
 {
+
   "nav": {
     "brand": "SubSnap",
     "login": "Sign in",
@@ -157,4 +158,5 @@
     "delete_btn_confirm": "Delete",
     "delete_failed": "Delete failed"
   }
+  
 }
