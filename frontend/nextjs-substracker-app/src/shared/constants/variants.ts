@@ -1,3 +1,5 @@
+//this file defines the CSS classes for different button variants and sizes used in the application.
+
 const base = "cursor-pointer font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50";
 
 export const variants: Record<string, string> = {
