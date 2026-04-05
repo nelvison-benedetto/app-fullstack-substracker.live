@@ -2,30 +2,35 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { useForm } from "react-hook-form";
-import { useTranslations } from "next-intl";
+import { useForm } from "react-hook-form";     //manages form state efficiently (no re-renders per keystroke)
+import { useTranslations } from "next-intl";   //gives you t("mykey") -> translated strings
+
+//i18n, custom router and link that respects /en, /it, etc.
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
-import { Eye, EyeOff } from "lucide-react";
+
+import { Eye, EyeOff } from "lucide-react";   //icons x show/hide password
 import Button from "@/shared/components/atoms/Button";
 import Input from "@/shared/components/atoms/Input";
 import Label from "@/shared/components/atoms/Label";
 import {
-  loginSchema,
-  type LoginSchema,
+  loginSchema,        //zod validation rules
+  type LoginSchema,   //inferred TypeScript type
 } from "@/features/auth/validation/auth.validation";
-import { loginAction } from "@/shared/actions/auth.actions";
+import { loginAction } from "@/shared/actions/auth.actions";    //calls backend login
 import { ROUTES } from "@/config";
 
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
+//parent animation: children animate one after another, staggerChildren = delay between items.
 
 const item = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
 };
+//each element animation: fades in, moves up slightly
 
 export default function LoginForm() {
   const t = useTranslations("auth");
@@ -35,19 +40,20 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
+    register,       //connects input to form
+    handleSubmit,   //wraps submit handler
+    setError,       //manually set validation errors
+    formState: { errors },    //errors -> contains validation errors
   } = useForm<LoginSchema>();
 
   const onSubmit = async (data: LoginSchema) => {
-    const result = loginSchema.safeParse(data);
+    const result = loginSchema.safeParse(data);   //zod validation, validates input safely (no throw)
     if (!result.success) {
       result.error.issues.forEach((issue) => {
         const field = issue.path[0] as keyof LoginSchema;
         setError(field, { message: issue.message });
       });
+      //loop through validation errors, assign each error to the correct field.
       return;
     }
 
@@ -60,8 +66,8 @@ export default function LoginForm() {
         setServerError(res.error ?? t("login_failed"));
         return;
       }
-      router.push(ROUTES.dashboard);
-      router.refresh();
+      router.push(ROUTES.dashboard);    //redirect to dashboard
+      router.refresh();                 //re-fetch server data (important for auth)
     } finally {
       setIsLoading(false);
     }
@@ -69,13 +75,14 @@ export default function LoginForm() {
 
   return (
     <motion.form
-      variants={container}
+      variants={container}              //parent animation, la hai definita sopra, con anche gia hidden e visible pre-settati.
       initial="hidden"
       animate="visible"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit)} //wraps your function
       className="space-y-5"
-      noValidate
+      noValidate                        //disables browser validation (you use Zod instead)
     >
+
       {serverError && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -93,7 +100,7 @@ export default function LoginForm() {
           type="email"
           autoComplete="email"
           placeholder={t("email_placeholder")}
-          {...register("email")}
+          {...register("email")}    //connects input to form state
           className={errors.email ? "border-red-500" : ""}
         />
         {errors.email && (
@@ -147,6 +154,7 @@ export default function LoginForm() {
           {t("register_link")}
         </Link>
       </motion.p>
+
     </motion.form>
   );
 }

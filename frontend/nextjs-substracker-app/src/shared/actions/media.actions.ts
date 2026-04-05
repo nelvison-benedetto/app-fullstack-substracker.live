@@ -7,7 +7,13 @@ import type { ApiResponse } from "@/shared/types";
 import type { ConfirmUploadResponse, UploadUrlResponse } from "@/shared/types/media.types";
 
 /*
- server actions per il flow upload IMAGES on Cloudflare R2. is use technique "Pre-Signed URL"
+!!!PRE-SIGNED URL technique (x upload imgs)
+1. Frontend → Backend → asks for upload URL
+2. Frontend → Cloudflare R2 → uploads file directly
+3. Frontend → Backend → confirms upload
+*/
+/*
+ server actions per il flow upload IMAGES on Cloudflare R2."
  FLOW COMPLETO (vedi AvatarUpload.tsx per orchestrazione client-side):
  1. requestUploadUrlAction()  -> backend genera presigned URL
  2. [client] fetch PUT -> R2 (upload diretto, NON passa dal backend)
@@ -22,10 +28,7 @@ type ActionResult<T = void> = {
   error?: string;
 };
 
-/**
- 1. chiede al backend un presigned URL per caricare il file direttamente su R2.
- restituisce uploadUrl (PUT R2), fileKey e publicUrl (CDN).
- */
+
 export async function requestUploadUrlAction(
   fileName: string,
   contentType: string,
@@ -35,11 +38,26 @@ export async function requestUploadUrlAction(
     method: "POST",
     body: JSON.stringify({ fileName, contentType, folder }),
   });
+  /*
+  you send to backend
+  {
+    "fileName": "avatar.png",
+    "contentType": "image/png",
+    "folder": "avatars"
+  }
+  backend generates unique fileKey (e.g. avatars/user123.png), creates pre-signed URL for that fileKey and returns to frontend
+  {
+    "uploadUrl": "...",   // PUT here!! non accade in questo file, ma questo deve essere fatto per uploadare direttamente su R2(senza passare dal backend)
+    "fileKey": "...",
+    "publicUrl": "https://cdn..."
+  }
+  */
 
   if (result.sessionExpired) redirect(ROUTES.login);
 
   try {
     const json: ApiResponse<UploadUrlResponse> = await result.response.json();
+
     if (!json.success || !json.data) {
       return { success: false, error: json.error?.message ?? "Impossibile generare URL di upload." };
     }
@@ -48,6 +66,7 @@ export async function requestUploadUrlAction(
     return { success: false, error: "Errore di rete. Riprova." };
   }
 }
+
 
 /*
  3. conferma al backend che il file è stato caricato su R2.
@@ -58,10 +77,12 @@ export async function confirmUploadAction(
   contentType: string,
   size: number
 ): Promise<ActionResult<ConfirmUploadResponse>> {
+
   const result = await fetchWithAuth(API_ENDPOINTS.media.confirmUpload, {
     method: "POST",
     body: JSON.stringify({ fileKey, contentType, size }),
   });
+  //il backend verifies file exists in R2, saves record in DB(e.g.UserMedia), links it to the user, and returns str publicUrl (e.g.https://cdn.substracker.live/avatars/user123.png)
 
   if (result.sessionExpired) redirect(ROUTES.login);
 
@@ -74,4 +95,5 @@ export async function confirmUploadAction(
   } catch {
     return { success: false, error: "Errore di rete. Riprova." };
   }
+
 }

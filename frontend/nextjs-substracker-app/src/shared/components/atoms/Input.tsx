@@ -16,4 +16,17 @@ export default function Input({ type = "text", className, ...props }: InputProps
     type === "checkbox" ? styles.checkbox : type === "file" ? styles.file : styles.default;
 
   return <input type={type} {...props} className={`${style} ${className ?? ""}`} />;
+
 }
+
+/*tailwind classes:
+transition-colors duration-150 smooth transition when colors change (hover, focus, etc.), 
+focus-visible:outline-none removes the default focus outline (ugly blue border) when the element is focused,
+focus-visible:ring-2 adds a 2px ring (outline) when input is focused
+focus-visible:ring-ring uses your Tailwind theme color (likely defined in config), this is your design system focus color
+focus-visible:ring-offset-1 adds space between element and ring
+disabled:cursor-not-allowed When disabled → cursor becomes 🚫
+disabled:opacity-50 makes it faded when disabled
+
+file:border-0 removes ugly border
+*/

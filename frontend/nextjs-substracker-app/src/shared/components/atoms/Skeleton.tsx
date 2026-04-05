@@ -9,3 +9,4 @@ export default function Skeleton({ className }: SkeletonProps) {
     />
   );
 }
+{/*x gray block while is loading the content in the page*/}

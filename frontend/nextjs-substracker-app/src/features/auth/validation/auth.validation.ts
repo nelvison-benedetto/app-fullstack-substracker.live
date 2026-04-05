@@ -32,4 +32,4 @@ export const registerSchema = z
   });
 
 export type LoginSchema = z.infer<typeof loginSchema>;  //deriva automaticamente il tipo TypeScript (LoginSchema) da questo schema!!
-export type RegisterSchema = z.infer<typeof registerSchema>;
+export type RegisterSchema = z.infer<typeof registerSchema>;  //same

@@ -12,3 +12,9 @@ export default function Label({ className, children, ...props }: LabelProps) {
     </label>
   );
 }
+
+/*tailwind classes:
+//a peer is an element that is a sibling of the current element (in this case, the input that the label is associated with)
+peer-disabled:cursor-not-allowed  //if the input (peer) is disabled: THIS label cursor becomes 🚫
+peer-disabled:opacity-70          //label becomes slightly faded
+*/

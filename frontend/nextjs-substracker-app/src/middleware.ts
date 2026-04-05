@@ -57,7 +57,7 @@ export function middleware(request: NextRequest) {  //main middleware function t
   const token = request.cookies.get(COOKIE_NAMES.accessToken)?.value;   //auth token
   const basePath = getBasePath(pathname);
   const locale = detectLocale(request);
-  const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;  //default (it) -> "", english -> "/en"
+  const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;  //default (en) -> "", italian -> "/it"
 
   const isProtected = protectedRoutes.some((r) => basePath.startsWith(r));
   const isAuthRoute = authRoutes.some((r) => basePath.startsWith(r));

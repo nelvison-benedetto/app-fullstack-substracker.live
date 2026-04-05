@@ -1,10 +1,10 @@
 "use client";
 
 import { 
-  createContext,  //crea context(contenitore) globale
+  createContext,    //crea context(contenitore) globale
   useContext, 
   useState, 
-  useCallback  //memorizza funct (ottimizzazione)
+  useCallback       //memorizza funct (performance optimization)
 } from "react";
 
 import type { AuthUser } from "@/shared/types";
@@ -28,7 +28,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
   const [user, setUser] = useState<AuthUser | null>(initialUser);
 
-  const logout = useCallback( async () => {
+  const logout = useCallback( async () => {  //useCallback prevents function from being recreated on every render & useful if passed to child components
     await logoutAction();
     setUser(null);
   }, []);
@@ -38,7 +38,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
     <AuthContext.Provider  //usa AuthContext creato qua sopra
       value={{
         user,
-        isAuthenticated: user !== null, //booleano semplice
+        isAuthenticated: user !== null,  //booleano semplice
         logout,
         setUser,
       }}
@@ -48,8 +48,8 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   );
 }
 
-export function useAuthContext() {  //hooks custom
-  const ctx = useContext(AuthContext);  //legge il context
-  if (!ctx) throw new Error("useAuthContext must be used inside AuthProvider");  //se ctx è null/undefined allora error
+export function useAuthContext() {    //hooks custom
+  const ctx = useContext(AuthContext);    //legge il context
+  if (!ctx) throw new Error("useAuthContext must be used inside AuthProvider");   //se ctx è null/undefined allora error
   return ctx;
 }
