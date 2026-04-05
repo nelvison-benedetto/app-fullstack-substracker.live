@@ -1,3 +1,4 @@
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -15,7 +16,7 @@ export type RegisterResponseData = {
   email: string;
 };
 
-export type LoginFormData = {
+export type LoginFormData = {  //'...FormData' x descrivere i dati di un form prima di inviarli al backend 
   email: string;
   password: string;
 };

@@ -11,22 +11,49 @@ import type {
   UpdateSubscriptionData,
 } from "@/shared/types";
 
-type ActionResult<T = void> = {
+type ActionResult<T = void> = {  //ti serve il wrapper, cosi passi anche metadata success:true/false & errors alla UI, superchiara x UI!! 
   success: boolean;
   data?: T;
   error?: string;
 };
 
 export async function getSubscriptionsAction(): Promise<ActionResult<Subscription[]>> {
+  //Promise<> bc is async, ActionResult<> bc we want to return success/error status and data if successful
   const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.list, {
     method: "GET",
-    cache: "no-store",
+    cache: "no-store",  //always fresh data (no caching)
   });
 
   if (result.sessionExpired) redirect(ROUTES.login);
 
   try {
     const json: ApiResponse<Subscription[]> = await result.response.json();
+    /*
+    //check also api.types.ts
+    1.backend returns
+    {
+      "success": true,
+      "data": [
+        { "id": "1", "name": "Netflix", "amount": 10 }
+      ],
+      "error": null
+    }
+    2.now after .json()
+    {
+      success: true,
+      data: [
+        { id: "1", name: "Netflix", amount: 10 }
+      ],
+      error: null
+    }
+    3.ts typing so becomes
+    {
+      success: boolean;
+      data: Subscription[] | null;
+      error: ApiError | null;
+    }
+    */
+
     if (!json.success || !json.data) {
       console.error("[getSubscriptionsAction] API error:", result.response.status, json.error);
       return { success: false, error: json.error?.message ?? `Server error ${result.response.status}` };
@@ -41,7 +68,7 @@ export async function getSubscriptionsAction(): Promise<ActionResult<Subscriptio
 export async function getSubscriptionDetailAction(id: string): Promise<ActionResult<SubscriptionDetail>> {
   const result = await fetchWithAuth(API_ENDPOINTS.subscriptions.detail(id), {
     method: "GET",
-    cache: "no-store",
+    cache: "no-store",   //always fresh data (no caching)
   });
 
   if (result.sessionExpired) redirect(ROUTES.login);

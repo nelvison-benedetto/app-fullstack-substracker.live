@@ -1,3 +1,5 @@
+//Re-export all types from ALL the individual type files. This allows us to import all types from a single file, improving maintainability and readability.
+
 export type { ApiResponse, ApiError } from "./api.types";
 
 export type {

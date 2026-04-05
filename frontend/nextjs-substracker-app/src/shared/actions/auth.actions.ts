@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";   //x server-side redirects
 import { API_ENDPOINTS, COOKIE_NAMES, ROUTES } from "@/config";
 import type {
   ApiResponse,
@@ -11,7 +11,7 @@ import type {
 } from "@/shared/types";
 import type { User } from "@/shared/types/user.types";
 
-type ActionResult = {
+type ActionResult = {  //ti serve il wrapper, cosi passi anche metadata success:true/false & errors alla UI, superchiara x UI!! 
   success: boolean;
   error?: string;
 };
@@ -52,7 +52,7 @@ export async function loginAction(
       sameSite: "lax",
     });
 
-    // Fetch real user info (id + email) using the token we just got
+    //fetch real user info (id + email) using the token we just got
     let userInfo: AuthUser = { id: "", email };
     try {
       const profileRes = await fetch(API_ENDPOINTS.users.me, {
@@ -64,6 +64,7 @@ export async function loginAction(
         cache: "no-store",
       });
       const profileJson: ApiResponse<User> = await profileRes.json();
+      
       if (profileJson.success && profileJson.data) {
         userInfo = { id: profileJson.data.id, email: profileJson.data.email };
       }
