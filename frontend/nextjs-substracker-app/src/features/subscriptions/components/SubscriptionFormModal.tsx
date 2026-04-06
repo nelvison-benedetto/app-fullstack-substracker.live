@@ -43,9 +43,9 @@ export default function SubscriptionFormModal({
   } = useForm<SubscriptionSchema>();
 
   useEffect(() => {
-    if (open) {
+    if (open) {     //every time modal opens
       setServerError(null);
-      if (initial) {
+      if (initial) {    //case 1. edit mode
         reset({
           name: initial.name,
           amount: initial.amount,
@@ -55,7 +55,7 @@ export default function SubscriptionFormModal({
           category: initial.category ?? "",
         });
       } else {
-        reset({
+        reset({         //case 2. create mode
           name: "",
           amount: undefined,
           billingCycle: "Mensile",
@@ -67,9 +67,11 @@ export default function SubscriptionFormModal({
     }
   }, [open, initial, reset]);
 
-  const onSubmit = async (data: SubscriptionSchema) => {
+  const onSubmit = async (data: SubscriptionSchema) => {    //submit logic
+
     const result = subscriptionSchema.safeParse(data);
     if (!result.success) return;
+    //prevent invalid form submission
 
     setServerError(null);
     try {
@@ -85,7 +87,7 @@ export default function SubscriptionFormModal({
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence>   //for animation
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div

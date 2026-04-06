@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 
-class SentryExampleFrontendError extends Error {
+class SentryExampleFrontendError extends Error {    //custom error class
   constructor(message: string | undefined) {
     super(message);
     this.name = "SentryExampleFrontendError";
@@ -12,17 +12,19 @@ class SentryExampleFrontendError extends Error {
 }
 
 export default function Page() {
-  const [hasSentError, setHasSentError] = useState(false);
-  const [isConnected, setIsConnected] = useState(true);
+
+  const [hasSentError, setHasSentError] = useState(false);    //tracks if an error was successfully sent to Sentry
+  const [isConnected, setIsConnected] = useState(true);       //tracks if Sentry is reachable (network working)
 
   useEffect(() => {
-    Sentry.logger.info("Sentry example page loaded");
+    Sentry.logger.info("Sentry example page loaded");   //sends a log to sentry
     async function checkConnectivity() {
-      const result = await Sentry.diagnoseSdkConnectivity();
-      setIsConnected(result !== "sentry-unreachable");
+      const result = await Sentry.diagnoseSdkConnectivity();    //check if the app reach Sentry servers
+      setIsConnected(result !== "sentry-unreachable");    //if blocked (e.g. ad blocker), button will be disabled.
     }
     checkConnectivity();
   }, []);
+  //runs once when page loads
 
   return (
     <div>
@@ -72,7 +74,7 @@ export default function Page() {
           type="button"
           onClick={async () => {
             Sentry.logger.info("User clicked the button, throwing a sample error");
-            await Sentry.startSpan(
+            await Sentry.startSpan(     //this tracks performance (timing)
               {
                 name: "Example Frontend/Backend Span",
                 op: "test",

@@ -7,6 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
   return { title: `${t("register_title")} – SubSnap` };
 }
+//load translations, sets page title dinamically
 
 export default async function RegisterPage() {
   const t = await getTranslations("auth");

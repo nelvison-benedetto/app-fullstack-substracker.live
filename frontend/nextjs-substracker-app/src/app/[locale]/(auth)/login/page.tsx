@@ -7,12 +7,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
   return { title: `${t("login_title")} – SubSnap` };
 }
+//load translations, sets page title dinamically
 
 type Props = {
   searchParams: Promise<{ registered?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: Props) {
+  
   const { registered } = await searchParams;
   const t = await getTranslations("auth");
 

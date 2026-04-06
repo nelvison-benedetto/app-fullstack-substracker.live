@@ -13,9 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboard");
   return { title: `${t("title")} – SubSnap` };
 }
+//load translations, sets page title dinamically
 
 function computeStats(subs: Subscription[]) {
-  const monthly = subs.reduce((acc, s) => {
+  const monthly = subs.reduce((acc, s) => {       //loop through all subscriptions.
     switch (s.billingCycle) {
       case "Mensile":     return acc + s.amount;
       case "Annuale":     return acc + s.amount / 12;
@@ -28,13 +29,16 @@ function computeStats(subs: Subscription[]) {
 
   return { count: subs.length, monthly, annual: monthly * 12 };
 }
+//this funct calculates total subscriptions, monthly costs, annul costs
 
 export default async function DashboardPage() {
+
   const [cookieStore, t, locale] = await Promise.all([
     cookies(),
     getTranslations("dashboard"),
     getLocale(),
   ]);
+  //parallel data fetching
 
   let user: AuthUser | null = null;
   const userInfoCookie = cookieStore.get(COOKIE_NAMES.userInfo)?.value;
@@ -42,14 +46,15 @@ export default async function DashboardPage() {
     try { user = JSON.parse(userInfoCookie) as AuthUser; } catch { /* */ }
   }
 
-  const result = await getSubscriptionsAction();
+  const result = await getSubscriptionsAction();      //fetch subscriptions
   const subscriptions: Subscription[] = result.success ? (result.data ?? []) : [];
   const fetchError: string | null = result.success ? null : (result.error ?? "Failed to load subscriptions");
-  const stats = computeStats(subscriptions);
+  const stats = computeStats(subscriptions);    //uses the function from above
 
-  const numberLocale = locale === "it" ? "it-IT" : "en-US";
+  const numberLocale = locale === "it" ? "it-IT" : "en-US";     //format currency
   const fmt = (n: number) =>
     new Intl.NumberFormat(numberLocale, { style: "currency", currency: "EUR" }).format(n);
+  //formatter, e.g. it-IT -> €10,50 , en-EN -> $10.50
 
   const statCards = [
     { label: t("stat_count"),   value: stats.count.toString() },
@@ -59,6 +64,7 @@ export default async function DashboardPage() {
 
   const emailSuffix = user?.email ? `, ${user.email}` : "";
   const welcomeMsg = t("welcome").replace("{email}", emailSuffix);
+  //welcome message
 
   return (
     <div className="space-y-6">

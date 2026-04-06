@@ -10,6 +10,7 @@ export function toMonthly(amount: number, billingCycle: string): number {
     default:            return amount;
   }
 }
+//converts ANY subscription into a monthly equivalent value
 
 export const CATEGORY_COLORS: Record<string, string> = {
   Streaming:    "#8b5cf6",
@@ -22,6 +23,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Educazione:   "#14b8a6",
   Altro:        "#6b7280",
 };
+//maps categories → colors
 
 export const CHART_PALETTE = [
   "#6366f1",
@@ -33,19 +35,21 @@ export const CHART_PALETTE = [
   "#f43f5e",
   "#14b8a6",
 ];
+//palette for charts
 
-export function buildTrendData(subscriptions: Subscription[]) {
+export function buildTrendData(subscriptions: Subscription[]) {     //AREA CHART
   const now = new Date();
-  return Array.from({ length: 12 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
-    const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+  return Array.from({ length: 12 }, (_, i) => {   //last 12 months
+    const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);    //builds each month
+    const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);      //
     const lastDay  = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    //define month boundaries
 
-    const amount = subscriptions.reduce((acc, sub) => {
+    const amount = subscriptions.reduce((acc, sub) => {       //calculate monthly spending
       const start = new Date(sub.startDate);
       const end   = sub.endDate ? new Date(sub.endDate) : null;
-      if (start <= lastDay && (!end || end >= firstDay)) {
-        return acc + toMonthly(sub.amount, sub.billingCycle);
+      if (start <= lastDay && (!end || end >= firstDay)) {    //subscription was active during that month
+        return acc + toMonthly(sub.amount, sub.billingCycle);   //add value
       }
       return acc;
     }, 0);
@@ -56,20 +60,20 @@ export function buildTrendData(subscriptions: Subscription[]) {
     };
   });
 }
-
-export function buildCategoryData(subscriptions: Subscription[]) {
-  const map = new Map<string, number>();
+//creates 12-month spending history
+export function buildCategoryData(subscriptions: Subscription[]) {      //PIE CHART
+  const map = new Map<string, number>();    //group by category
   for (const sub of subscriptions) {
     const cat = sub.category || "Altro";
-    map.set(cat, (map.get(cat) ?? 0) + toMonthly(sub.amount, sub.billingCycle));
+    map.set(cat, (map.get(cat) ?? 0) + toMonthly(sub.amount, sub.billingCycle));    //sums spending per category
   }
-  return Array.from(map.entries())
+  return Array.from(map.entries())    //convert to array
     .map(([name, value]) => ({ name, value: parseFloat(value.toFixed(2)) }))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => b.value - a.value);   //biggest categories first
 }
 
 export function buildBillingCycleData(subscriptions: Subscription[]) {
-  const map = new Map<string, { count: number; monthly: number }>();
+  const map = new Map<string, { count: number; monthly: number }>();    //group by billing cycle
   for (const sub of subscriptions) {
     const cur = map.get(sub.billingCycle) ?? { count: 0, monthly: 0 };
     map.set(sub.billingCycle, {
@@ -84,12 +88,12 @@ export function buildBillingCycleData(subscriptions: Subscription[]) {
   }));
 }
 
-export function buildTopData(subscriptions: Subscription[], limit = 8) {
+export function buildTopData(subscriptions: Subscription[], limit = 8) {    //RANKING LIST
   return subscriptions
     .map((sub) => ({
-      name:    sub.name.length > 20 ? sub.name.slice(0, 20) + "…" : sub.name,
+      name:    sub.name.length > 20 ? sub.name.slice(0, 20) + "…" : sub.name,   //truncate long names
       monthly: parseFloat(toMonthly(sub.amount, sub.billingCycle).toFixed(2)),
     }))
-    .sort((a, b) => b.monthly - a.monthly)
-    .slice(0, limit);
+    .sort((a, b) => b.monthly - a.monthly)    //highest cost first
+    .slice(0, limit);   //limit result
 }

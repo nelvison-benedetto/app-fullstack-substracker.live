@@ -13,6 +13,7 @@ export const subscriptionSchema = z.object({
   endDate: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
 });
+//x zod validation
 
 export type SubscriptionSchema = z.infer<typeof subscriptionSchema>;
 

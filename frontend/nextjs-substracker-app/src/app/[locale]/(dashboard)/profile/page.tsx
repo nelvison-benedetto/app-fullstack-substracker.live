@@ -13,12 +13,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("profile");
   return { title: `${t("title")} – SubSnap` };
 }
+//load translations, sets page title dinamically
 
 export default async function ProfilePage() {
   const [result, t] = await Promise.all([
     getProfileAction(),
     getTranslations("profile"),
   ]);
+  //parallel data fetching
 
   const profile = result.data ?? null;
   const user: AuthUser | null = profile

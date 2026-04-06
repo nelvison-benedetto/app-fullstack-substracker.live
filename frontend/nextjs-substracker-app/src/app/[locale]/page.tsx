@@ -4,6 +4,7 @@ import { COOKIE_NAMES } from "@/config";
 import WelcomePageContent from "@/features/welcome/WelcomePageContent";
 
 export default async function Home() {
+
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAMES.accessToken);
 
@@ -12,4 +13,5 @@ export default async function Home() {
   }
 
   return <WelcomePageContent />;
+  
 }
