@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
+  PieChart,               //main chart container
+  Pie,                    //the circular chart
+  Cell,                   //each slice (color customization)
+  Tooltip,                //hover info
+  Legend,                 //labels below
+  ResponsiveContainer,    //makes chart responsive
 } from "recharts";
 import type { Subscription } from "@/shared/types";
 import { useDarkMode } from "@/shared/hooks/useDarkMode";
@@ -65,11 +65,13 @@ export default function CategoryBreakdownChart({
             data={data}
             cx="50%"
             cy="50%"
+            //center of the chart
             innerRadius={58}
             outerRadius={88}
-            paddingAngle={3}
-            dataKey="value"
-            strokeWidth={0}
+            //creates 'donut' shape
+            paddingAngle={3}    //space between slices
+            dataKey="value"     //each slice (color customization)
+            strokeWidth={0}     //no outline -> modern look
           >
             {data.map((entry, index) => (
               <Cell
@@ -79,7 +81,7 @@ export default function CategoryBreakdownChart({
             ))}
           </Pie>
 
-          <Tooltip
+          <Tooltip    //hover bahvior
             contentStyle={{
               backgroundColor: tooltipBg,
               border: `1px solid ${tooltipBorder}`,
@@ -94,11 +96,11 @@ export default function CategoryBreakdownChart({
             }}
           />
 
-          <Legend
+          <Legend     //x labels
             iconType="circle"
             iconSize={8}
             wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-            formatter={(value: string) => (
+            formatter={(value: string) => (    //match dark/light mode
               <span style={{ color: textColor }}>{value}</span>
             )}
           />

@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { requestUploadUrlAction, confirmUploadAction } from "@/shared/actions/media.actions";
 
-const MAX_SIZE_BYTES = 5_000_000; // 5MB
+const MAX_SIZE_BYTES = 5_000_000;   //5MB, max file size allowed
 
-type UploadStatus = "idle" | "uploading" | "success" | "error";
+type UploadStatus = "idle" | "uploading" | "success" | "error";   //state machine x UI
 
 type AvatarUploadProps = {
   currentAvatarUrl?: string;
@@ -16,17 +16,17 @@ type AvatarUploadProps = {
 
 export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploadProps) {
   const t = useTranslations("profile");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(currentAvatarUrl ?? null);
-  const [status, setStatus] = useState<UploadStatus>("idle");
+  const inputRef = useRef<HTMLInputElement>(null);    //reference to hidden <input type="file">
+  const [preview, setPreview] = useState<string | null>(currentAvatarUrl ?? null);    //stores img preview Url
+  const [status, setStatus] = useState<UploadStatus>("idle");   //controls UI state (loading, success, error)
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {    //triggered when user selects a file
+    const file = e.target.files?.[0];   //takes first selected file
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/")) {    //accept only images
       setError(t("avatar_err_type"));
       return;
     }
@@ -38,9 +38,9 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
     setError(null);
     setStatus("uploading");
     setProgress(10);
-    setPreview(URL.createObjectURL(file));
+    setPreview(URL.createObjectURL(file));    //creates temporary local preview
 
-    const urlResult = await requestUploadUrlAction(file.name, file.type, "avatars");
+    const urlResult = await requestUploadUrlAction(file.name, file.type, "avatars");    //!!GET PRE-SIGNED URL FROM BACKEND
     if (!urlResult.success || !urlResult.data) {
       setError(urlResult.error ?? t("avatar_err_url"));
       setStatus("error");
@@ -51,7 +51,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
     const { uploadUrl, fileKey, publicUrl } = urlResult.data;
 
     try {
-      const uploadRes = await fetch(uploadUrl, {
+      const uploadRes = await fetch(uploadUrl, {    //!!UPLOAD TO CLOUDFLARE R2 STORAGE
         method: "PUT",
         headers: { "Content-Type": file.type },
         body: file,
@@ -70,7 +70,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
 
     setProgress(80);
 
-    const confirmResult = await confirmUploadAction(fileKey, file.type, file.size);
+    const confirmResult = await confirmUploadAction(fileKey, file.type, file.size);   //backend save record in db, associates file with user.
     if (!confirmResult.success) {
       setError(confirmResult.error ?? t("avatar_err_confirm"));
       setStatus("error");
@@ -87,7 +87,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
     <div className="flex flex-col items-center gap-4">
       <div
         className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-600 cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={() => inputRef.current?.click()}
+        onClick={() => inputRef.current?.click()}   //clicking avatar opens file dialog
       >
         {preview ? (
           <Image src={preview} alt="Avatar" fill className="object-cover" unoptimized />
@@ -108,15 +108,15 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
         <div className="w-full max-w-xs h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-500 transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${progress}%` }}   //progress bar
           />
         </div>
       )}
 
-      <button
+      <button   //alternative trigger (same as clicking avatar)
         type="button"
         onClick={() => inputRef.current?.click()}
-        disabled={status === "uploading"}
+        disabled={status === "uploading"}   //disable button while uploading
         className="text-sm text-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {status === "uploading" ? t("avatar_uploading") : t("avatar_change_btn")}
@@ -127,13 +127,14 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete }: AvatarUploa
       )}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <input
+      <input    //hidden from UI, triggered manually via ref, accepts only images
         ref={inputRef}
         type="file"
         accept="image/*"
         className="hidden"
         onChange={handleFileChange}
       />
+      
     </div>
   );
 }

@@ -93,14 +93,23 @@ export default function LoginForm() {
         </motion.div>
       )}
 
-      <motion.div variants={item} className="space-y-1.5">
+      <motion.div variants={item} className="space-y-1.5">  {/*sopra sopra hai gia definito sia 'item' che 'container', quindi item è in relazione al parent <motion.form initial="hidden" animate="visible">, when parent is "hidden" -> child uses item.hidden, When parent is "visible" -> child uses item.visible. use 'variants' much better x logic centralized instead of writing initial={{ opacity: 0 }} animate={{ opacity: 1 }}*/}
         <Label htmlFor="email">{t("email_label")}</Label>
         <Input
           id="email"
           type="email"
-          autoComplete="email"
+          autoComplete="email"    //tells browser This field is for email -> suggest autofill values. better UX experience!!
           placeholder={t("email_placeholder")}
-          {...register("email")}    //connects input to form state
+          {...register("email")}    //React Hook Form tracks the fields, capture value changes, handles validation, stores state efficiently
+          /*
+          React Hook Form do
+          <Input
+            name="email"
+            onChange={...}
+            onBlur={...}
+            ref={...}
+          />
+          */
           className={errors.email ? "border-red-500" : ""}
         />
         {errors.email && (
@@ -121,9 +130,9 @@ export default function LoginForm() {
           />
           <button
             type="button"
-            onClick={() => setShowPassword((v) => !v)}
+            onClick={() => setShowPassword((v) => !v)}  //toggles psw visibility
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            tabIndex={-1}
+            tabIndex={-1}   //user presses TAB -> skips this element. when u press TAB the browser moves focus on the next focusable element (e.g.input / button / link/ ect).
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>

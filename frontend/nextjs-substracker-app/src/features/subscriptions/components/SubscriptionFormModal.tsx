@@ -17,11 +17,11 @@ import {
 import type { Subscription } from "@/shared/types";
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  onSave: (data: SubscriptionSchema) => Promise<void>;
-  initial?: Subscription | null;
-  isLoading?: boolean;
+  open: boolean;                                        //controls if modal is visible
+  onClose: () => void;                                  //closes modal
+  onSave: (data: SubscriptionSchema) => Promise<void>;  //function that saves data (API call usually)
+  initial?: Subscription | null;                        //existing subscription (edit mode)
+  isLoading?: boolean;                                  //disables buttons during save
 };
 
 export default function SubscriptionFormModal({
@@ -33,13 +33,13 @@ export default function SubscriptionFormModal({
 }: Props) {
   const t = useTranslations("subscriptions");
   const [serverError, setServerError] = useState<string | null>(null);
-  const isEdit = !!initial;
+  const isEdit = !!initial;   //converts null->false, object->true. so true->edit mode, false->create mode.
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
+    register,                 //connects inputs to form
+    handleSubmit,             //wraps submit handler
+    reset,                    //resets/fill form
+    formState: { errors },    //errors are validation errors
   } = useForm<SubscriptionSchema>();
 
   useEffect(() => {

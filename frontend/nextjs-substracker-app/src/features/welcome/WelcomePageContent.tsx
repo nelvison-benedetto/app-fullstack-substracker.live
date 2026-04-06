@@ -16,7 +16,7 @@ import ToggleDarkMode from "@/shared/components/molecules/ToggleDarkMode";
 
 const featureIcons = [CreditCard, BarChart3, Bell, Shield];
 
-const exampleSubs = [
+const exampleSubs = [   //simulates what a real dashboard would show
   { name: "Netflix",   price: "12.99", color: "bg-red-500",   initial: "N" },
   { name: "Spotify",   price: "9.99",  color: "bg-green-500", initial: "S" },
   { name: "Adobe CC",  price: "59.99", color: "bg-red-700",   initial: "A" },
@@ -24,12 +24,13 @@ const exampleSubs = [
 ];
 
 const total = exampleSubs
-  .reduce((acc, s) => acc + parseFloat(s.price), 0)
+  .reduce((acc, s) => acc + parseFloat(s.price), 0)  //acc is the accumulator
   .toFixed(2);
+//loop through all subscriptions, convert "12.99" → number, sum them, format to "XX.XX"
 
 export default function WelcomePageContent() {
   const t = useTranslations("welcome");
-  const tn = useTranslations("nav");
+  const tn = useTranslations("nav");  //navbar text
 
   const features = [
     { icon: featureIcons[0], title: t("f1_title"), desc: t("f1_desc") },
@@ -37,16 +38,18 @@ export default function WelcomePageContent() {
     { icon: featureIcons[2], title: t("f3_title"), desc: t("f3_desc") },
     { icon: featureIcons[3], title: t("f4_title"), desc: t("f4_desc") },
   ];
+  //each feature icon,title(translated),description
 
   const steps = [
     { step: t("s1_step"), title: t("s1_title"), desc: t("s1_desc") },
     { step: t("s2_step"), title: t("s2_title"), desc: t("s2_desc") },
     { step: t("s3_step"), title: t("s3_title"), desc: t("s3_desc") },
   ];
+  //used later for onboarding section
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
-      {/* ── Header ── */}
+      {/*Header*/}
       <header className="fixed top-0 inset-x-0 z-50 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -74,7 +77,7 @@ export default function WelcomePageContent() {
         </div>
       </header>
 
-      {/* ── Hero ── */}
+      {/*Hero section*/}
       <section className="pt-36 pb-16 px-4 sm:px-6 text-center">
         <div className="max-w-3xl mx-auto">
           <motion.div
@@ -132,7 +135,7 @@ export default function WelcomePageContent() {
         </div>
       </section>
 
-      {/* ── Mock Dashboard Card ── */}
+      {/*Mock Dashboard Card*/}
       <section className="pb-20 px-4 sm:px-6">
         <motion.div
           className="max-w-md mx-auto bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm"
@@ -177,7 +180,7 @@ export default function WelcomePageContent() {
         </motion.div>
       </section>
 
-      {/* ── Features ── */}
+      {/*Features*/}
       <section className="py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900/50">
         <div className="max-w-5xl mx-auto">
           <motion.div
@@ -214,7 +217,7 @@ export default function WelcomePageContent() {
         </div>
       </section>
 
-      {/* ── How it works ── */}
+      {/*How it works*/}
       <section className="py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
@@ -252,7 +255,7 @@ export default function WelcomePageContent() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/*CTA*/}
       <section className="py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900/50">
         <motion.div
           className="max-w-xl mx-auto text-center"
@@ -279,7 +282,7 @@ export default function WelcomePageContent() {
         </motion.div>
       </section>
 
-      {/* ── Footer ── */}
+      {/*Footer*/}
       <footer className="border-t border-gray-100 dark:border-gray-800 py-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">

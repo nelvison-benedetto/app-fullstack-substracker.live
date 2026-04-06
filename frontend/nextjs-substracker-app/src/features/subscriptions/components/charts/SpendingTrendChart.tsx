@@ -42,7 +42,7 @@ export default function SpendingTrendChart({ subscriptions, title, subtitle }: P
               <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.28} />
               <stop offset="95%" stopColor="#6366f1" stopOpacity={0}    />
             </linearGradient>
-          </defs>
+          </defs>   {/*this definites a custom gradient fill*/}
 
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
 
@@ -61,7 +61,7 @@ export default function SpendingTrendChart({ subscriptions, title, subtitle }: P
             width={56}
           />
 
-          <Tooltip
+          <Tooltip    //hover behavior
             contentStyle={{
               backgroundColor: tooltipBg,
               border: `1px solid ${tooltipBorder}`,

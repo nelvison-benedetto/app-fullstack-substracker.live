@@ -12,14 +12,14 @@ type Props = {
   profile?: UserProfile | null;
 };
 
-function formatDate(iso?: string | null, locale?: string) {
+function formatDate(iso?: string | null, locale?: string) {  //takes an ISO date str e.g."2026-04-01T10:00:00Z" and converts it into a human readable format
   if (!iso) return "—";
-  const dateLocale = locale === "en" ? "en-US" : "it-IT";
+  const dateLocale = locale === "en" ? "en-US" : "it-IT";   //converts in browser locale format
   return new Date(iso).toLocaleDateString(dateLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  });
+  }); //e.g.EN -> Apr 01, 2026, IT -> 01 apr 2026
 }
 
 export default function ProfileInfo({ user, profile }: Props) {
@@ -36,7 +36,7 @@ export default function ProfileInfo({ user, profile }: Props) {
     <div className="space-y-4">
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
         <div className="px-6 py-4 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+          <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">  {/*shrink-0 icon keeps its original size, font-mono all characters have the same width, break-all text can break anywhere (scende alla riga sotto) to AVOID overflow*/}
             <User size={18} className="text-gray-500 dark:text-gray-400" />
           </div>
           <div>
