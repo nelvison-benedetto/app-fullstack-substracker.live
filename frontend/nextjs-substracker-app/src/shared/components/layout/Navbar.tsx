@@ -43,7 +43,7 @@ export default function Navbar() {
             href={ROUTES.dashboard}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <span className="text-base font-semibold tracking-tight">SubsTracker</span>
+            <span className="text-xl font-semibold tracking-tight">SubsTracker</span>
             <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 dark:bg-emerald-950/60 px-1.5 py-0.5">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
