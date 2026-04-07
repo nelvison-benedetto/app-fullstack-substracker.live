@@ -2,6 +2,7 @@
 export type AuthUser = {
   id: string;
   email: string;
+  avatarUrl?: string;
 };
 
 export type LoginResponseData = {

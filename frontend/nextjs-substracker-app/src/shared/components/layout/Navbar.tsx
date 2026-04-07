@@ -8,14 +8,22 @@ import Button from "@/shared/components/atoms/Button";
 import ToggleDarkMode from "@/shared/components/molecules/ToggleDarkMode";  //component x switch dark mode light mode
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROUTES } from "@/config";
+import Image from "next/image";
 
-function UserAvatar({ email }: { email: string }) {  //UseAvatar component x display user avatar w initials
-  const initials = email.slice(0, 2).toUpperCase();  //extract inials from email
+function UserAvatar({ email, avatarUrl }: { email: string; avatarUrl?: string }) {
+  if (avatarUrl) {
+    return (
+      <span className="flex h-7 w-7 rounded-full overflow-hidden border border-gray-300 dark:border-gray-600 shrink-0">
+        <Image src={avatarUrl} alt={email} width={28} height={28} className="object-cover w-full h-full" unoptimized />
+      </span>
+    );
+  }
+  const initials = email.slice(0, 2).toUpperCase();  //extract initials from email
   return (
     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200 select-none">
       {initials}
     </span>
-  ); //styled cicle avatar w initials inside, using Tailwind CSS classes for styling
+  );
 }
 
 export default function Navbar() {
@@ -46,7 +54,7 @@ export default function Navbar() {
             <>
               <Link href={ROUTES.profile}>
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                  <UserAvatar email={user.email} />
+                  <UserAvatar email={user.email} avatarUrl={user.avatarUrl} />
                   <span className="hidden sm:inline max-w-[160px] truncate text-sm">
                     {user.email}
                   </span>

@@ -4,6 +4,7 @@ import { COOKIE_NAMES } from "@/config";
 import type { AuthUser } from "@/shared/types";
 import { AuthProvider } from "@/features/auth/context/AuthContext";
 import Navbar from "@/shared/components/layout/Navbar";
+import { getMyAvatarAction } from "@/shared/actions/media.actions";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -20,6 +21,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
       initialUser = JSON.parse(userInfoCookie) as AuthUser;
     } catch {
       initialUser = null;
+    }
+  }
+
+  if (initialUser) {
+    const avatarResult = await getMyAvatarAction();
+    if (avatarResult.success && avatarResult.data) {
+      initialUser = { ...initialUser, avatarUrl: avatarResult.data };
     }
   }
 
