@@ -9,7 +9,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://substracker.live";
   1. Aggiungi la variabile d'ambiente nel tuo hosting (Vercel/server):
   NEXT_PUBLIC_SITE_URL=https://substracker.live
 
-  2. Fai deploy — dopo il deploy verifica che esistano:
+  2. Fai deploy — dopo il deploy verifica che esistano routes:
   - https://substracker.live/sitemap.xml
   - https://substracker.live/robots.txt
 
