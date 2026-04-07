@@ -9,7 +9,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://substracker.live";
   1. Aggiungi la variabile d'ambiente nel tuo hosting (Vercel/server):
   NEXT_PUBLIC_SITE_URL=https://substracker.live
 
-  2. Fai deploy — dopo il deploy verifica che esistano routes:
+  2. Fai deploy — dopo il deploy verifica che esistano routes (ovviamente non devono essere intercettate da middleware next-intl xk non sono pagine localizzate):
   - https://substracker.live/sitemap.xml
   - https://substracker.live/robots.txt
 
@@ -21,10 +21,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://substracker.live";
   4. Cloudflare — nessuna configurazione aggiuntiva necessaria. Assicurati solo che il tuo dominio non abbia regole Page Rules o Workers che blocchino /sitemap.xml o
    /robots.txt.
 
-  Nota: Google impiega di solito da pochi giorni a qualche settimana per indicizzare le pagine dopo che hai inviato la sitemap. Puoi anche usare il tool "URL
-  Inspection" in Search Console per richiedere l'indicizzazione manuale delle pagine chiave.
+  Nota: Google impiega di solito da pochi giorni a qualche settimana per indicizzare le pagine dopo che hai inviato la sitemap. Puoi anche usare il tool "URL Inspection" in Search Console per richiedere l'indicizzazione manuale delle pagine chiave.
 */
-
 
 // Public pages accessible without authentication, in both supported locales.
 // "as-needed" prefix strategy: English has no prefix, Italian uses /it/
