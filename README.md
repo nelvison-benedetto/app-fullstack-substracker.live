@@ -143,7 +143,7 @@ Le dipendenze infrastrutturali sono completamente astratte, consentendo la sosti
 
 # SUBSNAP FRONTEND – ARCHITECTURE & ENGINEERING OVERVIEW
 
-Next.js(ReactJS), TypeScript, TailwindCSS, react-errorboundary, js-cookie , lucide-react, React Hook Form, Zod, Motion, next-intl, Sentry.
+Next.js(ReactJS), TypeScript, TailwindCSS, react-errorboundary, js-cookie, lucide-react, shadcn/ui, React Hook Form, Zod, Motion, next-intl, Sentry.
 
 ## SubSnap — Frontend (Technical Reference)
 
