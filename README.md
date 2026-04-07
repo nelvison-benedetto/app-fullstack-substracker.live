@@ -1,4 +1,4 @@
-## SUBSNAP BACKEND – ARCHITECTURE & ENGINEERING OVERVIEW
+ï»¿# SUBSNAP BACKEND â€“ ARCHITECTURE & ENGINEERING OVERVIEW
 
 - Author: **Nelvison Benedetto**
 - Project: SubSnap Backend
@@ -11,9 +11,9 @@
 - Maturity Level: Production-grade backend foundation
 
 Piattforma online: https://substracker.live with 200+ users, sign-up now!<br>
-SubSnap è progettato intenzionalmente seguendo pratiche architetturali adottate nei backend moderni ad alta scalabilità, ispirate a piattaforme utilizzate da aziende come Uber, Stripe, Shopify e da sistemi enterprise basati su ASP.NET Core.
+SubSnap Ã¨ progettato intenzionalmente seguendo pratiche architetturali adottate nei backend moderni ad alta scalabilitÃ , ispirate a piattaforme utilizzate da aziende come Uber, Stripe, Shopify e da sistemi enterprise basati su ASP.NET Core.
 
-L'obiettivo del progetto non è dimostrare semplicemente l'implementazione di funzionalità applicative, ma mostrare un approccio strutturale alla progettazione di backend scalabili, mantenibili ed evolvibili nel tempo.
+L'obiettivo del progetto non Ã¨ dimostrare semplicemente l'implementazione di funzionalitÃ  applicative, ma mostrare un approccio strutturale alla progettazione di backend scalabili, mantenibili ed evolvibili nel tempo.
 
 SubSnap rappresenta quindi un blueprint architetturale orientato alla produzione, progettato per evidenziare pattern e principi utilizzati nei sistemi backend di larga scala.
 
@@ -28,7 +28,7 @@ Application  Infrastructure
 ---
 ### .CORE layer
 Questo layer contiene **pure business logic** e il **core domain model**.
-È completamente indipendente da framework, infrastruttura o servizi esterni e deve poter essere eseguito in isolamento.
+Ãˆ completamente indipendente da framework, infrastruttura o servizi esterni e deve poter essere eseguito in isolamento.
 
 **Contains**:
 DOMAIN [Entities, Aggregates, Value Objects, Events, Domain Rules, ...].
@@ -45,13 +45,13 @@ Non contiene logica infrastrutturale, ma definisce contratti (Ports) che dovrann
 Behaviors(MediatR pipeline), DependencyInjection (only for .application level), Ports (interfaces), UseCases(slices e.g.Login, Logout,...)(each slice contains Orchestrator(the TRUE entry point), Handler, Command, Result, Policies, Loaders).
 
 **References**: .Core </br>
-thislayer usa il domain in .core e definisce le ports(interfaccie) che .infrastructure implementerà
+thislayer usa il domain in .core e definisce le ports(interfaccie) che .infrastructure implementerÃ 
 
 ---
 
 ### .INFRASTRUCTURE layer
 Questo layer contiene tutte le integrazioni con sistemi esterni, come database, servizi di autenticazione, sistemi di storage e altri componenti infrastrutturali.
-Implementa le interfacce (Ports) definite nell’Application layer ed è responsabile della persistenza dei dati, dei meccanismi di sicurezza e delle integrazioni esterne.
+Implementa le interfacce (Ports) definite nellâ€™Application layer ed Ã¨ responsabile della persistenza dei dati, dei meccanismi di sicurezza e delle integrazioni esterne.
 
 **Contains**:
 EF Core repositories, JWT generation, Password hashing, Entities Configuration, ApplicationDbContext, UnitofWork, DataLoaders(Aggregates & Batch Loaders), DependencyInjection (only for .infrastructure level), Storage(for Hetzner Object media files), OutBox Processor.
@@ -62,9 +62,9 @@ thislayer implementa i Ports definiti in .applicatione e usa le entities del .co
 ---
 
 ### .API layer
-Questo layer espone il sistema tramite endpoint HTTP ed è responsabile della gestione delle richieste, della validazione, della serializzazione e della configurazione dell’API.
+Questo layer espone il sistema tramite endpoint HTTP ed Ã¨ responsabile della gestione delle richieste, della validazione, della serializzazione e della configurazione dellâ€™API.
 I controller non contengono logica di business e **non dipendono direttamente da MediatR**.
-Invocano invece l’Orchestrator del relativo Use Case, mantenendo il layer HTTP sottile e disaccoppiato dalla pipeline applicativa.
+Invocano invece lâ€™Orchestrator del relativo Use Case, mantenendo il layer HTTP sottile e disaccoppiato dalla pipeline applicativa.
 
 **Contains**:
 Requests & Responses (will match w Command & Result of the target UseCase), Mapping(x auto match request->command & result->response), ApiResult & ApiError (wrapper, for uniformity when return the response to the client), Controllers(don't know MediatR, they call the orchestrator of target usecase), Filters, Middleware(for global exception and correlationid for logging), Startup Extensions (authentication, authorization, correlationid, cors, healthchecks, swagger, validation), Validators(usa plugin Fluent Validator, for rules e.g. email must not be empty), Versioning, Program.cs.
@@ -76,15 +76,15 @@ thislayer chiama gli usescases(only orchestrators) del .application e usa depend
 
 ### Techniques & Patterns
 
-- **Domain-First**: the domain model (in .Core) represents the source of truth, cosi il databse è scollegato(facilmente sostituibile!) ed non è trattato come system fundation (approach Db-First).
+- **Domain-First**: the domain model (in .Core) represents the source of truth, cosi il databse Ã¨ scollegato(facilmente sostituibile!) ed non Ã¨ trattato come system fundation (approach Db-First).
 - **Clean Architecture**: project suddiviso in layers .API .Application .Infrastructure .Core, e le loro references. 
-- **Domain Driven Design (DDD)**: la logica di business è incapsulata direttamente nel modello di dominio, evitando così logica dispersa nei servizi applicativi.
-- **Boundaries tra Assemblies(projects)**: .applications/ports qui vengono definiti i contratti, la vero implementazione è dentro .infrastructure e.g.IUserRepository -> UserRepository, la risoluzione delle dipendenze avviene in servicecollectionextensions.cs così quando chiami l'interfaccia automaticamente viene chiamata l'implementazione, obbligatorio perche un prj non deve conosce le implementazioni dell'altro prj, ma solo le interfaccie: i boundaries sono rispettati (e i tests sono clean).
+- **Domain Driven Design (DDD)**: la logica di business Ã¨ incapsulata direttamente nel modello di dominio, evitando cosÃ¬ logica dispersa nei servizi applicativi.
+- **Boundaries tra Assemblies(projects)**: .applications/ports qui vengono definiti i contratti, la vero implementazione Ã¨ dentro .infrastructure e.g.IUserRepository -> UserRepository, la risoluzione delle dipendenze avviene in servicecollectionextensions.cs cosÃ¬ quando chiami l'interfaccia automaticamente viene chiamata l'implementazione, obbligatorio perche un prj non deve conosce le implementazioni dell'altro prj, ma solo le interfaccie: i boundaries sono rispettati (e i tests sono clean).
 - **Mapping request->command & result->response nel controller**: grazie a plugin AutoMapper converto i dati ricevuti dal client in type xxRequest e lo converto in type xxCommand, nel file mapping e.g.requesttocommandprofile.cs non devi esplicitare come avviene la conversione SE i types & names matchano perfettamente e SE non vengono usati Value Objects (e.g.UserId). 
-- **Api Result & Api Error**: la risposta che riceverà il client sara SEMPRE con la STESSA struttura, per qualsiasi tipo di risposta (200/201/404/...).
+- **Api Result & Api Error**: la risposta che riceverÃ  il client sara SEMPRE con la STESSA struttura, per qualsiasi tipo di risposta (200/201/404/...).
 - **MediatR & Pipeline Bahviors**: plugin mediatr lavora come dispatcher, dal controller chiami l'orchestrator dello target slice usecase, e l'orchestrator fa partire la pipeline di behaviors controller -> orchestrator-> validationbehavior.cs -> loggingbehavior.cs -> performancebehavior.cs -> transactionbehavior.cs -> exceptionbehavior.cs -> handler target, quindi sono a 'cipolla'(dal controller penetri fino in fondo e poi torni in superfice)!
 - **Unit Of Work Pattern**: solo transactionbehavior.cs chiama l'uow, che centralizza il SaveChangesAsync() al ritorno verso superfice dei dati elaborati.
-- **Vertical Slice Architecture**: ogni 'usecase' è uno slice isolato, ogni slice si comporta come un mini microservice e.g. 
+- **Vertical Slice Architecture**: ogni 'usecase' Ã¨ uno slice isolato, ogni slice si comporta come un mini microservice e.g. 
 UseCases/Auth/Login/
     LoginCommand
     LoginOrchestrator
@@ -93,18 +93,18 @@ UseCases/Auth/Login/
     Policies/  //regole
     Loaders/
 - **Validations**: validationbehvior.cs sia in entrata che in uscita della pipeline valida i dati (usa plugin FluentValidator), controlla solo i file xxxValidator.cs che hanno xxxCommand target utilizzato (e.g. RegisterUserValidator : AbstractValidator<RUCommand>)
-- **Aggregate Root Pattern**: solo gli aggregate root (e.g. User.cs e Subscriptions.cs) hanno il proprio repository, per modificare i figli devi passare dall'aggregate root, cosi la consistency è sempre garantita. 
-- **Value Objects**: sostituisce i tipi primitivi where business meaning exists, e.g. UserId è uno struct.
+- **Aggregate Root Pattern**: solo gli aggregate root (e.g. User.cs e Subscriptions.cs) hanno il proprio repository, per modificare i figli devi passare dall'aggregate root, cosi la consistency Ã¨ sempre garantita. 
+- **Value Objects**: sostituisce i tipi primitivi where business meaning exists, e.g. UserId Ã¨ uno struct.
 - **Aggregates**: li uso per le READ queries per caricare AggregateRoot+combinazione dei suoi childrens, e restituisco in formato e.g. UserSharedLinksAggregate.cs (composizione a runtime). quindi .Include() assolutamente DA NON FARE perche crea mega-joins.
-- **CQRS (Command Query Separation)**: WRITE e READ queries hanno business separato, per le reads quando c'è bisogno di caricare un blocco e.g voglio caricare tutte le subscriptions, uso i BATCHERS cioè Cuncurrent Batched queries, cosi invece di N richieste -> N query, faccio N richieste -> le accumulo -> faccio 1 sola batch query! e.g.SubscriptionBatchLoader.cs che simula esattamente il comportamento del modello di GraphQL DataLoaders! utilizzato anche da Uber.
-- **ProjectctionsLoaders**: li uso quando voglio caricare dati tra aggregate separati, e.g. aggregateroot1+aggregateroot2 or aggregateroot1+(aggregateroot2)+aggregateroot2children., quindi xxxProjectionLoader.cs solitamente è solo x 1 solo caso d'uso. e.g.LoadDashboard() / LoadStats() ed il suo type return ('xxxxProjectionView.cs') non va nel domain ma resta nel .infrastructure(xk non è un business aggregate!).
+- **CQRS (Command Query Separation)**: WRITE e READ queries hanno business separato, per le reads quando c'Ã¨ bisogno di caricare un blocco e.g voglio caricare tutte le subscriptions, uso i BATCHERS cioÃ¨ Cuncurrent Batched queries, cosi invece di N richieste -> N query, faccio N richieste -> le accumulo -> faccio 1 sola batch query! e.g.SubscriptionBatchLoader.cs che simula esattamente il comportamento del modello di GraphQL DataLoaders! utilizzato anche da Uber.
+- **ProjectctionsLoaders**: li uso quando voglio caricare dati tra aggregate separati, e.g. aggregateroot1+aggregateroot2 or aggregateroot1+(aggregateroot2)+aggregateroot2children., quindi xxxProjectionLoader.cs solitamente Ã¨ solo x 1 solo caso d'uso. e.g.LoadDashboard() / LoadStats() ed il suo type return ('xxxxProjectionView.cs') non va nel domain ma resta nel .infrastructure(xk non Ã¨ un business aggregate!).
 - **Request-Scoped Cache**: cache della durata di 50-300ms per una singola http req, cosi se nella stessa http req viene richista e.g.3 volte lo stesso piece-data, allora solo la prima volta il piece-data viene caricato dal db, le altre 2 volte viene usata la cache per questa singola http req.
 - **Domain Events**: rappresenta un'evento che accade quando succede qualcosa e.g UserRegisteredEvent.cs usato da UserRegisteredHandler.cs che puo fare per esempio logica di invio di email di benvenuto. 
-- **Outbox Pattern (reliable events)**: per assicurarsi di e.g registrare utente + inviare email in una 1 sola transazione(COMMIT) (altrimenti magari la registrazione user ha successo ed è salvato su db, ma poi l'invio email fallisce). quindi Save Aggregate -> Save OutBox message -> COMMIT(salvi su db), dopodiche il background worker outboxprocessor.cs sempre attivo in modalità polling ogni 2sec legge ultime 20 righe della tabella db  outboxmessage (solo quelli non ancora done) e pubblica quegli eventi (e.g. invio email di benvenuto)!
-- **Observability & Logging**: sempre chiaro logging di cosa è appena successo, ogni log fornito di chiara descrizione e di correlationId per poter facilmente tracciare cosa succede in real-time. see loggingbehavior.cs correlationidmiddleware.cs
+- **Outbox Pattern (reliable events)**: per assicurarsi di e.g registrare utente + inviare email in una 1 sola transazione(COMMIT) (altrimenti magari la registrazione user ha successo ed Ã¨ salvato su db, ma poi l'invio email fallisce). quindi Save Aggregate -> Save OutBox message -> COMMIT(salvi su db), dopodiche il background worker outboxprocessor.cs sempre attivo in modalitÃ  polling ogni 2sec legge ultime 20 righe della tabella db  outboxmessage (solo quelli non ancora done) e pubblica quegli eventi (e.g. invio email di benvenuto)!
+- **Observability & Logging**: sempre chiaro logging di cosa Ã¨ appena successo, ogni log fornito di chiara descrizione e di correlationId per poter facilmente tracciare cosa succede in real-time. see loggingbehavior.cs correlationidmiddleware.cs
 - **Security**: il sistema di auth si basa su JWT(Json Web Tokens) dunque utilizzo access tokens(breve durata), refresh tokens(lunga durata) e jwt claims.
 - **Media Upload**: su tab db usermedia sul db salvo solo i metadati, i file vengono archiviati su Hetzner Object storage.
-- **Sentry**: L’applicazione utilizza Sentry per il monitoraggio in produzione, includendo:
+- **Sentry**: Lâ€™applicazione utilizza Sentry per il monitoraggio in produzione, includendo:
     - Error tracking: tutte le eccezioni non gestite vengono automaticamente catturate
     - Centralized logging: log applicativi correlati agli errori
     - Performance tracing: monitoraggio delle performance delle API e delle richieste
@@ -115,9 +115,9 @@ UseCases/Auth/Login/
     - contesto della request
     Questo mi permette di identificare rapidamente problemi in produzione e risolverli in modo efficiente.
 
-## Perché questa architettura è scalabile
+## PerchÃ© questa architettura Ã¨ scalabile
 
-L'architettura del progetto è costruita per supportare evoluzione, crescita del dominio e carichi applicativi crescenti senza compromettere la manutenibilità del sistema.
+L'architettura del progetto Ã¨ costruita per supportare evoluzione, crescita del dominio e carichi applicativi crescenti senza compromettere la manutenibilitÃ  del sistema.
 
 Le principali caratteristiche architetturali includono:
 
@@ -125,28 +125,29 @@ Le principali caratteristiche architetturali includono:
 I confini transazionali sono definiti esplicitamente all'interno dell'Application Layer, garantendo consistenza dei dati e isolamento delle operazioni critiche.
 
 #### Event-Driven Extensibility
-La struttura applicativa è progettata per supportare facilmente un'evoluzione verso modelli event-driven, consentendo integrazioni asincrone e distribuite tra componenti del sistema.
+La struttura applicativa Ã¨ progettata per supportare facilmente un'evoluzione verso modelli event-driven, consentendo integrazioni asincrone e distribuite tra componenti del sistema.
 
 #### Stateless API Design
-L'API è completamente stateless, facilitando la scalabilità orizzontale tramite bilanciamento del carico e deploy su infrastrutture distribuite.
+L'API Ã¨ completamente stateless, facilitando la scalabilitÃ  orizzontale tramite bilanciamento del carico e deploy su infrastrutture distribuite.
 
 #### Independent Read/Write Models (CQRS mindset)
-Le operazioni di lettura e scrittura sono separate concettualmente, permettendo ottimizzazioni indipendenti delle query e maggiore flessibilità nell'evoluzione dei modelli dati.
+Le operazioni di lettura e scrittura sono separate concettualmente, permettendo ottimizzazioni indipendenti delle query e maggiore flessibilitÃ  nell'evoluzione dei modelli dati.
 
 #### Background Processing Ready
-L'architettura è predisposta per l'introduzione di processi asincroni e job in background (es. worker services, code di messaggi, task distribuiti).
+L'architettura Ã¨ predisposta per l'introduzione di processi asincroni e job in background (es. worker services, code di messaggi, task distribuiti).
 
 #### Infrastructure Replaceability
 Le dipendenze infrastrutturali sono completamente astratte, consentendo la sostituzione di componenti tecnici (database, sistemi di storage, provider di autenticazione) senza impattare la logica di dominio.
 
 
-## SUBSNAP FRONTEND – ARCHITECTURE & ENGINEERING OVERVIEW
+
+# SUBSNAP FRONTEND â€“ ARCHITECTURE & ENGINEERING OVERVIEW
 
 Next.js(ReactJS), TypeScript, TailwindCSS, react-errorboundary, js-cookie , lucide-react, React Hook Form, Zod, Motion, next-intl, Sentry.
 
-# SubSnap — Frontend (Technical Reference)
+## SubSnap â€” Frontend (Technical Reference)
 
-Next.js 15 · React 19 · TypeScript 5 · Tailwind CSS 4 · next-intl 4 · pnpm
+Next.js 15 Â· React 19 Â· TypeScript 5 Â· Tailwind CSS 4 Â· next-intl 4 Â· pnpm
 
 ---
 
@@ -154,16 +155,16 @@ Next.js 15 · React 19 · TypeScript 5 · Tailwind CSS 4 · next-intl 4 · pnpm
 
 | | |
 |---|---|
-| Framework | Next.js 15.1.6 — App Router, Server Actions, Middleware (edge) |
-| UI | React 19.2.3 — Server + Client Components |
-| Language | TypeScript 5 — `strict: true`, path alias `@/*` ? `./src/*` |
+| Framework | Next.js 15.1.6 â€” App Router, Server Actions, Middleware (edge) |
+| UI | React 19.2.3 â€” Server + Client Components |
+| Language | TypeScript 5 â€” `strict: true`, path alias `@/*` â†’ `./src/*` |
 | Styling | Tailwind CSS 4 (`@tailwindcss/postcss`), oklch color tokens, `.dark` class strategy |
-| i18n | next-intl 4.8.3 — `as-needed` prefix, EN (no prefix) / IT (`/it/`) |
+| i18n | next-intl 4.8.3 â€” `as-needed` prefix, EN (no prefix) / IT (`/it/`) |
 | Forms | react-hook-form 7.71.2 + Zod 4.3.6 resolver |
-| Charts | Recharts 3.8.1 — Area, Pie, Bar |
+| Charts | Recharts 3.8.1 â€” Area, Pie, Bar |
 | Animations | Motion 12.38.0 (Framer) |
 | Cookies (client) | js-cookie 3.0.5 |
-| Error monitoring | Sentry 10.46.0 — server + edge + client |
+| Error monitoring | Sentry 10.46.0 â€” server + edge + client |
 | Package manager | pnpm |
 
 ---
@@ -172,17 +173,17 @@ Next.js 15 · React 19 · TypeScript 5 · Tailwind CSS 4 · next-intl 4 · pnpm
 
 ```
 Browser
-  ? Middleware (edge): locale detection + auth gate
-  ? [locale]/layout: NextIntlClientProvider + AuthContext
-  ? Page (Server Component): fetches data via Server Actions
-  ? Client Components: interactivity, forms, charts
-        ?
+  â†’ Middleware (edge): locale detection + auth gate
+  â†’ [locale]/layout: NextIntlClientProvider + AuthContext
+  â†’ Page (Server Component): fetches data via Server Actions
+  â†’ Client Components: interactivity, forms, charts
+        â†•
   Server Actions ("use server"): read httpOnly cookies, call backend
-        ?
+        â†•
   ASP.NET Core API (NEXT_PUBLIC_API_URL)
 ```
 
-Data mutations: Client ? Server Action ? `fetchWithAuth` ? API ? `router.refresh()` to revalidate server state.
+Data mutations: Client â†’ Server Action â†’ `fetchWithAuth` â†’ API â†’ `router.refresh()` to revalidate server state.
 
 ---
 
@@ -190,19 +191,19 @@ Data mutations: Client ? Server Action ? `fetchWithAuth` ? API ? `router.refresh
 
 ```
 src/app/
-??? layout.tsx                    # Root — fonts (Inter, JetBrains Mono), metadata, dark class
-??? sitemap.ts                    # /sitemap.xml (6 URLs, hreflang EN+IT)
-??? robots.ts                     # /robots.txt
-??? [locale]/
-    ??? layout.tsx                # NextIntlClientProvider
-    ??? page.tsx                  # Landing
-    ??? (auth)/                   # No URL segment — login, register
-    ??? (dashboard)/              # No URL segment — auth guard in layout
-        ??? dashboard/page.tsx
-        ??? profile/page.tsx
+â”œâ”€â”€ layout.tsx                    # Root â€” fonts (Inter, JetBrains Mono), metadata, dark class
+â”œâ”€â”€ sitemap.ts                    # /sitemap.xml (6 URLs, hreflang EN+IT)
+â”œâ”€â”€ robots.ts                     # /robots.txt
+â””â”€â”€ [locale]/
+    â”œâ”€â”€ layout.tsx                # NextIntlClientProvider
+    â”œâ”€â”€ page.tsx                  # Landing
+    â”œâ”€â”€ (auth)/                   # No URL segment â€” login, register
+    â””â”€â”€ (dashboard)/              # No URL segment â€” auth guard in layout
+        â”œâ”€â”€ dashboard/page.tsx
+        â””â”€â”€ profile/page.tsx
 ```
 
-`(dashboard)/layout.tsx` calls `getServerUser()` server-side — redirects to `/login` if no valid session (second auth layer after middleware).
+`(dashboard)/layout.tsx` calls `getServerUser()` server-side â€” redirects to `/login` if no valid session (second auth layer after middleware).
 
 ---
 
@@ -210,11 +211,11 @@ src/app/
 
 **Locale detection order (middleware):**
 1. `NEXT_LOCALE` cookie (user selection)
-2. `CF-IPCountry` header (Cloudflare — `IT` ? it, else ? en)
+2. `CF-IPCountry` header (Cloudflare â€” `IT` â†’ it, else â†’ en)
 3. `Accept-Language` header
 4. `defaultLocale` (`en`)
 
-Detected locale is injected into `Accept-Language` before passing to next-intl middleware. Navigation via `src/i18n/navigation.ts` (`Link`, `redirect`, `useRouter`, `usePathname`) — all locale-aware.
+Detected locale is injected into `Accept-Language` before passing to next-intl middleware. Navigation via `src/i18n/navigation.ts` (`Link`, `redirect`, `useRouter`, `usePathname`) â€” all locale-aware.
 
 ---
 
@@ -229,10 +230,10 @@ Detected locale is injected into `Accept-Language` before passing to next-intl m
 | `user_info` | no | 10 min | Client UI (avatar, username) |
 
 **Auto-refresh (`fetchWithAuth`):**
-`401` ? POST `/api/v1/auth/refresh` ? update both cookies ? retry request. On refresh failure: delete all cookies ? return `{ sessionExpired: true }` ? Server Action redirects to `/login`.
+`401` â†’ POST `/api/v1/auth/refresh` â†’ update both cookies â†’ retry request. On refresh failure: delete all cookies â†’ return `{ sessionExpired: true }` â†’ Server Action redirects to `/login`.
 
-**Login flow:** POST login ? set cookies ? GET `/users/me` ? set `user_info` cookie.
-**Logout flow:** POST logout (blacklists refresh token) ? delete all 3 cookies ? redirect `/login`.
+**Login flow:** POST login â†’ set cookies â†’ GET `/users/me` â†’ set `user_info` cookie.
+**Logout flow:** POST logout (blacklists refresh token) â†’ delete all 3 cookies â†’ redirect `/login`.
 
 ---
 
@@ -255,15 +256,15 @@ API_ENDPOINTS = {
 interface ApiResponse<T> { success: boolean; data: T | null; error: { statusCode: number; message: string } | null; }
 ```
 
-**Avatar upload — presigned URL flow:**
-`request upload URL ? PUT directly to Cloudflare R2 (bypasses Next.js) ? confirm upload ? CDN URL returned`
+**Avatar upload â€” presigned URL flow:**
+`request upload URL â†’ PUT directly to Cloudflare R2 (bypasses Next.js) â†’ confirm upload â†’ CDN URL returned`
 Images served from `cdn.substracker.live` (configured in `next.config.ts` `remotePatterns`).
 
 ---
 
 ## Server Actions
 
-All in `src/shared/actions/` — `"use server"`, read cookies via `next/headers`.
+All in `src/shared/actions/` â€” `"use server"`, read cookies via `next/headers`.
 
 | File | Actions |
 |---|---|
@@ -292,7 +293,7 @@ All in `src/shared/actions/` — `"use server"`, read cookies via `next/headers`.
 
 ## Charts
 
-`toMonthly(amount, cycle)` normalises all billing cycles to monthly equivalent (weekly × 52/12, yearly / 12, quarterly / 3, biannual / 6). All chart data derived client-side from subscription array.
+`toMonthly(amount, cycle)` normalises all billing cycles to monthly equivalent (weekly Ã— 52/12, yearly / 12, quarterly / 3, biannual / 6). All chart data derived client-side from subscription array.
 
 | Chart | Type | Dimension |
 |---|---|---|
@@ -305,14 +306,14 @@ All in `src/shared/actions/` — `"use server"`, read cookies via `next/headers`.
 
 ## Dark Mode
 
-SSR-safe: `getServerTheme()` reads `theme` cookie ? renders `<html class="dark">` before paint (no FOIT). `useDarkMode()` hook toggles `.dark` on `document.documentElement` and writes `theme` cookie (365d) via js-cookie.
+SSR-safe: `getServerTheme()` reads `theme` cookie â†’ renders `<html class="dark">` before paint (no FOIT). `useDarkMode()` hook toggles `.dark` on `document.documentElement` and writes `theme` cookie (365d) via js-cookie.
 
 ---
 
 ## SEO
 
-`/sitemap.xml` — 6 entries (3 routes × 2 locales) with hreflang alternates.
-`/robots.txt` — allows public routes, disallows `/dashboard`, `/profile`, `/api/`.
+`/sitemap.xml` â€” 6 entries (3 routes Ã— 2 locales) with hreflang alternates.
+`/robots.txt` â€” allows public routes, disallows `/dashboard`, `/profile`, `/api/`.
 Both excluded from middleware matcher (`sitemap.xml|robots.txt`) so next-intl doesn't intercept them.
 
 ---
@@ -325,8 +326,8 @@ Both excluded from middleware matcher (`sitemap.xml|robots.txt`) so next-intl do
 | Edge | `sentry.edge.config.ts` | Same DSN |
 | Browser | `instrumentation-client.ts` | Client init |
 
-`instrumentation.ts`: `onRequestError = Sentry.captureRequestError` — auto-captures all unhandled server errors.
-`global-error.tsx`: React error boundary — `useEffect(() => Sentry.captureException(error))`.
+`instrumentation.ts`: `onRequestError = Sentry.captureRequestError` â€” auto-captures all unhandled server errors.
+`global-error.tsx`: React error boundary â€” `useEffect(() => Sentry.captureException(error))`.
 Build: `withSentryConfig` uploads source maps, tree-shakes debug logs from bundle.
 
 ---
@@ -337,7 +338,7 @@ Build: `withSentryConfig` uploads source maps, tree-shakes debug logs from bundl
 |---|---|---|
 | `NEXT_PUBLIC_API_URL` | `http://localhost:5000` | Backend base URL |
 | `NEXT_PUBLIC_SITE_URL` | `https://substracker.live` | Sitemap + robots |
-| `SENTRY_AUTH_TOKEN` | — | Build-time source map upload (`.env.sentry-build-plugin`) |
+| `SENTRY_AUTH_TOKEN` | â€” | Build-time source map upload (`.env.sentry-build-plugin`) |
 
 ---
 
@@ -346,13 +347,13 @@ Build: `withSentryConfig` uploads source maps, tree-shakes debug logs from bundl
 ```bash
 pnpm install
 # set NEXT_PUBLIC_API_URL in .env.local
-pnpm dev   # ? http://localhost:3000
+pnpm dev   # â†’ http://localhost:3000
 ```
 
 Production build: `pnpm build && pnpm start`. Docker: multi-stage Node 20 Alpine, `next build` with `standalone` output.
 
 
-## SUBSNAP DATABASE – ARCHITECTURE & ENGINEERING OVERVIEW
+# SUBSNAP DATABASE â€“ ARCHITECTURE & ENGINEERING OVERVIEW
 
 PostgreSQL 
 
