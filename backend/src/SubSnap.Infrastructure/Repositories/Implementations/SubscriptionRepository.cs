@@ -68,6 +68,16 @@ public class SubscriptionRepository : ISubscriptionRepository
         return Task.CompletedTask;
     }
 
+    public async Task DeleteHistoriesBySubscriptionIdAsync(SubscriptionId subscriptionId, CancellationToken ct)
+    {
+        var histories = await _context.Set<SubscriptionHistory>()
+            .Where(h => EF.Property<SubscriptionId>(h, "SubscriptionId") == subscriptionId)
+            .ToListAsync(ct);
+
+        if (histories.Count > 0)
+            _context.Set<SubscriptionHistory>().RemoveRange(histories);
+    }
+
     public Task AddHistoryAsync(SubscriptionHistory history, SubscriptionId subscriptionId, CancellationToken ct)
     {
         var entry = _context.Set<SubscriptionHistory>().Add(history);

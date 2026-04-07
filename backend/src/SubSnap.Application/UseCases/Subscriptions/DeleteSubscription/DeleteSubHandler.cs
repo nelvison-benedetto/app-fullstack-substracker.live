@@ -18,10 +18,13 @@ public sealed class DeleteSubHandler : IRequestHandler<DeleteSubCommand>
         var sub = await _repo.GetByIdAsync(cmd.SubscriptionId, ct)
             ?? throw new SubscriptionNotFoundException(cmd.SubscriptionId);
 
-        //ownership check
+        // ownership check
         if (sub.UserId != cmd.UserId)
             throw new UnauthorizedAccessException();
 
+        // delete histories first to avoid FK constraint violation
+        // (subscriptionhistories.subscriptionid FK was created without ON DELETE CASCADE)
+        await _repo.DeleteHistoriesBySubscriptionIdAsync(cmd.SubscriptionId, ct);
         await _repo.DeleteAsync(sub, ct);
     }
 }
