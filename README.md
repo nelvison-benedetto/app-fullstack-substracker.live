@@ -1,4 +1,4 @@
-﻿# SUBSNAP BACKEND – ARCHITECTURE & ENGINEERING OVERVIEW
+﻿# WWW.SUBSTRACKER.LIVE BACKEND – ARCHITECTURE & ENGINEERING OVERVIEW
 
 - Author: **Nelvison Benedetto**
 - Project: SubSnap Backend
@@ -141,7 +141,7 @@ Le dipendenze infrastrutturali sono completamente astratte, consentendo la sosti
 
 
 
-# SUBSNAP FRONTEND – ARCHITECTURE & ENGINEERING OVERVIEW
+# WWW.SUBTRACKER.LIVE FRONTEND – ARCHITECTURE & ENGINEERING OVERVIEW
 
 Next.js(ReactJS), TypeScript, TailwindCSS, react-errorboundary, js-cookie, lucide-react, shadcn/ui, React Hook Form, Zod, Motion, next-intl(x multi-language), Sentry.
 
@@ -353,7 +353,7 @@ pnpm dev   # → http://localhost:3000
 Production build: `pnpm build && pnpm start`. Docker: multi-stage Node 20 Alpine, `next build` with `standalone` output.
 
 
-# SUBSNAP DATABASE – ARCHITECTURE & ENGINEERING OVERVIEW
+# WWW.SUBSTRACKER.LIVE DATABASE – ARCHITECTURE & ENGINEERING OVERVIEW
 
 PostgreSQL 
 
