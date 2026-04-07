@@ -1,0 +1,214 @@
+
+-login Account su substracker.live
+nelvison.benedetto2@gmail.com
+Subs88track!
+
+cookie policy conferma appena arrivi sul sito.
+
+
+##############################
+
+www.SubsTracker.live — 🛸 Production-Grade Architecture (+200 Users) 🛸 
+
+🪅👉 𝐍𝐨𝐰 𝐋𝐢𝐯𝐞 : https://substracker.live
+
+Built, deployed, and already used by 200+ real users.
+SubsTracker is not a demo project — it’s a production-tested system designed with the same architectural principles used at scale (Uber, Stripe, Shopify).
+
+I approached it as a blueprint for real-world backend + frontend systems — focusing on scalability, reliability, and clean design.
+
+—
+
+⚙️ 𝐁𝐚𝐜𝐤𝐞𝐧𝐝 𝐒𝐭𝐚𝐜𝐤
+ASP.NET Core (.NET 8)
+PostgreSQL + EF Core
+Clean Architecture + DDD + CQRS
+Vertical Slice Architecture
+MediatR (internal orchestration)
+        API
+       /   \
+Application  Infrastructure
+      \     /
+        Domain
+
+🏗️ 𝐁𝐚𝐜𝐤𝐞𝐧𝐝 𝐊𝐞𝐲 𝐄𝐧𝐠𝐢𝐧𝐞𝐞𝐫𝐢𝐧𝐠 𝐂𝐨𝐧𝐜𝐞𝐩𝐭𝐬
+• Domain-First Design
+The domain is the source of truth — not the database.
+
+• Vertical Slice Architecture
+Each use case = isolated module (like a mini microservice):
+Login / Register / CreateSubscription / etc.
+
+• CQRS Mindset
+Writes → Aggregates
+Reads → Batch loaders (no heavy joins)
+
+• Domain Events + Outbox Pattern
+Reliable side effects (e.g. user created → email sent)
+→ single transaction, no inconsistency risk
+
+• Pipeline Behaviors (MediatR)
+Validation → Logging → Performance → Transactions → Handler
+Clean, centralized cross-cutting concerns
+
+• Unit of Work (centralized)
+Only one SaveChangesAsync() at the end of the pipeline
+
+• Request-Scoped Cache
+Avoid duplicated queries within the same request
+
+• Infrastructure Abstraction
+Everything external = behind interfaces (Ports)
+
+• Pre-Signed Url
+Secure, scalable file uploads without passing through the backend:
+→ Backend generates temporary upload URL
+→ Client uploads directly to Cloudflare R2
+→ Backend confirms and persists metadata
+→ Reduced server load + improved performance
+
+—
+
+🌐 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐢𝐨𝐧 𝐒𝐞𝐭𝐮𝐩
+Deployed via Coolify on Hetzner (server)
+🗃️ Media storage: Cloudflare R2 Object Storage (S3-compatible)
+📡 Monitoring: Sentry (errors + tracing) 
+🔐 Auth: JWT (access + refresh tokens)	 
+
+—
+
+⚙️ 𝐅𝐫𝐨𝐧𝐭𝐞𝐧𝐝 𝐒𝐭𝐚𝐜𝐤
+Next.js 15 + React 19
+TypeScript (strict)
+Tailwind CSS v4 (design system via CSS variables)
+next-intl (EN/IT i18n)
+Recharts (analytics)
+Sentry (error monitoring)
+
+🏗️ 𝐀𝐫𝐜𝐡𝐢𝐭𝐞𝐜𝐭𝐮𝐫𝐞
+• Server Components First
+Data fetching happens on the server → zero token exposure, smaller client bundle
+
+• Server Actions as Backend Gateway
+All mutations handled server-side → secure, typed, no direct client → API coupling
+
+• Clean Separation (like backend layers)
+UI → Server Actions → API → Backend
+
+• Middleware at the Edge
+Locale detection + auth guard before rendering
+
+🔐 𝐀𝐮𝐭𝐡 & 𝐒𝐞𝐜𝐮𝐫𝐢𝐭𝐲
+• httpOnly cookies (access + refresh tokens)
+• Automatic token refresh on 401
+• Dual-layer protection (middleware + server layouts)
+• Zero sensitive data in client JS
+
+🌍 𝐈𝟏𝟖𝐧 (𝐁𝐮𝐢𝐥𝐭-𝐈𝐧)
+• EN (default) + IT (auto-detected)
+• Locale-aware routing (/it/…)
+• Server-side translated content
+
+📊 𝐃𝐚𝐭𝐚 & 𝐒𝐭𝐚𝐭𝐞
+• No global state library
+• Server state → SSR + revalidation (router.refresh)
+• Minimal client state (forms, UI)
+• Derived analytics computed client-side
+
+📈 𝐀𝐧𝐚𝐥𝐲𝐭𝐢𝐜𝐬
+• Real-time dashboard (Recharts)
+• Normalized subscription cost (monthly baseline)
+• Category, billing cycle, and trend insights
+
+🎨 𝐔𝐗 & 𝐃𝐞𝐬𝐢𝐠𝐧
+• Dark mode with SSR (no flicker)
+• Accessible component system (atoms → molecules)
+• Motion-driven UI (Framer Motion)
+
+🧩 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐢𝐨𝐧 𝐃𝐞𝐭𝐚𝐢𝐥𝐬
+• Image uploads via pre-signed URLs (Cloudflare R2)
+• SEO-ready (sitemap + robots)
+• Error tracking (Sentry — client/server/edge)
+• Dockerized (standalone output)
+
+—
+
+Curious to hear feedback from other engineers 👇
+
+#softwareengineering #webdevelopment #dotnet #nextjs #reactjs #typescript #cleanarchitecture #ddd #cqrs #fullstack #cloud #postgresql #tailwindcss #systemdesign #programming
+
+
+##############################
+
+www.SubsTracker.live — 🛸 Production-Grade Architecture (+200 Users) 🛸
+
+🪅👉 𝐍𝐨𝐰 𝐋𝐢𝐯𝐞! : https://substracker.live
+
+Built, deployed, and already used by 200+ real users.
+SubsTracker is not a demo project — it’s a production-tested system designed with the same architectural principles used at scale (Uber, Stripe, Shopify).
+
+I approached it as a blueprint for real-world backend + frontend systems — focusing on scalability, reliability, and clean design.
+
+—
+
+⚙️ 𝐁𝐚𝐜𝐤𝐞𝐧𝐝
+ASP.NET Core (.NET 8) • PostgreSQL • EF Core
+Clean Architecture + DDD + CQRS
+Vertical Slice + MediatR
+
+🏗️ 𝐊𝐞𝐲 𝐂𝐨𝐧𝐜𝐞𝐩𝐭𝐬
+• Domain-first (domain ≠ database)
+• Vertical slices (feature-based modules)
+• CQRS (writes → aggregates, reads → optimized queries)
+• Domain Events + Outbox (safe side effects)
+• Pipeline Behaviors (validation, logging, transactions)
+• Unit of Work (single SaveChanges)
+• Request-scoped cache
+• Infrastructure via interfaces
+• Pre-signed uploads → direct to R2 (no backend load)
+
+—
+
+🌐 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐢𝐨𝐧 𝐒𝐞𝐭𝐮𝐩
+Deployed via Coolify on Hetzner (server)
+🗃️ Media storage: Cloudflare R2 Object Storage (S3-compatible)
+📡 Monitoring: Sentry (errors + tracing) 
+🔐 Auth: JWT (access + refresh tokens)	
+
+—
+
+⚙️ 𝐅𝐫𝐨𝐧𝐭𝐞𝐧𝐝
+Next.js 15 • React 19 • TypeScript
+Tailwind v4 • next-intl • Recharts
+
+🏗️ 𝐀𝐫𝐜𝐡𝐢𝐭𝐞𝐜𝐭𝐮𝐫𝐞
+• Server Components first (no token exposure)
+• Server Actions as API gateway
+• Clean flow: UI → Server → API
+• Edge middleware (auth + i18n)
+
+🔐 Auth: httpOnly cookies + auto refresh
+🌍 i18n: EN/IT, locale-aware routing
+📊 State: SSR + minimal client state
+📈 Analytics: real-time dashboard
+🎨 UX: SSR dark mode, accessible components
+
+🧩 𝐏𝐫𝐨𝐝𝐮𝐜𝐭𝐢𝐨𝐧 𝐃𝐞𝐭𝐚𝐢𝐥𝐬
+• Pre-signed uploads (R2)
+• SEO (sitemap + robots)
+• Sentry (client/server/edge)
+• Dockerized
+
+—
+
+👉 GitHub: https://github.com/nelvison-benedetto/substracker-app-fullstack
+Curious to hear feedback from other engineers ⚡️
+
+#softwareengineering #webdevelopment #dotnet #nextjs #reactjs #typescript #cleanarchitecture #ddd #cqrs #fullstack #cloud #postgresql #systemdesign
+
+
+
+
+
+
+
