@@ -111,7 +111,8 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
             await Task.Delay(5, ct); //aspetti 5ms, perche serve un po di tempo x raccogliere le req simultanee. e.g. t=0ms user1 t=1ms user2 t=3ms user3...
 
             var snapshot = _pending.ToArray(); //'congeli' le req attuali (lo stato attuale)
-            var ids = snapshot.Select(x => x.Key).ToList();  //ora hai e.g. [user1, user2, user3]
+            var ids = snapshot.Select(x => x.Key).ToList();           // List<Guid> — raw keys for grouping/lookup
+            var userIdObjects = ids.Select(g => new UserId(g)).ToList(); // List<UserId> — for EF Core LINQ translation
 
             await using var db =
                 await _factory.CreateDbContextAsync(ct);
@@ -156,7 +157,7 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
                 var sw = Stopwatch.StartNew();  //x performace monitoring in tempo reale. see performancebehvior.cs
 
                 var subs = await db.Set<Subscription>()
-                    .Where(s => ids.Contains(EF.Property<Guid>(s, "UserId")))
+                    .Where(s => userIdObjects.Contains(s.UserId))
                     .ToListAsync();
                 //1 QUERY SOLA!!
 

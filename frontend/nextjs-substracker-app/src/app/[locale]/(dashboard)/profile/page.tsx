@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getProfileAction } from "@/shared/actions/user.actions";
+import { getMyAvatarAction } from "@/shared/actions/media.actions";
 import ProfileInfo from "@/features/auth/components/ProfileInfo";
 import ChangeEmailForm from "@/features/profile/components/ChangeEmailForm";
 import ChangePasswordForm from "@/features/profile/components/ChangePasswordForm";
@@ -16,13 +17,15 @@ export async function generateMetadata(): Promise<Metadata> {
 //load translations, sets page title dinamically
 
 export default async function ProfilePage() {
-  const [result, t] = await Promise.all([
+  const [result, avatarResult, t] = await Promise.all([
     getProfileAction(),
+    getMyAvatarAction(),
     getTranslations("profile"),
   ]);
   //parallel data fetching
 
   const profile = result.data ?? null;
+  const avatarUrl = avatarResult.data ?? null;
   const user: AuthUser | null = profile
     ? { id: profile.id, email: profile.email }
     : null;
@@ -38,7 +41,7 @@ export default async function ProfilePage() {
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
           <h2 className="text-sm font-semibold mb-1">{t("avatar_title")}</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">{t("avatar_subtitle")}</p>
-          <AvatarUpload />
+          <AvatarUpload currentAvatarUrl={avatarUrl ?? undefined} />
         </div>
       </AnimatedSection>
 

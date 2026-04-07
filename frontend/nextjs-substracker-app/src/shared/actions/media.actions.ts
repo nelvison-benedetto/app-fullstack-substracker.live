@@ -72,6 +72,28 @@ export async function requestUploadUrlAction(
  3. conferma al backend che il file è stato caricato su R2.
  il backend salva il record UserMedia nel DB e restituisce il publicUrl CDN.
 */
+export async function getMyAvatarAction(): Promise<ActionResult<string>> {
+  const result = await fetchWithAuth(API_ENDPOINTS.media.myMedia, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (result.sessionExpired) redirect(ROUTES.login);
+
+  try {
+    const json: ApiResponse<string[]> = await result.response.json();
+    if (!json.success || !json.data) {
+      return { success: false };
+    }
+    // first item = most recent (sorted by UploadedAt DESC in UserMediaRepository)
+    const latest = json.data[0] ?? null;
+    return latest ? { success: true, data: latest } : { success: false };
+  } catch {
+    return { success: false };
+  }
+}
+
+
 export async function confirmUploadAction(
   fileKey: string,
   contentType: string,
