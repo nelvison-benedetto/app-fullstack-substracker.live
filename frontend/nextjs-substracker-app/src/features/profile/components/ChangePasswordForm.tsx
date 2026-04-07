@@ -40,12 +40,19 @@ export default function ChangePasswordForm() {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm<Schema>();
 
   const onSubmit = async (data: Schema) => {
     const parsed = schema.safeParse(data);
-    if (!parsed.success) return;
+    if (!parsed.success) {
+      parsed.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof Schema;
+        setError(field, { message: issue.message });
+      });
+      return;
+    }
 
     setIsLoading(true);
     setServerError(null);

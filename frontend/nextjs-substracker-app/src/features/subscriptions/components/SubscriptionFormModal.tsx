@@ -39,6 +39,7 @@ export default function SubscriptionFormModal({
     register,                 //connects inputs to form
     handleSubmit,             //wraps submit handler
     reset,                    //resets/fill form
+    setError,                 //sets field-level validation errors
     formState: { errors },    //errors are validation errors
   } = useForm<SubscriptionSchema>();
 
@@ -70,7 +71,13 @@ export default function SubscriptionFormModal({
   const onSubmit = async (data: SubscriptionSchema) => {    //submit logic
 
     const result = subscriptionSchema.safeParse(data);
-    if (!result.success) return;
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof SubscriptionSchema;
+        setError(field, { message: issue.message });
+      });
+      return;
+    }
     //prevent invalid form submission
 
     setServerError(null);

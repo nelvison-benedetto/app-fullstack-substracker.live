@@ -156,7 +156,7 @@ public sealed class SubscriptionBatchLoader : ISubscriptionBatchLoader
                 var sw = Stopwatch.StartNew();  //x performace monitoring in tempo reale. see performancebehvior.cs
 
                 var subs = await db.Set<Subscription>()
-                    .Where(s => ids.Contains(s.UserId.Value))
+                    .Where(s => ids.Contains(EF.Property<Guid>(s, "UserId")))
                     .ToListAsync();
                 //1 QUERY SOLA!!
 

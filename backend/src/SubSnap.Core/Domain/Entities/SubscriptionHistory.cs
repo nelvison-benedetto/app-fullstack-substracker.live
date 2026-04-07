@@ -23,6 +23,6 @@ public class SubscriptionHistory
         Action = action;
         OldValue = oldValue;
         NewValue = newValue;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = createdAt;
     }
 }
