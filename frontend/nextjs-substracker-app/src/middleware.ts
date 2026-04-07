@@ -87,6 +87,6 @@ export function middleware(request: NextRequest) {  //main middleware function t
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)"],
 };
 //middleware runs on all routes except those matching the pattern in matcher (static files, api routes, etc.)

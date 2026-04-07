@@ -21,7 +21,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://substracker.live";
   4. Cloudflare — nessuna configurazione aggiuntiva necessaria. Assicurati solo che il tuo dominio non abbia regole Page Rules o Workers che blocchino /sitemap.xml o
    /robots.txt.
 
-  ▎ Nota: Google impiega di solito da pochi giorni a qualche settimana per indicizzare le pagine dopo che hai inviato la sitemap. Puoi anche usare il tool "URL
+  Nota: Google impiega di solito da pochi giorni a qualche settimana per indicizzare le pagine dopo che hai inviato la sitemap. Puoi anche usare il tool "URL
   Inspection" in Search Console per richiedere l'indicizzazione manuale delle pagine chiave.
 */
 
