@@ -41,9 +41,21 @@ export default function Navbar() {
         <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} transition={{ duration: 0.15 }}>  {/*animation hover -> slightly bigger, click -> slightly smaller*/}
           <Link
             href={ROUTES.dashboard}
-            className="text-base font-semibold tracking-tight hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            {t("brand")}
+            <span className="text-base font-semibold tracking-tight">SubsTracker</span>
+            <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 dark:bg-emerald-950/60 px-1.5 py-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest text-emerald-400"
+                style={{ textShadow: "0 0 6px #34d399, 0 0 14px #34d399" }}
+              >
+                live
+              </span>
+            </span>
           </Link>
         </motion.div>
 
