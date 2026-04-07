@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";   //x server-side redirects
 import { API_ENDPOINTS, COOKIE_NAMES, ROUTES } from "@/config";
+import { fetchWithAuth } from "@/shared/utils/fetchWithAuth";
 import type {
   ApiResponse,
   LoginResponseData,
@@ -116,14 +117,11 @@ export async function logoutAction(): Promise<void> {
   const refreshToken = cookieStore.get(COOKIE_NAMES.refreshToken)?.value;
 
   if (refreshToken) {
-    const accessToken = cookieStore.get(COOKIE_NAMES.accessToken)?.value;
     try {
-      await fetch(API_ENDPOINTS.auth.logout, {
+      // fetchWithAuth auto-refreshes the access token if expired, ensuring the backend
+      // actually revokes the refresh token (raw fetch with an expired token gets 401 and silently fails)
+      await fetchWithAuth(API_ENDPOINTS.auth.logout, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-        },
         body: JSON.stringify({ refreshToken }),
       });
     } catch {

@@ -83,13 +83,13 @@ export async function getMyAvatarAction(): Promise<ActionResult<string>> {
   try {
     const json: ApiResponse<string[]> = await result.response.json();
     if (!json.success || !json.data) {
-      return { success: false };
+      return { success: false, error: json.error?.message ?? "Failed to fetch avatar." };
     }
     // first item = most recent (sorted by UploadedAt DESC in UserMediaRepository)
     const latest = json.data[0] ?? null;
     return latest ? { success: true, data: latest } : { success: false };
   } catch {
-    return { success: false };
+    return { success: false, error: "Network error. Please try again." };
   }
 }
 
