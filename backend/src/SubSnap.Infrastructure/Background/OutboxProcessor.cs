@@ -44,7 +44,10 @@ public sealed class OutboxProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        await Task.Delay(TimeSpan.FromSeconds(10), ct);  //!!importante un delay!! xk seno il db online appena parte l'applicazione non e ancora totalmente caricato, dargli tempo x caricare il db!!
+        // POLLING QUASI DISABILITATO: nessun evento di dominio implementato al momento.
+        // Aumentati i delay per ridurre il carico CPU/DB sul server (4GB RAM).
+        // Per riabilitare: rimetti il delay iniziale a 10s e i delay interni a 500ms/5s.
+        await Task.Delay(TimeSpan.FromHours(24), ct);  // startup delay molto lungo: evita che giri inutilmente
 
         while (!ct.IsCancellationRequested)  //LOOP INFINITO che continua a leggere i messaggi dall'outbox finche il servizio e attivo
         {
@@ -79,7 +82,7 @@ public sealed class OutboxProcessor : BackgroundService
                 if (!messages.Any())
                 {
                     await transaction.RollbackAsync(ct);
-                    await Task.Delay(5000, ct);  //backoff adattivo: nessun messaggio -> aspetta piu a lungo
+                    await Task.Delay(TimeSpan.FromHours(1), ct);  // nessun messaggio -> aspetta 1 ora (era 5s)
                     continue;
                 }
 
@@ -106,11 +109,11 @@ public sealed class OutboxProcessor : BackgroundService
                 //quindi Sentry non lo vedrebbe senza questa chiamata.
                 SentrySdk.CaptureException(ex);
                 _logger.LogError(ex, "Outbox processor encountered an error while processing messages");
-                await Task.Delay(5000, ct);  //backoff su errore: evita tight loop in caso di errori ripetuti
+                await Task.Delay(TimeSpan.FromMinutes(30), ct);  // backoff su errore (era 5s)
                 continue;
             }
 
-            await Task.Delay(500, ct);  //POLLING OGNI 500ms quando ci sono messaggi, 5s quando vuoto (vedi sopra)
+            await Task.Delay(TimeSpan.FromHours(1), ct);  // dopo aver processato messaggi -> aspetta 1 ora (era 500ms)
         }
     }
 }
