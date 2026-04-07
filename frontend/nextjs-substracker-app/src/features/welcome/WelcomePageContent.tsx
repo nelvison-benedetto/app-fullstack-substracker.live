@@ -53,10 +53,19 @@ export default function WelcomePageContent() {
       <header className="fixed top-0 inset-x-0 z-50 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black dark:bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-              <CreditCard className="w-4 h-4 text-white dark:text-black" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">{tn("brand")}</span>
+            <span className="font-bold text-lg tracking-tight">SubsTracker</span>
+            <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 dark:bg-emerald-950/60 px-1.5 py-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest text-emerald-400"
+                style={{ textShadow: "0 0 6px #34d399, 0 0 14px #34d399" }}
+              >
+                live
+              </span>
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -286,10 +295,19 @@ export default function WelcomePageContent() {
       <footer className="border-t border-gray-100 dark:border-gray-800 py-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-black dark:bg-white rounded-md flex items-center justify-center">
-              <CreditCard className="w-3 h-3 text-white dark:text-black" />
-            </div>
-            <span className="font-semibold text-sm">{tn("brand")}</span>
+            <span className="font-semibold text-sm">SubsTracker</span>
+            <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 dark:bg-emerald-950/60 px-1.5 py-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest text-emerald-400"
+                style={{ textShadow: "0 0 6px #34d399, 0 0 14px #34d399" }}
+              >
+                live
+              </span>
+            </span>
           </div>
           <p className="text-xs text-gray-400">{t("footer_copy")}</p>
           <div className="flex items-center gap-4 text-xs text-gray-400">
