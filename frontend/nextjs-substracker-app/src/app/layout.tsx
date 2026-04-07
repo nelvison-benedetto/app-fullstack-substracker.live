@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://substracker.live";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -15,8 +17,37 @@ const jetbrainsMono = JetBrains_Mono({
 //JetBrains Mono (code font): monospace font, used for numbers/code/dashboard, great for financial data
 
 export const metadata: Metadata = {
-  title: "SubSnap – Manage Your Subscriptions",
-  description: "Track and manage all your subscriptions in one place.",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "SubSnap – Manage Your Subscriptions",
+    template: "%s – SubSnap",
+  },
+  description:
+    "Track and manage all your subscriptions in one place. Never miss a renewal date again.",
+  keywords: ["subscription tracker", "manage subscriptions", "SubSnap", "recurring payments"],
+  authors: [{ name: "SubSnap" }],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    url: BASE_URL,
+    siteName: "SubSnap",
+    title: "SubSnap – Manage Your Subscriptions",
+    description:
+      "Track and manage all your subscriptions in one place. Never miss a renewal date again.",
+  },
+  twitter: {
+    card: "summary",
+    title: "SubSnap – Manage Your Subscriptions",
+    description:
+      "Track and manage all your subscriptions in one place. Never miss a renewal date again.",
+  },
+  alternates: {
+    canonical: BASE_URL,
+    languages: {
+      en: BASE_URL,
+      it: `${BASE_URL}/it`,
+    },
+  },
 };
 
 // Root layout: non imposta lang/theme (lo fa [locale]/layout.tsx)
