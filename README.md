@@ -150,88 +150,15 @@ PostgreSQL
 
 ```
 --
--- PostgreSQL database cluster dump
---
-
--- Started on 2026-03-26 13:02:14
-
-\restrict aw9Enub3klGUF0z4mwi8g0VHbi1rWOUcGiFYSBSjDQewHyo3lHXam6eFofJ6QIW
-
-SET default_transaction_read_only = off;
-
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-
---
--- Roles
---
-
-CREATE ROLE postgres;
-ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:K2p8tI9cpDG7NNcyalqQDQ==$k24fu4NeRCk6pg6albCzHl8IUekhc76GZVRPnNGvagw=:O2OrrTOIPFRTBj6eVRSHUUUNtW3oSDy2LkBsqBUmZ+8=';
-
---
--- User Configurations
---
-
-\unrestrict aw9Enub3klGUF0z4mwi8g0VHbi1rWOUcGiFYSBSjDQewHyo3lHXam6eFofJ6QIW
-
---
--- Databases
---
-
---
--- Database "template1" dump
---
-
-\connect template1
-
---
 -- PostgreSQL database dump
 --
 
-\restrict wPF5HSZgYKgEU5xeP072XnAqfd2nAljuQQDRaRSy0yxAYiZz0NefMsvjJg3cH2f
+\restrict J7WieD0Nw7Q5m4LaSFO4TvpwrsdBlxgx3GOLKUIB0yDUPQk9LpX2slvOnQIVSJ8
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
 
--- Started on 2026-03-26 13:02:15
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
--- Completed on 2026-03-26 13:02:20
-
---
--- PostgreSQL database dump complete
---
-
-\unrestrict wPF5HSZgYKgEU5xeP072XnAqfd2nAljuQQDRaRSy0yxAYiZz0NefMsvjJg3cH2f
-
---
--- Database "postgres" dump
---
-
-\connect postgres
-
---
--- PostgreSQL database dump
---
-
-\restrict hw2WtpK6U2MG5SPJ2tgdaBE1q4qIS8SGhmZxcmyoqTq15cKRjswC6921Yl29QCH
-
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.1
-
--- Started on 2026-03-26 13:02:20
+-- Started on 2026-04-07 15:46:59
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -449,6 +376,7 @@ ALTER TABLE public.users OWNER TO postgres;
 
 COPY public.outboxmessages (id, type, payload, occurredonutc, processedonutc) FROM stdin;
 453039b8-4057-4bfb-af8b-75ced86da26b	SubSnap.Core.Domain.Events.Users.UserRegisteredEvent, SubSnap.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null	{"UserId": {"Value": "7970901e-6fb2-44b0-a1eb-4c9a582a7d45"}, "OccurredOnUtc": "2026-03-10T10:12:02.8743517Z"}	2026-03-10 10:12:02.982+00	2026-03-10 10:12:04.582+00
+e9dbabb9-cace-4f39-a06e-34726b52f65d	SubSnap.Core.Domain.Events.Users.UserRegisteredEvent, SubSnap.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null	{"UserId": {"Value": "5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2"}, "OccurredOnUtc": "2026-04-01T12:22:00.2956329Z"}	2026-04-01 12:22:00.477+00	2026-04-01 12:22:00.997+00
 \.
 
 
@@ -460,6 +388,19 @@ COPY public.outboxmessages (id, type, payload, occurredonutc, processedonutc) FR
 
 COPY public.refreshtokens (id, userid, token, expiresat, isrevoked, createdat) FROM stdin;
 25c60c90-5a20-4932-8c9e-266140471957	7970901e-6fb2-44b0-a1eb-4c9a582a7d45	AQAAAAIAAYagAAAAENt1YOxsYoYBla+pvgVVkKyp+LvABlH3RoVF1JnPTNGEV1cS6lpRP0crxe/Doe5lHg==	2026-04-09 10:19:20.06+00	f	2026-03-10 10:19:20.06+00
+ea311516-e485-42b6-b0e9-2be3131494dd	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEAc8lXOb0eHqQtGgmKTwbXjr0t16+BeuYCrh2yLL8fyQToKabgIzt1AXvKgxXaeyrg==	2026-05-01 12:22:24.881+00	f	2026-04-01 12:22:24.881+00
+abc540c7-9809-4291-95c6-d3f0867bf7cf	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEIMJZt1zdVUdjmAD/Zlm1uGqeZrOYsrREUKJ8RfF/Q0N0DWMzCZKr4ltc7AP4m+BDg==	2026-05-02 15:02:26.392+00	f	2026-04-02 15:02:26.392+00
+729cff75-f5f6-4b83-a97a-de9794c0dd5d	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEDlYW7DAG1mtd9Ilj6Qm+eP1D2BMUbM3OvTN4GGbvX0sjTGcT3oANN2gadX94ov39w==	2026-05-07 08:06:26.209+00	f	2026-04-07 08:06:26.209+00
+512beba5-5296-4b50-9bb6-fcf1d272f770	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEKGI9FfhiIMARQs7wMQoizMpYskG/Hjp/SHgRA6jcPFzfn8/eBFJ1IUdo1UZx/67QQ==	2026-05-07 08:54:05.397+00	f	2026-04-07 08:54:05.397+00
+4bf70dfd-76ba-4eb9-8925-44a57dafb561	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEIdOM4XJSnZ8z8LkEvVt9+3jBkTpuNylFYuPr8BXklPJ05dF4cElQ5ZnV93CiSUbKQ==	2026-05-07 08:55:49.228+00	f	2026-04-07 08:55:49.228+00
+c8e1e937-aee8-4774-bf2a-a9e9e8f39d16	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEIP+ZvYWBQYeEYckEfatdwjbkgXsIGz5lamVYDChsJZfgU+zv/Y80iBY+9U3kwa1qQ==	2026-05-07 09:04:57.854+00	f	2026-04-07 09:04:57.855+00
+d1cfd6b1-5c3a-4c00-9af1-8998a9fe0909	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEFPGAX1sfmBAfdagqaMMXY6TvsX2kBjbV5Y7HTmoQy/0zkLNgX/pIKhaV4DYansvSA==	2026-05-07 09:05:30.591+00	f	2026-04-07 09:05:30.591+00
+1e5e044a-e3e4-4277-9193-34b2aecb7465	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEO0zay48NWE9osDxRuepmZwftnxsbhGCS7PA/V1O7fLJGlLC8AUZxfx4HhkOsysaNQ==	2026-05-07 09:19:28.271+00	f	2026-04-07 09:19:28.271+00
+6d44aa30-69cb-407b-981c-813a44ad54d6	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEPqYOgnUvKeHJof5FxB0bk05RU8r0NVbGX27wTuJXq64O5Z2esJfwEpDNlc2RHIHYQ==	2026-05-07 09:23:41.922+00	f	2026-04-07 09:23:41.922+00
+4e7187b8-5e7a-426e-b4ff-7393e017ca18	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEDhSC0DtmqltwTKofweZ6HnfpkOsSMeX21welaDtu96rCWgsCTURtpCr4477xdkvDg==	2026-05-07 09:39:46.859+00	f	2026-04-07 09:39:46.859+00
+2a421fdc-f91c-4cff-8097-9a6a23ba1033	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEMuptFIiS71cTfGq3p3f3Io0kyXObtePWWZJ2P8INlcyzp4W1Z7zidZIN8QYs7x1Lw==	2026-05-07 12:30:15.292+00	f	2026-04-07 12:30:15.292+00
+2bec53a9-d67c-4fdc-a302-28c4353fea32	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEN0vkkpRQZJJ1DeoKHkdpeZKnw5D24BaAyw6yedAKXoI5KA/342RNoF9O+fnTK6kBg==	2026-05-07 12:31:16.127+00	f	2026-04-07 12:31:16.127+00
+450f91b8-7e33-4f5d-990c-2dac93c014d3	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	AQAAAAIAAYagAAAAEMkBAmoPumk43zj4CXBX1l9amUb8mWM+T2vqxwIJ9k4GS9CpwNUo60bPHIi4pXS2EQ==	2026-05-07 12:53:07.872+00	f	2026-04-07 12:53:07.872+00
 \.
 
 
@@ -480,6 +421,12 @@ COPY public.sharedlinks (id, userid, link, expiresat, views, createdat, updateda
 --
 
 COPY public.subscriptionhistories (id, subscriptionid, action, oldvalue, newvalue, createdat) FROM stdin;
+3c735fb8-616a-4a96-86eb-597d74785f7e	5f2f14a6-7e2d-49ae-8983-b27c00ef2f25	Created	\N	Amazon | 10.02 | Mensile	2026-04-01 12:23:40.429+00
+8d7c37f8-91c5-4e03-97f8-ff8205424faa	edd646f8-fab6-45c0-8d1a-f719cace77a2	Created	\N	Claude | 17.99 | Mensile	2026-04-01 12:24:08.373+00
+7167ca54-8828-430a-92bb-8b503ff73967	61e0a47b-33fc-426b-afb5-8e332de8a405	Created	\N	Claude | 12.99 | Mensile	2026-04-01 12:26:23.291+00
+6fba9fea-9fcf-4021-8bb5-9394fad6e404	3bc11c12-4c57-40f8-a6b9-1b0cdded76c2	Created	\N	testtest | 19.99 | Mensile	2026-04-02 15:03:11.537+00
+00b71b67-9809-41ed-9e0e-6922fbba03ff	3d5047b7-74a3-499f-907c-8556537e61b1	Created	\N	zzzz | 9.99 | Mensile	2026-04-07 09:06:00.817+00
+c72cd1a0-214f-409d-93bb-3866a344c70e	3d5047b7-74a3-499f-907c-8556537e61b1	Updated	zzzz | 9.99 | Mensile	zzzzTESTETST | 9.99 | Mensile	2026-04-07 12:30:48.34+00
 \.
 
 
@@ -490,6 +437,11 @@ COPY public.subscriptionhistories (id, subscriptionid, action, oldvalue, newvalu
 --
 
 COPY public.subscriptions (id, userid, name, amount, billingcycle, startdate, enddate, category, createdat, updatedat) FROM stdin;
+5f2f14a6-7e2d-49ae-8983-b27c00ef2f25	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	Amazon	10.02	Mensile	2026-04-01	\N	Streaming	2026-04-01 12:23:40.342+00	2026-04-01 12:23:40.342+00
+edd646f8-fab6-45c0-8d1a-f719cace77a2	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	Claude	17.99	Mensile	2026-04-01	\N	Cloud	2026-04-01 12:24:08.372+00	2026-04-01 12:24:08.372+00
+61e0a47b-33fc-426b-afb5-8e332de8a405	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	Claude	12.99	Mensile	2026-04-01	\N	Cloud	2026-04-01 12:26:23.289+00	2026-04-01 12:26:23.289+00
+3bc11c12-4c57-40f8-a6b9-1b0cdded76c2	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	testtest	19.99	Mensile	2026-04-02	\N	Streaming	2026-04-02 15:03:11.473+00	2026-04-02 15:03:11.473+00
+3d5047b7-74a3-499f-907c-8556537e61b1	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	zzzzTESTETST	9.99	Mensile	2026-04-07	\N	Fitness	2026-04-07 09:06:00.75+00	2026-04-07 12:30:48.585+00
 \.
 
 
@@ -500,6 +452,7 @@ COPY public.subscriptions (id, userid, name, amount, billingcycle, startdate, en
 --
 
 COPY public.usermedia (id, userid, objectkey, contenttype, size, uploadedat) FROM stdin;
+a35d45b1-57c1-4028-9a23-03f99a57a0fc	5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	avatars/5d2684b2-b153-4eb2-8442-6fad0539457e-githubprojectsAI.png	image/png	449295	2026-04-07 09:22:21.818+00
 \.
 
 
@@ -512,6 +465,7 @@ COPY public.usermedia (id, userid, objectkey, contenttype, size, uploadedat) FRO
 COPY public.users (id, email, passwordhash, isactive, createdat, updatedat, lastlogin) FROM stdin;
 d3d74169-029a-4b5f-ad35-30ddd8c16517	test@test.com	AQAAAAIAAYagAAAAELtocc5JvNqt5uFgSbd5/clBQGZnDtiv5p5m9cjEAxaFMiwsbuQQ2giQw2y+ZTeX9Q==	t	2026-02-21 19:26:08.436+00	2026-02-21 19:26:08.436+00	\N
 7970901e-6fb2-44b0-a1eb-4c9a582a7d45	testXXX@test.com	AQAAAAIAAYagAAAAEFnz6jlP7h33F4T6gNsB6ptJNObeMnFcs9hjMGwOfHh7nVgGwot8ow4GzcHQhVIdgA==	t	2026-03-10 10:12:02.874+00	2026-03-10 10:12:02.874+00	\N
+5017bc2b-a1ea-4432-9e37-d3e13a6dd5b2	nelvison.benedetto2@gmail.com	AQAAAAIAAYagAAAAEO3bV25HQ2XWYDGzEdsOxuIbtLV9Kt8P/4aLZggpCjWf0D9H6gU23gqf95C/PGne2g==	t	2026-04-01 12:22:00.295+00	2026-04-01 12:22:00.296+00	\N
 \.
 
 
@@ -687,12 +641,12 @@ ALTER TABLE ONLY public.sharedlinks
 
 
 --
--- TOC entry 3393 (class 2606 OID 16551)
+-- TOC entry 3393 (class 2606 OID 16566)
 -- Name: subscriptionhistories fk_subscriptionhistories_subscriptions; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.subscriptionhistories
-    ADD CONSTRAINT fk_subscriptionhistories_subscriptions FOREIGN KEY (subscriptionid) REFERENCES public.subscriptions(id);
+    ADD CONSTRAINT fk_subscriptionhistories_subscriptions FOREIGN KEY (subscriptionid) REFERENCES public.subscriptions(id) ON DELETE CASCADE;
 
 
 --
@@ -713,18 +667,13 @@ ALTER TABLE ONLY public.usermedia
     ADD CONSTRAINT fk_usermedia_user FOREIGN KEY (userid) REFERENCES public.users(id);
 
 
--- Completed on 2026-03-26 13:02:27
+-- Completed on 2026-04-07 15:47:07
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict hw2WtpK6U2MG5SPJ2tgdaBE1q4qIS8SGhmZxcmyoqTq15cKRjswC6921Yl29QCH
+\unrestrict J7WieD0Nw7Q5m4LaSFO4TvpwrsdBlxgx3GOLKUIB0yDUPQk9LpX2slvOnQIVSJ8
 
--- Completed on 2026-03-26 13:02:27
-
---
--- PostgreSQL database cluster dump complete
---
 
 ```
