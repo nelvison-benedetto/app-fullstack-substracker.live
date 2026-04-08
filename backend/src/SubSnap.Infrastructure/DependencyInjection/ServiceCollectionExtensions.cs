@@ -49,7 +49,7 @@ public static class ServiceCollectionExtensions
             ),
             ServiceLifetime.Scoped);   //SOLO READ(cosi puoi fare QUERY PARALLELE!!)
 
-        services.AddHostedService<OutboxProcessor>(); //va bene dovunque here nella chain, viene avviato auto quando l'host .net parte.
+        // services.AddHostedService<OutboxProcessor>(); // DISABILITATO — OutboxProcessor non attivo
         services.AddHttpContextAccessor();  //cosi subscriptionbatchloader.cs ha accesso al correlationid x logging(mex di debug)
 
         //registrazione dei repositories!!
