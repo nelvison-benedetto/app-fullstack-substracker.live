@@ -28,7 +28,7 @@ builder.Services.AddControllers();
 
 //custom startup configs
 builder.Services.AddValidationConfiguration();
-builder.Services.AddCorsConfiguration();
+builder.Services.AddCorsConfiguration(builder.Configuration);
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddAuthenticationConfiguration(builder.Configuration);
 builder.Services.AddAuthorizationConfiguration();

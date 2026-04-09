@@ -1,29 +1,30 @@
 ﻿namespace SubSnap.API.StartupExtensions.Cors;
 
 /*
-set CORS (Cross-Origin Resource Sharing), 
+set CORS (Cross-Origin Resource Sharing),
  */
 
 public static class CorsExtensions
 {
     private const string CorsPolicyName = "DefaultCorsPolicy";
 
-    public static IServiceCollection AddCorsConfiguration( this IServiceCollection services)  //x registrazione
+    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddCors(options =>   //activate system CORS of ASP.NET
-        {
+        var allowedOrigins = configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>() ?? [];
 
-            //policy 1
-            options.AddPolicy( CorsPolicyName, builder =>
+        services.AddCors(options =>
+        {
+            options.AddPolicy(CorsPolicyName, builder =>
             {
                 builder
-                    .AllowAnyOrigin()   //TODO ovviamente in prod non va bene AllowAnyOrigin, ma usi e.g..WithOrigins("https://app.subsnap.com") 
-                    .AllowAnyMethod()   //allow any method get/post/put/delete/ect...
-                    .AllowAnyHeader();  //allow any header Authorization/Content-Type/X-Correlation-Id/ect...
-                //set rules
+                    .WithOrigins(allowedOrigins)  // origini esplicite da appsettings (per env)
+                    .AllowAnyMethod()             // allow any method get/post/put/delete/ect...
+                    .AllowAnyHeader();            // allow any header Authorization/Content-Type/X-Correlation-Id/ect...
             });
-
         });
+
         return services;
     }
 
