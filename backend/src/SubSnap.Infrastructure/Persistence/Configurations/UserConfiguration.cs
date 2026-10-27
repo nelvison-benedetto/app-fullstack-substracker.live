@@ -20,18 +20,18 @@ E TRA GLI AGGREGATE ROOTS usi cmnq le FK (shadow) per legarli!!
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<User> builder)  
     {
-        builder.ToTable("users");
+        builder.ToTable("users");  //dice a EF Core che l'entità User corrisponde alla tabella PostgreSQL chiamata users
 
         builder.HasKey(x => x.Id); //dici quale è la pk
 
         builder.Property(x => x.Id)
             .HasColumnName("id")  //nome ESATTAMENTE UGUALE a quello sul db!! oppure install plugin EFCore.'NamingConventions' che auto fa e.g.RefreshTokens -> refresh_tokens(x il db)
-            .HasConversion(
+            .HasConversion(  //xk ricorda che utilizzi un readonly struct UserId x UserId in User, quindi devi specificare here come fare input/output
                 id => id.Value,  //quando save allora prendi il value
                 value => new UserId(value))  //quando invece Load allora crea nuovo type 
-            .HasColumnType("uuid")
+            .HasColumnType("uuid")  //il tipo della colonna in PostgreSQL
             .ValueGeneratedNever();  //cosi EF sa di non aspettarsi che il db generi l'id(xk lo genero io nel Domain)!
 
         builder.Property(x => x.Email)
@@ -58,7 +58,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.CreatedAt)
             .HasColumnName("createdat")
-            .HasColumnType("timestamptz(3)")  //w timezone!
+            .HasColumnType("timestamptz(3)")  //w timezone!  istante temporale con gestione del fuso orario, precisione ai millisecondi
             .IsRequired();
 
         builder.Property(x => x.UpdatedAt)

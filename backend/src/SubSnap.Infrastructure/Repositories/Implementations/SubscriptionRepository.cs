@@ -84,4 +84,5 @@ public class SubscriptionRepository : ISubscriptionRepository
         entry.Property("SubscriptionId").CurrentValue = subscriptionId;  //imposta la shadow FK
         return Task.CompletedTask;
     }
+
 }

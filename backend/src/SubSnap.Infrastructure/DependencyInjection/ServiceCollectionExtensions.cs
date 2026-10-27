@@ -40,14 +40,15 @@ public static class ServiceCollectionExtensions
             )
         );  //postgreSQL x EF core. SOLO WRITE(sempre usando UnitOfWork)
 
-        services.AddDbContextFactory<ApplicationDbContext>(options =>
+        services.AddDbContextFactory<ApplicationDbContext>(options =>   //factory, cosi crea nuove istanze di dbcontext quando viene chiesto esplicitamente e cosi puoi fare query parallele
             options.UseNpgsql(configuration.GetConnectionString("sqlConnection"),
             npgsqlOptions =>
             {
                 npgsqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
             }
             ),
-            ServiceLifetime.Scoped);   //SOLO READ(cosi puoi fare QUERY PARALLELE!!)
+            ServiceLifetime.Scoped); //AddDbContextFactory di default è singleton, ma tu lo vuoi scoped  
+        //SOLO READ(cosi puoi fare QUERY PARALLELE!!)
 
         // services.AddHostedService<OutboxProcessor>(); // DISABILITATO — OutboxProcessor non attivo
         services.AddHttpContextAccessor();  //cosi subscriptionbatchloader.cs ha accesso al correlationid x logging(mex di debug)

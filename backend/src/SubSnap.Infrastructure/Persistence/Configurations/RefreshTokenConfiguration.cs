@@ -41,13 +41,14 @@ public class RefreshTokenConfiguration
 
 
         //builder.Property<Guid>("UserId")
-        //    .HasColumnName("userid"); //SHADOW FK (domain non la conosce), esiste solo dentro EF non dentro le classi c#!! FK verso User. la puoi usare nelle query w e.g. EF.Property<Guid>(s, "UserId")
+        // .HasColumnName("userid"); //SHADOW FK (domain non la conosce), esiste solo dentro EF non dentro le classi c#!! FK verso User. la puoi usare nelle query w e.g. EF.Property<Guid>(s,"UserId")
         builder.Property<UserId>("UserId")  //SHADOW FK (Value Object)
             .HasConversion(
                 id => id.Value,
                 value => new UserId(value))
             .HasColumnName("userid")
             .IsRequired();
+
 
         builder.HasIndex("UserId");
         builder.HasIndex(x => x.Token)

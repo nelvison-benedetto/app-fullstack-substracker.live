@@ -79,7 +79,7 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
         // la query piu frequente e' WHERE userid = ? ORDER BY createdat DESC.
         // Con questo indice PostgreSQL usa l'index scan gia' ordinato, senza step sort separato.
         // SQL migration manuale: CREATE INDEX ix_subscriptions_userid_createdat ON subscriptions(userid, createdat DESC);
-        builder.HasIndex(x => new { x.UserId, x.CreatedAt })
-            .HasDatabaseName("ix_subscriptions_userid_createdat");
+        builder.HasIndex(x => new { x.UserId, x.CreatedAt })  //crea un indice composto sul db postgresql sulle due colonne UserId e CreatedAt
+            .HasDatabaseName("ix_subscriptions_userid_createdat");  //nome dell'idx
     }
 }
