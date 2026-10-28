@@ -23,13 +23,13 @@ public class ApplicationDbContext : DbContext
         : base(options) { }  //passa le opzioni al costruttore della classe padre cioè DbContext
 
     //SOLO AGGREGATE ROOTS
-    public DbSet<User> Users => Set<User>();
+    public DbSet<User> Users => Set<User>();  //=> Set<User>() è una expression-bodied property che sarebbe quindi public DbSet<User> Users{get{return Set<User>();}}, normalmente corrisponde ad 1 tua tabella sul db.
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<UserMedia> UserMedias => Set<UserMedia>();  //x upload avatar/media su Cloudflare R2
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)  //portected = accessibile solo qua e hai children di questa classe, fai override di questo methodo (offerto da DbContext)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         //prende assembly corrente -> trova tutte le classi IEntityTypeConfiguration<T> -> le esegue. trova tutte le tue xxxConfiguration.

@@ -38,7 +38,7 @@ public sealed class EFUnitOfWork : IUnitOfWork
         //}
 
 
-        //!!OUTBOX PATTERN. e.g. vuoi fare Saved Used + Send Email, quindi devi fare le 2 operazioni insime perche la prima non puo essere DONE senza la seconda, altrimenti hai inconsistenza della transazione! Quindi invece di inviare direttamente l'email, salvi un record in un Outbox table, e poi un processo separato legge da quella tabella e invia le email. In questo modo, anche se l'invio dell'email fallisce, il record rimane nell'Outbox e può essere ritentato.
+        //!!OUTBOX PATTERN. e.g. vuoi fare Saved Used + Send Email, quindi devi fare le 2 operazioni insieme perche la prima non puo essere DONE senza la seconda, altrimenti hai inconsistenza della transazione! Quindi invece di inviare direttamente l'email, salvi un record in un Outbox table, e poi un processo separato legge da quella tabella e invia le email. In questo modo, anche se l'invio dell'email fallisce, il record rimane nell'Outbox e può essere ritentato.
         //EF tiene traccia di tutte le entità che sono state modificate, quindi puoi facilmente estrarre gli eventi di dominio dalle entità modificate e salvarli nella tabella Outbox insieme alle modifiche dello stato, garantendo così la consistenza della transazione.
 
         //see User.cs  transactionbehavior.cs  efunitofwork.cs  outboxprocessor.cs outboxmessage.cs
