@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<ApiResult<LoginResponseAuth>>> LoginAsync([FromBody] LoginRequestAuth request, CancellationToken ct)
+    public async Task<ActionResult<ApiResult<LoginResponseAuth>>> LoginAsync([FromBody] LoginRequestAuth request, CancellationToken ct)  //FromBody significa che .net legge dal corpo della req e cerca di costruire dto LoginRequestAuth
     {
         //var (access, refresh) = await _authHandler.LoginAsync(email, request.Password,ct); OLD
         //var command = new LoginCommand( new Email(request.Email), request.Password );  oppure meglio usi il mapper per essere pulito .API.mapping/

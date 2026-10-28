@@ -11,8 +11,8 @@ public static class CorsExtensions
     public static IServiceCollection AddCorsConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         var allowedOrigins = configuration
-            .GetSection("Cors:AllowedOrigins")
-            .Get<string[]>() ?? [];
+            .GetSection("Cors:AllowedOrigins")  //prende da appsettings la section AllowedOrigins (che è dentro section Cors)
+            .Get<string[]>() ?? [];  //prova a convertire in arrai di str
 
         services.AddCors(options =>
         {

@@ -1,9 +1,9 @@
 ﻿namespace SubSnap.Core.Domain.ValueObjects;
 
-public readonly struct UserId  //è readonly struct
+public readonly struct UserId  //è readonly struct(definisce un value type)
 {
     public Guid Value { get; }  //better GUID di semplice int!!
-    public UserId(Guid value)
+    public UserId(Guid value)  //constructor
     {
         if (value == Guid.Empty)
             throw new ArgumentException("UserId cannot be empty GUID");

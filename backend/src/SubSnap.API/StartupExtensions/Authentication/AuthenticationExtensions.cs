@@ -22,7 +22,7 @@ public static class AuthenticationExtensions
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 //quando aspnet deve auntenticare una richiesta -> usa JWT
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                //quando serve risposndere w 401 unauthorized -> usa JWT
+                //quando serve rispondere w 401 unauthorized -> usa JWT
             })
             .AddJwtBearer(options =>
             {

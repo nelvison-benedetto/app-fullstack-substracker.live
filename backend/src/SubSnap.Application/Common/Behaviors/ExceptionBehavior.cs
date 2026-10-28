@@ -26,7 +26,7 @@ TransactionBehavior
 ExceptionBehavior
    ↓
 Handler
-//plugin MediatR costruisce dinamicamente la pipeline usando reflrection, quindi cerca sermpe Handle(...) !!
+//plugin MediatR costruisce dinamicamente la pipeline usando reflection, quindi cerca sermpe Handle(...) !!
 COME FUNZIONA CON NEXT/RETURN RESPONSE NELLA PIPELINE
 TransactionBehavior entra
 ↓
