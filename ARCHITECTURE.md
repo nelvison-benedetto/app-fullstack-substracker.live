@@ -3,6 +3,102 @@
 Questo documento spiega **come funziona l'intera piattaforma** (frontend, backend, database, servizi esterni) e descrive **tutti i flows** end-to-end, file per file.
 Per la filosofia dei pattern (DDD, CQRS, Outbox, ecc.) vedi anche `README.md`; qui l'obiettivo è mostrare *cosa succede davvero* quando arriva una richiesta.
 
+
+
+flow di INGRESSO (Request → Business)  //lo leggi dall'alto verso il basso
+HTTP Request
+  ↓
+Controller (API)
+  └─ Riceve Request DTO esterno (External Request DTO)
+  └─ Suppress automatic ModelState validation ([ApiController] + SuppressModelStateInvalidFilter)
+  ↓
+FluentValidation (API-only)
+  └─ Validator centralizzato tramite ValidatorHelper (o non usato direttamente w IValidator<T>)
+  └─ Se invalido, lancia ValidationException
+  ↓
+ExceptionMiddleware (intercetta ValidationException)
+  └─ Trasforma in ApiResult.Fail(ApiError)
+  └─ (non continua al Service Layer se fallisce)
+  ↓
+AutoMapper (Request DTO → Application Command)
+  └─ Mappa DTO di ingresso al Command dell’Application Layer
+  ↓
+Application Service (Use Case / UserService)
+  └─ Controlli di business (ad es. email già registrata)
+  └─ Se errore di dominio, lancia DomainException
+  ↓
+Domain Layer
+   ├─ Entities (User, Subscription, etc.)
+   ├─ Value Objects (UserId, Email, PasswordHash, etc.)
+   ├─ Aggregates (UserAggregate)
+   └─ Domain Exceptions (EmailAlreadyRegisteredException, NotFoundException, etc.)
+  ↓
+Repository Interfaces (Core.Contracts)
+  └─ Definiscono contratti senza dipendenze EF
+  ↓
+Infrastructure Repositories (EF Core)
+  └─ Implementano le query verso DbContext
+  ↓
+Unit of Work (EF SaveChanges)
+  └─ Commit delle modifiche in transazione
+  ↓
+DbContext (EF Core)
+  └─ Interazione reale con il database
+  ↓
+SQL Server
+
+
+flow di USCITA (Business → Response)  //lo leggi dal basso verso l'alto
+SQL Server
+  ↑
+DbContext (EF Core)
+  ↑
+Infrastructure Repositories
+  ↑
+Application Service (Use Case)
+     └─ Restituisce Result DTO (UserResult, ecc.)
+  ↑
+AutoMapper (Application Result DTO → Response DTO)
+     └─ Mapping solo DTO, mai Domain → EF
+  ↑
+ApiResult<T>.Ok(Response DTO)
+     └─ Success = true, Data = Response DTO
+  ↑
+Controller (API)
+     └─ Restituisce HTTP 200 + body in formato ApiResult<T>
+  ↑
+HTTP Response
+
+
+flow when ERROR (override totale)  //lo leggi dal bassso verso l'alto 
+Qualsiasi Exception (EF / Infrastructure / Domain / Application)
+  ↑
+DomainException / ValidationException / SystemException
+     └─ Ad esempio: EmailAlreadyRegisteredException, NotFoundException, FluentValidation.ValidationException🔥
+  ↑
+Global ExceptionMiddleware (API)
+     └─ Intercetta tutte le eccezioni
+     └─ Mappa in ApiError
+  ↑
+ApiResult<T>.Fail(ApiError)
+     └─ Success = false
+     └─ StatusCode coerente (400, 404, 500, ecc.)
+  ↑
+Controller / Middleware pipeline
+     └─ HTTP Response
+         └─ StatusCode coerente (400, 404, 500, ecc.)
+         └─ Body standardizzato: ApiResult<T>
+
+Core → nessun plugin ( no FluentValidation, AutoMapper, EF, Newtonsoft, ect).
+Infrastructure → EF base + logging opzionale.
+API → AutoMapper per DTO ↔ DTO, FluentValidation, Middleware, Auth, Swagger.
+
+Il Controller orchestra, non decide
+Il Domain decide, non conosce HTTP
+Infrastructure esegue, non pensa
+API formatta, non valida business
+
+
 ---
 
 ## 1. Panoramica del sistema
@@ -486,3 +582,141 @@ In produzione i segreti arrivano dalle variabili d'ambiente (Coolify), es. `JwtS
 - I controller ripetono `GetCurrentUserId()`; `Controllers/Base/ApiControllerBase.cs` è vuoto e potrebbe ospitarlo.
 - I file `*_OLDbutdontdelete.cs` e `DTOsOLDNOWISIN.Application_dontdeletebackup/` sono backup non usati.
 - `frontend/reactpp-app-subsnap` è un prototipo alternativo (Vite + Redux) non collegato al deploy.
+
+---
+
+## 11. Struttura a cartelle del backend
+
+### 11.1 Dipendenze tra i progetti
+
+```mermaid
+flowchart TD
+    API["SubSnap.API<br/>(Web host)"] --> APP["SubSnap.Application<br/>(use cases + ports)"]
+    API --> INF["SubSnap.Infrastructure<br/>(EF Core, JWT, R2, loaders)"]
+    INF --> APP
+    APP --> CORE["SubSnap.Core<br/>(domain)"]
+    INF --> CORE
+    TEST["tests/test1<br/>(unit test handler)"] -.-> APP
+    TEST -.-> CORE
+```
+
+### 11.2 Albero delle cartelle
+
+Esclusi `bin/` e `obj/`. In `UseCases/` ogni cartella è una *vertical slice* con lo stesso schema (`XCommand`, `XHandler`, `XOrchestrator`, `XResult`, più eventuali `Loaders/` e `Policies/`); per brevità i file sono mostrati solo per `Login` e `CreateSubscription`.
+
+```
+backend/
+├── Dockerfile                          # immagine del backend (porta 8080)
+├── .dockerignore
+├── src/
+│   ├── SubSnap.API/                    # ── LAYER API (HTTP) ──────────────────────────────
+│   │   ├── Program.cs                  # composition root + pipeline middleware
+│   │   ├── appsettings*.json           # Development / Staging / Production
+│   │   ├── Properties/launchSettings.json
+│   │   ├── Controllers/
+│   │   │   ├── Base/ApiControllerBase.cs        # vuoto
+│   │   │   └── V1/
+│   │   │       ├── AuthController.cs            # login, refresh, logout
+│   │   │       ├── UsersController.cs           # register, me (GET/PUT/DELETE)
+│   │   │       ├── SubscriptionsController.cs   # CRUD subscriptions
+│   │   │       └── MediaController.cs           # upload-url, confirm-upload, lista media
+│   │   ├── Contracts/                  # DTO HTTP (Request/Response) + envelope
+│   │   │   ├── Auth/{Requests,Responses}/
+│   │   │   ├── Users/{Requests,Responses}/
+│   │   │   ├── Subscriptions/{Requests,Responses}/
+│   │   │   ├── Media/{Requests,Responses}/
+│   │   │   ├── Responses/ApiResult.cs
+│   │   │   └── Errors/ApiError.cs
+│   │   ├── Mapping/
+│   │   │   ├── RequestToCommandProfile.cs       # Request → Command
+│   │   │   └── ResultToResponseProfile.cs       # Result  → Response
+│   │   ├── Middleware/
+│   │   │   ├── Correlation/CorrelationIdMiddleware.cs
+│   │   │   └── ExceptionHandling/ExceptionMiddlewareExtensions.cs   # eccezione → status code
+│   │   ├── StartupExtensions/          # un file di estensione per ogni concern
+│   │   │   ├── Authentication/  ├── Authorization/  ├── CorrelationId/
+│   │   │   ├── Cors/            ├── HealthChecks/   ├── Swagger/
+│   │   │   └── Validation/
+│   │   └── Versioning/ApiVersioningExtensions.cs
+│   │
+│   ├── SubSnap.Application/            # ── LAYER APPLICATION (use cases) ─────────────────
+│   │   ├── DependencyInjection/DependencyInjection.cs   # MediatR, validators, Scrutor, behaviors
+│   │   ├── Common/
+│   │   │   ├── Behaviors/              # Validation → Logging → Performance → Transaction → Exception
+│   │   │   ├── Execution/              # IOrchestrator, IUseCaseHandler, UseCaseResult
+│   │   │   └── Exceptions/ApplicationException.cs
+│   │   ├── Ports/                      # interfacce implementate in Infrastructure
+│   │   │   ├── Auth/                   # IJwtTokenService, IPasswordHasherService
+│   │   │   ├── Persistence/            # IUserRepository, ISubscriptionRepository, IUserMediaRepository, IUnitOfWork
+│   │   │   ├── DataLoadersorQueries/   # ISubscriptionAggregateLoader, ISubscriptionBatchLoader, IUserAggregateLoader
+│   │   │   ├── Storage/IObjectStorageService.cs
+│   │   │   └── Messaging/              # IEventDispatcher_OLDbutdontdelete (backup)
+│   │   ├── Validators/                 # FluentValidation: Login, RegisterUser, CreateSub, UpdateSub, UpdateUserProfile
+│   │   └── UseCases/
+│   │       ├── Auth/
+│   │       │   ├── Login/
+│   │       │   │   ├── LoginCommand.cs
+│   │       │   │   ├── LoginHandler.cs
+│   │       │   │   ├── LoginOrchestrator.cs
+│   │       │   │   ├── LoginResult.cs
+│   │       │   │   ├── Loaders/UserByEmailLoader.cs
+│   │       │   │   └── Policies/PasswordPolicy.cs
+│   │       │   ├── Logout/             # + Loaders/, Policies/LogoutTokenPolicy
+│   │       │   └── RefreshToken/       # RT* (rotazione refresh token)
+│   │       ├── Users/
+│   │       │   ├── RegisterUser/       # RU*
+│   │       │   ├── GetUserProfile/
+│   │       │   ├── UpdateUserProfile/
+│   │       │   ├── DeleteUser/         # + Loaders/
+│   │       │   └── GetUsersWithSubscriptions/   # GUS* (handler commentato, nessun endpoint)
+│   │       └── Subscriptions/
+│   │           ├── CreateSubscription/
+│   │           │   ├── CreateSubCommand.cs
+│   │           │   ├── CreateSubHandler.cs
+│   │           │   ├── CreateSubOrchestrator.cs
+│   │           │   └── CreateSubResult.cs
+│   │           ├── UpdateSubscription/
+│   │           ├── DeleteSubscription/
+│   │           ├── GetSubscriptionDetail/
+│   │           └── GetUserSubscriptions/
+│   │
+│   ├── SubSnap.Infrastructure/         # ── LAYER INFRASTRUCTURE (implementazioni) ────────
+│   │   ├── DependencyInjection/ServiceCollectionExtensions.cs   # AddInfrastructure()
+│   │   ├── Persistence/
+│   │   │   ├── Context/ApplicationDbContext.cs
+│   │   │   ├── Configurations/         # mapping EF: User, RefreshToken, SharedLink, Subscription,
+│   │   │   │                           #             SubscriptionHistory, UserMedia, OutboxMessage
+│   │   │   ├── UnitOfWork/EFUnitOfWork.cs       # SaveChanges + domain events → Outbox
+│   │   │   └── Outbox/OutboxMessage.cs
+│   │   ├── Repositories/Implementations/        # UserRepository, SubscriptionRepository, UserMediaRepository
+│   │   ├── DataLoaders/
+│   │   │   ├── Aggregates/             # SubscriptionAggregateLoader, UserAggregateLoader (query parallele)
+│   │   │   ├── Batch/                  # SubscriptionBatchLoader, SharedLinkBatchLoader (finestra 5 ms)
+│   │   │   └── Projections/            # *ProjectionLoader + Views/*ProjectionView
+│   │   ├── Caching/QueryCache.cs       # cache per-request
+│   │   ├── Identity/Services/          # JwtTokenService, AspNetPasswordHasherService
+│   │   ├── External/Storage/           # CloudflareR2StorageService (in uso), HetznerObjectStorageService
+│   │   ├── Pipeline/SentryTracingBehavior.cs    # behavior MediatR più interno
+│   │   ├── Background/OutboxProcessor.cs        # BackgroundService (registrazione commentata)
+│   │   ├── Mapping/                    # *Mapper_OLDbutdontdelete.cs (backup)
+│   │   └── Messaging/                  # MediatREventDispatcher_OLDbutdontdelete.cs (backup)
+│   │
+│   └── SubSnap.Core/                   # ── LAYER DOMAIN (nessuna dipendenza) ─────────────
+│       ├── AssemblyInfo.cs
+│       ├── Domain/
+│       │   ├── Common/                 # AggregateRoot, IDomainEvent
+│       │   ├── Entities/               # User, RefreshToken, SharedLink, Subscription,
+│       │   │                           # SubscriptionHistory, UserMedia
+│       │   ├── ValueObjects/           # UserId, Email, PasswordHash, SubscriptionId, SubscriptionHistoryId,
+│       │   │                           # RefreshTokenId, SharedLinkId, UserMediaId
+│       │   ├── Aggregates/             # modelli di lettura: UserAggregate, UserFullAggregate,
+│       │   │                           # UserSubscriptionsAggregate, SubscriptionAggregate, …
+│       │   ├── Events/Users/           # UserRegisteredEvent + UserRegisteredHandler
+│       │   └── Exceptions/             # DomainException, NotFoundException, EmailAlreadyRegisteredException
+│       └── DTOsOLDNOWISIN.Application_dontdeletebackup/   # backup non usato
+│
+└── tests/
+    └── test1/                          # xUnit, handler testati con mock dei Ports
+        ├── Subscriptions/              # CreateSub / UpdateSub / DeleteSub HandlerTests
+        └── Users/                      # UpdateUserProfileHandlerTests
+```
